@@ -1,14 +1,16 @@
-WITH status AS (
+with
 
-    SELECT * FROM {{ source('formula1','status') }}
+source  as (
 
-), 
+    select * from {{ source('formula1','status') }}
 
-renamed AS (
-    SELECT 
-        status_id AS status_id,
-        status 
-    FROM status
+),
+
+renamed as (
+    select
+        statusid as status_id,
+        status
+    from source
 )
 
-SELECT * FROM renamed 
+select * from renamed
