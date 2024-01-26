@@ -1,30 +1,32 @@
 with
 
-    results as (select * from {{ source('formula1', 'results') }}),
+source  as (
 
-    renamed as (
-        select
-            result_id as result_id,
-            race_id as race_id,
-            driver_id as driver_id,
-            constructor_id as constructor_id,
-            number as driver_number,
-            grid,
-            --position::int as position,
-            iff(contains(position, '\N'), null, position) as driver_position,
-            position_text as position_text,
-            position_order as position_order,
-            points,
-            laps,
-            iff(contains("TIME", '\N'), null, "TIME") as race_time,
-            iff(contains(milliseconds, '\N'), null, milliseconds) as milliseconds,
-            iff(contains(fastest_lap, '\N'), null, fastest_lap) as fastest_lap,
-            "RANK" as driver_rank,
-            iff(contains(fastest_lap_time, '\N'),null,{{ convert_laptime("fastest_lap_time") }}) as fastest_lap_time,
-            iff(contains(fastest_lap_speed, '\N'), null, fastest_lap_speed) as fastest_lap_speed,
-            status_id as status_id
-        from results
-    )
+    select * from {{ source('formula1','results') }}
 
-select *
-from renamed
+),
+
+renamed as (
+    select
+        resultid as result_id,
+        raceid as race_id,
+        driverid as driver_id,
+        constructorid as constructor_id,
+        number as driver_number,
+        grid,
+        position::int as position,
+        positiontext as position_text,
+        positionorder as position_order,
+        points,
+        laps,
+        time as results_time_formatted,
+        milliseconds as results_milliseconds,
+        fastestlap as fastest_lap,
+        rank as results_rank,
+        fastestlaptime as fastest_lap_time_formatted,
+        fastestlapspeed::decimal(6,3) as fastest_lap_speed,
+        statusid as status_id
+    from source
+)
+
+select * from renamed
