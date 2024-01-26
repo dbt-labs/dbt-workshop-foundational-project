@@ -1,4 +1,6 @@
-orders as (
+with orders as (
+    select * from {{ source('jaffle_shop', 'orders') }}
+    )
 
     select
         id as order_id,
@@ -7,4 +9,4 @@ orders as (
         status,
         _etl_loaded_at
 
-    from raw.jaffle_shop.orders
+    from orders
