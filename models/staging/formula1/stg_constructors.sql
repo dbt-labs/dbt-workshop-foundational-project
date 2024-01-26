@@ -1,16 +1,19 @@
 with
 
-    constructors as (select * from {{ source('formula1', 'constructors') }}),
+source  as (
 
-    renamed as (
-        select
-            constructor_id as constructor_id,
-            constructor_ref as constructor_ref,
-            name as constructor_name,
-            nationality as constructor_nationality, 
-            url as constructor_url
-        from constructors
-    )
+    select * from {{ source('formula1','constructors') }}
 
-select *
-from renamed
+),
+
+renamed as (
+    select
+        constructorid as constructor_id,
+        constructorref as constructor_ref,
+        name as constructor_name,
+        nationality as constructor_nationality
+        -- omit the url
+    from source
+)
+
+select * from renamed
