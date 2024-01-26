@@ -15,7 +15,7 @@ int_pit_stops as (
 
 circuits as (
 
-    select * from {{ ref('stg_f1_circuits') }}
+    select * from {{ ref('stg_circuits') }}
 ),
 base_results as (
     select
