@@ -3,8 +3,8 @@ version: 2
 sources:
   - name: formula1
     description: formula 1 datasets with normalized tables 
-    database: formula1 
-    schema: raw
+    database: raw
+    schema: formula1
     tables:
 
       - name: circuits
