@@ -1,0 +1,12 @@
+sources:
+  - name: tpch
+    description: "TPCH data source from Snowflake Sample Data"
+    database: snowflake_sample_data
+    schema: tpch_sf1
+    tables:
+      - name: orders
+        description: "One record per order"
+      - name: customer
+        description: "One record per customer"
+      - name: lineitem
+        description: "One record per line item within a single order (1 -> n)"
