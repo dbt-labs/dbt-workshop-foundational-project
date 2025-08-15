@@ -1,0 +1,7 @@
+models:
+  - name: fct_orders
+    description: "This model contains order information from the transactional systems of the company."
+    
+    # Model access setting
+    access: public
+    
