@@ -10,9 +10,9 @@ models:
       contract:
         enforced: true
       
-      # Grant setting
-      grants:
-        select: ['foundational_pii_reader_role', 'finance_role']
+      # # Grant setting
+      # grants:
+      #   select: ['foundational_pii_reader_role', 'finance_role']
     
     columns:
       - name: order_key
