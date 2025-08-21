@@ -1,0 +1,72 @@
+models:
+  - name: fct_orders
+    description: "This model contains order information from the transactional systems of the company."
+    
+    # Model access setting
+    access: public
+    
+    config:
+      # Model contract setting
+      contract:
+        enforced: true
+      
+      # Grant setting
+
+    
+    columns:
+      - name: order_key
+        data_type: int
+        description: "The unique identifier for each order"
+        tests:
+          - unique
+          - not_null
+
+      - name: order_date
+        data_type: date
+        description: "The date and time when the order was placed"
+
+      - name: customer_key
+        data_type: int
+        description: "The identifier for the customer who placed the order"
+        tests:
+          - not_null
+
+      - name: status_code
+        data_type: varchar
+        description: "A code representing the current status of the order"
+
+      - name: priority_code
+        data_type: varchar
+        description: "A code indicating the priority level of the order"
+
+      - name: ship_priority
+        data_type: int
+        description: "The priority level for shipping the order"
+
+      - name: clerk_name
+        data_type: varchar
+        description: "The name of the clerk responsible for processing the order"
+
+      - name: name
+        data_type: varchar
+        description: "The name associated with the order, such as the product name or order name"
+
+      - name: market_segment
+        data_type: varchar
+        description: "The segment of the market to which the order is targeted or classified"
+
+      - name: gross_item_sales_amount
+        data_type: numeric(38, 3)
+        description: "The total sales amount for items in the order before any discounts or taxes"
+
+      - name: item_discount_amount
+        data_type: numeric(38, 3)
+        description: "The total discount amount applied to items in the order"
+
+      - name: item_tax_amount
+        data_type: numeric(38, 3)
+        description: "The total tax amount applied to items in the order"
+
+      - name: net_item_sales_amount
+        data_type: numeric(38, 3)
+        description: "The total sales amount for items in the order after discounts and taxes have been applied"
