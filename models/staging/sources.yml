@@ -10,3 +10,10 @@ sources:
         description: "One record per customer"
       - name: lineitem
         description: "One record per line item within a single order (1 -> n)"
+
+      # new source tables
+      - name: nation
+      - name: part
+      - name: partsupp
+      - name: region
+      - name: supplier
