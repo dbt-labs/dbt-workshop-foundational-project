@@ -1,0 +1,14 @@
+models:
+- name: monthly_summary
+  description: This model provides a monthly summary of total revenue generated from
+    orders, segmented by market. It aggregates the net item sales amount for each
+    market segment within each month, offering insights into revenue trends over time.
+  columns:
+  - name: order_month
+    description: The month in which the orders were placed, truncated to the first
+      day of the month.
+  - name: market_segment
+    description: The market segment to which the order belongs.
+  - name: total_revenue
+    description: The total revenue generated from net item sales within the specified
+      month and market segment.
