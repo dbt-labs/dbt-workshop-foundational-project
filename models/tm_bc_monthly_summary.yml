@@ -1,0 +1,19 @@
+models:
+  - name: tm_bc_monthly_summary
+    description: This model provides a monthly summary of net sales by market segment.
+      It aggregates the net item sales amount from orders, grouped by the month of the
+      order date and market segment, to facilitate analysis of sales trends over time.
+    columns:
+      - name: order_month
+        description: The month in which the order was placed, truncated to the first day
+          of the month.
+        data_tests:
+          - not_null
+      - name: market_segment
+        description: The market segment to which the order belongs.
+        data_tests:
+          - not_null
+      - name: total_net_sales
+        description: The total net sales amount for the specified month and market segment.
+        data_tests:
+          - not_null
