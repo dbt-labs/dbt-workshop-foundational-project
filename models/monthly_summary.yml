@@ -1,0 +1,34 @@
+models:
+- name: monthly_summary
+  description: This model provides a monthly summary of sales data, aggregating key
+    financial metrics such as gross sales, discounts, taxes, and net sales by market
+    segment. It is useful for analyzing sales performance and trends over time within
+    different market segments.
+  columns:
+  - name: order_month
+    description: The month in which the orders were placed, truncated to the first
+      day of the month.
+    data_tests:
+      - not_null
+  - name: market_segment
+    description: The market segment to which the sales data belongs.
+    data_tests:
+      - not_null
+  - name: total_gross_sales
+    description: The total gross sales amount for the month and market segment.
+    data_tests:
+      - not_null
+  - name: total_discounts
+    description: The total discount amount applied to sales for the month and market
+      segment.
+    data_tests:
+      - not_null
+  - name: total_taxes
+    description: The total tax amount applied to sales for the month and market segment.
+    data_tests:
+      - not_null
+  - name: total_net_sales
+    description: The total net sales amount after discounts and taxes for the month
+      and market segment.
+    data_tests:
+      - not_null
