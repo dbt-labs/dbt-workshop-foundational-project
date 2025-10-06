@@ -35,3 +35,14 @@ clean-targets:         # directories to be removed by `dbt clean`
 models:
   foundational_project:
     +materialized: view
+    
+    staging:
+      tags: ['silver']
+
+    marts:
+      tags: ['gold']
+      +materialized: table
+
+      finance:
+        tags: ['finance', 'hourly']
+        +materialized: table
