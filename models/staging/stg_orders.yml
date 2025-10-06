@@ -1,0 +1,30 @@
+models:
+- name: stg_orders
+  description: This model serves as a staging layer for order data, transforming and
+    renaming fields from the source 'tpch.orders' table to ensure consistency and
+    readability. It prepares the data for further analysis and reporting by standardizing
+    field names and formats.
+  columns:
+  - name: order_key
+    description: A unique identifier for each order.
+    data_tests:
+      - unique
+      - not_null
+  - name: customer_key
+    description: A unique identifier for the customer associated with the order.
+    data_tests:
+      - not_null
+  - name: status_code
+    description: The current status of the order, represented by a code.
+  - name: total_price
+    description: The total price of the order.
+  - name: order_date
+    description: The date when the order was placed.
+  - name: clerk_name
+    description: The name of the clerk who handled the order.
+  - name: priority_code
+    description: The priority level of the order, represented by a code.
+  - name: ship_priority
+    description: The shipping priority assigned to the order.
+  - name: comment
+    description: Additional comments or notes about the order.

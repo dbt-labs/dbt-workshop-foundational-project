@@ -1,3 +1,10 @@
+{{
+    config(
+        materialized='incremental',
+        unique_key='order_key'
+    )
+}}
+
 with source as (
 
     select * from {{ source('tpch', 'orders') }}
@@ -23,3 +30,8 @@ renamed as (
 )
 
 select * from renamed
+
+{% if is_incremental() %}
+    -- this filter will only be applied on an incremental run
+    where order_date > (select max(order_date) from {{ this }}) 
+{% endif %}
