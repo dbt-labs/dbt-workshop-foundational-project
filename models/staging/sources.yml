@@ -1,5 +1,5 @@
 sources:
-  - name: tpch
+  - name: tpch #friendly name
     description: "TPCH data source from Snowflake Sample Data"
     database: snowflake_sample_data
     schema: tpch_sf1
@@ -10,3 +10,8 @@ sources:
         description: "One record per customer"
       - name: lineitem
         description: "One record per line item within a single order (1 -> n)"
+      - name: nation
+      - name: part
+      - name: partsupp
+      - name: supplier
+      - name: region

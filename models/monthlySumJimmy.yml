@@ -1,0 +1,29 @@
+models:
+- name: monthlysumjimmy
+  description: this model aggregates monthly revenue by market segment for completed
+    orders. it combines data from orders, line items, and customers to calculate the
+    total revenue for each market segment within each month.
+  columns:
+  - name: order_month
+    description: the month in which the order was completed, truncated to the first
+      day of the month.
+    data_tests:
+      - not_null
+      - unique
+      #- relationships:
+       #   field: <FORIEGN_KEY_COLUMN>
+        #  to: ref('')
+        #-accepted_values:
+         # values:
+          #  - east,west,north,south
+        #data_tests: 
+         #   - not null
+  - name: market_segment
+    description: the market segment associated with the customer who placed the order.
+    data_tests:
+      - not_null
+  - name: total_revenue
+    description: the total net revenue generated from completed orders within the
+      specified month and market segment.
+    data_tests:
+      - not_null
