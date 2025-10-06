@@ -1,0 +1,25 @@
+models:
+- name: dim_customers
+  description: This model provides a comprehensive view of customers by integrating
+    customer details with their respective nation and region information. It is useful
+    for analyzing customer demographics and market segments.
+  columns:
+  - name: customer_key
+    description: A unique identifier for each customer.
+    data_tests:
+      - unique
+      - not_null
+  - name: name
+    description: The name of the customer.
+  - name: address
+    description: The address of the customer.
+  - name: nation
+    description: The nation where the customer is located.
+  - name: region
+    description: The region where the customer is located.
+  - name: phone_number
+    description: The contact phone number of the customer.
+  - name: account_balance
+    description: The current account balance of the customer.
+  - name: market_segment
+    description: The market segment to which the customer belongs.
