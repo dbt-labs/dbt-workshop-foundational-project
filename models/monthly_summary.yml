@@ -1,0 +1,20 @@
+models:
+  - name: monthly_summary
+    description: 
+      The month in which the orders were placed, truncated to the first day of the month.
+    columns:
+      - name: order_month
+        description: 
+          month
+        data_tests:
+          - not_null
+      - name: market_segment
+        description: 
+          test
+        data_tests:
+          - not_null
+      - name: total_revenue
+        description: 
+          sum of revenue per month per market segment
+        data_tests:
+          - not_null
