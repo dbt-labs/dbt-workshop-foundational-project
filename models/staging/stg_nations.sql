@@ -1,0 +1,7 @@
+select
+    n_nationkey as nation_key,
+    n_name as name,
+    n_regionKey as region_key,
+    n_comment as comment
+    
+from {{ source('tpch', 'nation') }}
