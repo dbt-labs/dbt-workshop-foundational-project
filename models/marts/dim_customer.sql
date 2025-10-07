@@ -1,10 +1,4 @@
--- {{
---     config(
---         tags: ['daily', 'finance']
---         materialized = 'incremental' 
---     )
--- }}
--- all model relate to this model will also have affect
+
 with customer as (
     select * from {{ ref('stg_customers') }}
 ),
@@ -17,16 +11,17 @@ region as (
 
 select
     customer.customer_key,
-    customer.customer_key,
+    -- customer.customer_key,
     customer.address,
     nation.name as nation,
     region.name as region,
     customer.phone_number,
     customer.account_balance,
     customer.market_segment
+
 from 
     customer
-    inner join nation_key
+    inner join nation
         on customer.nation_key = nation.nation_key
     inner join region
         on nation.region_key = region.region_key
