@@ -1,4 +1,4 @@
-with customers as (
+with customer as (
     select * from {{ref("stg_customers")}}
 ),
 nation as(

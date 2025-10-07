@@ -1,5 +1,5 @@
 select 
  r_regionkey as region_key
-,r_name as r_name
-,r_comment as r_comment
+,r_name as name
+,r_comment as comment
 from {{source("tpch","region")}}
