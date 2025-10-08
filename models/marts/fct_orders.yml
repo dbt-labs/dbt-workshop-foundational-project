@@ -1,0 +1,45 @@
+models:
+- name: fct_orders
+  access: public
+  description: This model consolidates order information by joining data from orders,
+    line items, and customers. It provides a comprehensive view of each order, including
+    sales amounts, discounts, taxes, and customer details, facilitating analysis of
+    sales performance and customer segmentation.
+  columns:
+  - name: order_key
+    description: A unique identifier for each order.
+    data_tests:
+      - unique
+      - not_null
+  - name: order_date
+    description: The date when the order was placed.
+    data_tests:
+      - not_null
+  - name: customer_key
+    description: A unique identifier for each customer associated with the order.
+    data_tests:
+      - not_null
+  - name: status_code
+    description: The current status of the order.
+  - name: priority_code
+    description: The priority level assigned to the order.
+  - name: ship_priority
+    description: The shipping priority for the order.
+  - name: clerk_name
+    description: The name of the clerk who processed the order.
+  - name: name
+    description: The name of the customer who placed the order.
+  - name: market_segment
+    description: The market segment to which the customer belongs.
+  - name: gross_item_sales_amount
+    description: The total gross sales amount for items in the order.
+  - name: item_discount_amount
+    description: The total discount amount applied to items in the order.
+  - name: item_tax_amount
+    description: The total tax amount applied to items in the order.
+  - name: net_item_sales_amount
+    description: The total net sales amount for items in the order after discounts
+      and taxes.
+    data_tests:
+    - dbt_expectations.expect_column_values_to_be_between:
+        min_value: 0  # (Optional)

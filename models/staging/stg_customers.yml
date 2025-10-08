@@ -1,0 +1,23 @@
+models:
+  - name: stg_customers
+    description: This model serves as a staging layer for customer data, transforming and cleaning the raw data from the source system. It standardizes customer information for further analysis and reporting.
+    columns:
+      - name: customer_key
+        description: A unique identifier for each customer, ensuring distinct customer records.
+        data_tests:
+          - unique
+          - not_null
+      - name: name
+        description: The full name of the customer.
+      - name: address
+        description: The residential or business address of the customer.
+      - name: nation_key
+        description: A reference to the customer's nation, used for geographical segmentation.
+      - name: phone_number
+        description: The contact phone number of the customer.
+      - name: account_balance
+        description: The current balance in the customer's account, indicating financial status.
+      - name: market_segment
+        description: The market segment to which the customer belongs, used for targeted marketing.
+      - name: comment
+        description: Additional comments or notes about the customer.
