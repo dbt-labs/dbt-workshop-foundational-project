@@ -1,0 +1,15 @@
+models:
+- name: orders_analysis
+  description: This model provides a monthly summary of orders by truncating the order
+    date to the month level. It is useful for analyzing order trends over time, particularly
+    focusing on the order month and priority code.
+  columns:
+  - name: order_month
+    description: The month in which the order was placed, truncated from the order
+      date.
+    data_tests:
+      - not_null
+  - name: priority_code
+    description: The code indicating the priority level of the order.
+    data_tests:
+      - not_null
