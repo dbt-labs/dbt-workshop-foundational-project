@@ -1,0 +1,10 @@
+models:
+- name: order_analysis
+  description: This model provides a monthly summary of urgent orders, helping to
+    track and analyze the frequency of high-priority orders over time.
+  columns:
+  - name: order_month
+    description: The month in which the orders were placed, truncated to the first
+      day of the month.
+  - name: urgent_order_count
+    description: The total number of urgent orders placed within the month.
