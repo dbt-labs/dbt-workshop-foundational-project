@@ -1,0 +1,12 @@
+models:
+- name: order_analysis
+  description: This model aggregates urgent orders by month, providing insights into the volume of high-priority orders over time.
+  columns:
+  - name: order_month
+    description: The month during which the orders were placed, truncated to the first day of the month.
+    data_tests:
+      - not_null
+  - name: urgent_order_count
+    description: The total number of urgent orders placed within the specified month.
+    data_tests:
+      - not_null
