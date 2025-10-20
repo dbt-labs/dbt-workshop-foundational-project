@@ -1,0 +1,12 @@
+models:
+  - name: urgent_order_analysis
+    columns:
+      - name: order_month
+        data_tests:
+          - not_null
+      - name: market_segment
+        data_tests:
+          - not_null
+      - name: urgent_order_count
+        data_tests:
+          - not_null
