@@ -1,0 +1,20 @@
+models:
+- name: urgent_orders
+  description: This model provides a monthly summary of urgent orders, categorized
+    by market segment. It helps in understanding the distribution and frequency of
+    urgent orders across different market segments.
+  columns:
+  - name: order_month
+    description: The month during which the orders were placed, truncated to the first
+      day of the month.
+    data_tests:
+      - not_null
+  - name: market_segment
+    description: The market segment to which the order belongs.
+    data_tests:
+      - not_null
+  - name: urgent_order_count
+    description: The total number of urgent orders placed in the specified month and
+      market segment.
+    data_tests:
+      - not_null
