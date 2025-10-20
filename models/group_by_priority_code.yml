@@ -1,0 +1,13 @@
+models:
+- name: group_by_priority_code
+  description: This model aggregates urgent orders by month and market segment, providing
+    insights into the volume of high-priority orders over time.
+  columns:
+  - name: order_month
+    description: The month in which the order was placed, truncated to the first day
+      of the month.
+  - name: market_segment
+    description: The market segment to which the order belongs.
+  - name: urgent_order_count
+    description: The total number of urgent orders placed in the specified month and
+      market segment.
