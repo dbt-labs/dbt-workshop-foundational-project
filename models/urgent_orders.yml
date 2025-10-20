@@ -1,0 +1,10 @@
+models:
+  - name: urgent_orders
+    description: This model retrieves all records from the 'fct_orders' table, focusing on orders that require immediate attention. It is used to identify and manage orders that are marked as urgent, ensuring they are prioritized in processing and fulfillment.
+    columns:
+      - name: order_month
+        description: The month in which the order was placed, truncated to the first day of the month.
+      - name: market_segment
+        description: The market segment to which the order belongs.
+      - name: urgent_order_count
+        description: The total number of urgent orders within the specified month and market segment.
