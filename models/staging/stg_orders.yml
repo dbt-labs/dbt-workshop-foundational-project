@@ -1,0 +1,17 @@
+models:
+  - name: stg_orders
+    columns:
+      - name: order_key
+        data_tests:
+          - unique
+          - not_null
+      - name: customer_key
+        data_tests:
+          - not_null
+      - name: status_code
+      - name: total_price
+      - name: order_date
+      - name: clerk_name
+      - name: priority_code
+      - name: ship_priority
+      - name: comment
