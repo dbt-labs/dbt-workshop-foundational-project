@@ -22,4 +22,4 @@ renamed as (
 
 )
 
-select * from renamed
+select *,1 as new_col from renamed
