@@ -1,0 +1,45 @@
+semantic_models:
+  - name: orders
+    description: |
+      Order fact table at the order level.  This table contains one row
+      per order and includes the order key
+    model: ref('fct_orders')
+    defaults:
+      agg_time_dimension: order_time
+    
+    entities:
+      - name: customer_order
+        type: primary
+        expr: order_key
+      - name: customer
+        type: foreign
+        expr: customer_key
+
+    dimensions:
+      - name: order_time
+        type: time
+        type_params:
+          time_granularity: hour
+
+      - name: order_status_code
+        description: Indicates the status of the order
+        type: categorical
+        expr: status_code
+
+      - name: order_priority_code
+        description: Indicates the priority of the order
+        type: categorical
+        expr: priority_code
+      
+      - name: clerk_on_order
+        description: The clerk on the order
+        type: categorical
+        expr: clerk_name
+      
+    measures:
+      - name: total_revenue
+        agg: sum
+        expr: gross_item_sales_amount
+      - name: total_customers
+        agg: count_distinct
+        expr: customer_key
