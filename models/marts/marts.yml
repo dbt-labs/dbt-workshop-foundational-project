@@ -1,0 +1,74 @@
+models:
+  - name: dim_customers
+    description: This model consolidates customer information by joining customer data with nation data, providing a comprehensive view of customers along with their respective nations.
+    columns:
+      - name: customer_key
+        description: A unique identifier for each customer.
+        data_tests:
+          - unique
+          - not_null
+      - name: name
+        description: The full name of the customer.
+        data_tests:
+          - not_null
+      - name: address
+        description: The residential address of the customer.
+        data_tests:
+          - not_null
+      - name: nation_key
+        description: A reference key linking the customer to their nation.
+        data_tests:
+          - not_null
+      - name: nation
+        description: The name of the nation associated with the customer.
+        data_tests:
+          - not_null
+  - name: fct_orders
+    description: This model consolidates order data, customer information, and order
+      item summaries to provide a comprehensive view of each order. It includes details
+      such as order date, customer information, and financial metrics related to the
+      order items, which can be used for sales analysis and customer segmentation.
+    columns:
+    - name: order_key
+      description: A unique identifier for each order.
+      data_tests:
+        - unique
+        - not_null
+    - name: order_date
+      description: The date when the order was placed.
+      data_tests:
+        - not_null
+    - name: customer_key
+      description: A unique identifier for each customer associated with the order.
+      data_tests:
+        - not_null
+        - relationships:
+            to: ref('stg_customers')
+            field: customer_key
+    - name: status_code
+      description: The current status of the order.
+      data_tests: 
+        - accepted_values:
+            values: 
+              - O 
+              - P
+              - F
+    - name: priority_code
+      description: The priority level assigned to the order.
+    - name: ship_priority
+      description: The shipping priority level for the order.
+    - name: clerk_name
+      description: The name of the clerk who processed the order.
+    - name: name
+      description: The name of the customer who placed the order.
+    - name: market_segment
+      description: The market segment to which the customer belongs.
+    - name: gross_item_sales_amount
+      description: The total gross sales amount for the items in the order.
+    - name: item_discount_amount
+      description: The total discount amount applied to the items in the order.
+    - name: item_tax_amount
+      description: The total tax amount applied to the items in the order.
+    - name: net_item_sales_amount
+      description: The total net sales amount for the items in the order after discounts
+        and taxes.
