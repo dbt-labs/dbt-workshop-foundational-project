@@ -49,10 +49,8 @@ models:
       description: The current status of the order.
       data_tests: 
         - accepted_values:
-            values: 
-              - O 
-              - P
-              - F
+            arguments: 
+              values: ["F","O","P"] 
     - name: priority_code
       description: The priority level assigned to the order.
     - name: ship_priority

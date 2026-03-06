@@ -1,0 +1,7 @@
+metrics: 
+  - name: total_revenue
+    type: simple
+    label: my_revenue
+    type_params: 
+      measure: total_revenue
+
