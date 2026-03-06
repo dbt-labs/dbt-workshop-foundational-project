@@ -19,7 +19,7 @@ semantic_models:
 
     dimensions:
       - name: order_date
-        type: date
+        type: time
         type_params:
           time_granularity: day
 
