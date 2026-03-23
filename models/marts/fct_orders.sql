@@ -44,7 +44,7 @@ final as (
         orders.priority_code,
         orders.ship_priority,
         orders.clerk_name,
-        customers.name,
+        customers.name as customer_name,
         customers.market_segment,
         order_item_summary.gross_item_sales_amount,
         order_item_summary.item_discount_amount,
