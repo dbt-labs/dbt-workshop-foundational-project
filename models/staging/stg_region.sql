@@ -9,10 +9,10 @@ source as (
 renamed as (
 
     select
-        r_regionkey,
-        r_name,
-        r_comment
-
+       r_regionkey as region_key,
+       r_name as region,
+       r_comment as region_comment
+       
     from source
 
 )
