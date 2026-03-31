@@ -1,0 +1,16 @@
+models:
+  - name: monthly_sales
+    description: This model aggregates sales data on a monthly basis, providing insights into revenue trends across different market segments.
+    columns:
+      - name: order_month
+        description: The month in which the order was placed.
+        data_tests:
+          - not_null
+      - name: market_segment
+        description: The market segment to which the sale belongs.
+        data_tests:
+          - not_null
+      - name: total_revenue
+        description: The total revenue generated from sales in the specified month and market segment.
+        data_tests:
+          - not_null
