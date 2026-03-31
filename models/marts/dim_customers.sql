@@ -3,7 +3,7 @@ with
 
     nation as (select * from {{ ref("stg_nation") }}),
 
-    region as (select * from {{ ref("stg_tpch_region") }})
+    region as (select * from {{ ref("stg_region") }})
 
 select
     customer.customer_key,
