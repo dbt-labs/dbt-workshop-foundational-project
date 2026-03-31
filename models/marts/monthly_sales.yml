@@ -1,0 +1,12 @@
+models:
+  - name: monthly_sales
+    columns:
+      - name: ORDER_MONTH
+        data_tests:
+          - not_null
+      - name: MARKET_SEGMENT
+        data_tests:
+          - not_null
+      - name: TOTAL_REVENUE
+        data_tests:
+          - not_null
