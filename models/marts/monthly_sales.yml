@@ -1,0 +1,15 @@
+models:
+- name: monthly_sales
+  description: This model aggregates sales data on a monthly basis to provide insights
+    into sales trends and performance over time. It is useful for analyzing monthly
+    sales patterns and making informed business decisions.
+  columns:
+    - name: ORDER_MONTH
+      data_tests:
+        - not_null
+    - name: MARKET_SEGMENT
+      data_tests:
+        - not_null
+    - name: TOTAL_REVENUE
+      data_tests:
+        - not_null
