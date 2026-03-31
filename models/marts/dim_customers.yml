@@ -1,0 +1,25 @@
+models:
+- name: dim_customers
+  description: This model consolidates customer information by joining customer data
+    with nation and region details. It provides a comprehensive view of customer demographics
+    and financials, useful for customer segmentation and analysis.
+  columns:
+  - name: customer_key
+    description: A unique identifier for each customer.
+    data_tests:
+      - unique
+      - not_null
+  - name: name
+    description: The full name of the customer.
+  - name: address
+    description: The residential address of the customer.
+  - name: nation
+    description: The nation associated with the customer.
+  - name: region
+    description: The region associated with the customer's nation.
+  - name: phone_number
+    description: The contact phone number of the customer.
+  - name: account_balance
+    description: The current balance in the customer's account.
+  - name: market_segment
+    description: The market segment to which the customer belongs.

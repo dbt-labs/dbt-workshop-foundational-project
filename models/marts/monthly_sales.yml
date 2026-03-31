@@ -1,0 +1,16 @@
+models:
+  - name: monthly_sales
+    description: This model provides a summary of total revenue generated each month, segmented by market. It is useful for analyzing monthly sales performance across different market segments.
+    columns:
+      - name: ORDER_MONTH
+        description: The month in which the order was placed.
+        data_tests:
+          - not_null
+      - name: MARKET_SEGMENT
+        description: The market segment to which the order belongs.
+        data_tests:
+          - not_null
+      - name: TOTAL_REVENUE
+        description: The total revenue generated from orders in the specified month and market segment.
+        data_tests:
+          - not_null
