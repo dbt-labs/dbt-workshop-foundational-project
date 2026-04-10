@@ -1,0 +1,28 @@
+version: 2
+
+models:
+  - name: stg_customers
+    description: |
+      This table contains all customer data. 
+    config:
+      contract:
+        enforced: true
+    columns:
+      - name: customer_key
+        data_type: int
+        constraints:
+          - type: not_null
+      - name: name
+        data_type: string
+      - name: address
+        data_type: string
+      - name: nation_key
+        data_type: int
+      - name: phone_number
+        data_type: string
+      - name: account_balance
+        data_type: digit
+      - name: market_segment
+        data_type: string
+      - name: comment
+        data_type: string
