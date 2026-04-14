@@ -1,26 +1,104 @@
 version: 2
 
 models:
+  - name: fct_orders
+    description: Order-level fact model with one row per order, enriched with customer attributes and aggregated line item sales amounts.
+    columns:
+      - name: order_key
+        description: Unique identifier for the order and the grain of the model.
+        data_tests:
+          - not_null
+          - unique
+
+      - name: order_date
+        description: Date the order was placed.
+        data_tests:
+          - not_null
+
+      - name: customer_key
+        description: Identifier for the customer who placed the order.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_customers')
+                field: customer_key
+
+      - name: status_code
+        description: Current lifecycle status of the order.
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ['F', 'O', 'P']
+
+      - name: priority_code
+        description: Priority assigned to the order.
+
+      - name: ship_priority
+        description: Shipping priority value associated with the order.
+
+      - name: clerk_name
+        description: Clerk responsible for processing the order.
+
+      - name: name
+        description: Customer name associated with the order.
+        data_tests:
+          - not_null
+          
+      - name: market_segment
+        description: Market segment for the customer associated with the order.
+
+      - name: gross_item_sales_amount
+        description: Sum of gross item sales amount across all line items on the order.
+        data_tests:
+          - not_null
+
+      - name: item_discount_amount
+        description: Sum of item-level discount amounts across all line items on the order.
+        data_tests:
+          - not_null
+
+      - name: item_tax_amount
+        description: Sum of item-level tax amounts across all line items on the order.
+        data_tests:
+          - not_null
+
+      - name: net_item_sales_amount
+        description: Sum of net item sales amount across all line items on the order.
+        data_tests:
+          - not_null
+
   - name: monthly_sales
     description: Monthly summary of order activity and sales amounts derived from `fct_orders`.
     columns:
       - name: order_month
         description: First day of the month representing the aggregation period for the row.
-        tests:
+        data_tests:
           - not_null
           - unique
 
       - name: order_count
         description: Number of orders in the month.
+        data_tests:
+          - not_null
 
       - name: gross_sales_amount
         description: Sum of gross item sales amount for orders in the month before discounts and taxes.
+        data_tests:
+          - not_null
 
       - name: discount_amount
         description: Sum of item-level discount amounts for orders in the month.
+        data_tests:
+          - not_null
 
       - name: tax_amount
         description: Sum of item-level tax amounts for orders in the month.
+        data_tests:
+          - not_null
 
       - name: revenue
         description: Sum of net item sales amount for orders in the month.
+        data_tests:
+          - not_null

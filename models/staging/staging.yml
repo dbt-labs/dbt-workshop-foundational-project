@@ -1,0 +1,85 @@
+version: 2
+
+models:
+  - name: stg_customers
+    description: Staged customer records from TPCH.
+    columns:
+      - name: customer_key
+        data_tests:
+          - not_null
+          - unique
+
+  - name: stg_orders
+    description: Staged order records from TPCH.
+    columns:
+      - name: order_key
+        data_tests:
+          - not_null
+          - unique
+      - name: customer_key
+        data_tests:
+          - not_null
+
+  - name: stg_line_items
+    description: Staged line item records from TPCH.
+    columns:
+      - name: order_key
+        data_tests:
+          - not_null
+      - name: part_key
+        data_tests:
+          - not_null
+      - name: supplier_key
+        data_tests:
+          - not_null
+      - name: line_number
+        data_tests:
+          - not_null
+
+  - name: stg_nations
+    description: Staged nation dimension rows from TPCH.
+    columns:
+      - name: nation_key
+        data_tests:
+          - not_null
+          - unique
+      - name: region_key
+        data_tests:
+          - not_null
+
+  - name: stg_regions
+    description: Staged region dimension rows from TPCH.
+    columns:
+      - name: region_key
+        data_tests:
+          - not_null
+          - unique
+
+  - name: stg_suppliers
+    description: Staged supplier dimension rows from TPCH.
+    columns:
+      - name: supplier_key
+        data_tests:
+          - not_null
+          - unique
+      - name: nation_key
+        data_tests:
+          - not_null
+
+  - name: stg_parts
+    description: Staged part dimension rows from TPCH.
+    columns:
+      - name: part_key
+        data_tests:
+          - not_null
+          - unique
+
+  - name: stg_part_suppliers
+    description: Staged part-supplier bridge rows from TPCH.
+    columns:
+      - name: part_key
+        data_tests:
+          - not_null
+      - name: supplier_key
+        data_tests:
+          - not_null
