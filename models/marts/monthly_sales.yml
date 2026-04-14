@@ -1,0 +1,20 @@
+version: 2
+
+models:
+  - name: monthly_sales
+    description: One row per calendar month summarizing order volume, active customers, and sales amounts from fct_orders.
+    columns:
+      - name: order_month
+        description: First day of the calendar month for the aggregated orders.
+      - name: order_count
+        description: Number of orders placed in the month.
+      - name: customer_count
+        description: Number of distinct customers who placed an order in the month.
+      - name: gross_item_sales_amount
+        description: Total gross sales amount for orders placed in the month before discounts and tax.
+      - name: item_discount_amount
+        description: Total discount amount for orders placed in the month.
+      - name: item_tax_amount
+        description: Total tax amount for orders placed in the month.
+      - name: net_item_sales_amount
+        description: Total net sales amount for orders placed in the month after discounts and tax.

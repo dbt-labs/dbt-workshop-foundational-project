@@ -1,0 +1,102 @@
+version: 2
+
+models:
+  - name: stg_customers
+    description: One row per customer from the TPCH customer source with cleaned column names.
+    columns:
+      - name: customer_key
+        description: Primary key for the customer.
+        data_tests:
+          - not_null
+          - unique
+      - name: nation_key
+        description: Foreign key to the customer's nation.
+
+  - name: stg_line_items
+    description: One row per order line item from the TPCH lineitem source with pricing fields derived for downstream marts.
+    columns:
+      - name: order_key
+        description: Foreign key to the order.
+        data_tests:
+          - not_null
+      - name: part_key
+        description: Foreign key to the part.
+      - name: supplier_key
+        description: Foreign key to the supplier.
+      - name: line_number
+        description: Sequential line number within the order.
+      - name: net_item_sales_amount
+        description: Net sales amount for the line item after discount and tax.
+
+  - name: stg_nations
+    description: One row per nation from the TPCH nation source with cleaned column names.
+    columns:
+      - name: nation_key
+        description: Primary key for the nation.
+        data_tests:
+          - not_null
+          - unique
+      - name: region_key
+        description: Foreign key to the region.
+
+  - name: stg_orders
+    description: One row per order from the TPCH orders source with cleaned column names.
+    columns:
+      - name: order_key
+        description: Primary key for the order.
+        data_tests:
+          - not_null
+          - unique
+      - name: customer_key
+        description: Foreign key to the customer who placed the order.
+      - name: order_date
+        description: Date the order was placed.
+
+  - name: stg_part_suppliers
+    description: One row per part-supplier relationship from the TPCH partsupp source with cleaned column names.
+    columns:
+      - name: part_key
+        description: Foreign key to the part.
+      - name: supplier_key
+        description: Foreign key to the supplier.
+      - name: available_quantity
+        description: Available quantity supplied for the part-supplier relationship.
+      - name: supply_cost
+        description: Supply cost for the part-supplier relationship.
+
+  - name: stg_parts
+    description: One row per part from the TPCH part source with cleaned column names.
+    columns:
+      - name: part_key
+        description: Primary key for the part.
+        data_tests:
+          - not_null
+          - unique
+      - name: manufacturer
+        description: Manufacturer for the part.
+      - name: brand
+        description: Brand for the part.
+      - name: retail_price
+        description: Retail price for the part.
+
+  - name: stg_regions
+    description: One row per region from the TPCH region source with cleaned column names.
+    columns:
+      - name: region_key
+        description: Primary key for the region.
+        data_tests:
+          - not_null
+          - unique
+      - name: region_name
+        description: Name of the region.
+
+  - name: stg_suppliers
+    description: One row per supplier from the TPCH supplier source with cleaned column names.
+    columns:
+      - name: supplier_key
+        description: Primary key for the supplier.
+        data_tests:
+          - not_null
+          - unique
+      - name: nation_key
+        description: Foreign key to the supplier's nation.

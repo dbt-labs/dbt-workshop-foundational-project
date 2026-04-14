@@ -3,9 +3,19 @@ sources:
     database: snowflake_sample_data
     schema: tpch_sf1
     tables:
-      - name: orders
-        description: "One record per order"
       - name: customer
         description: "One record per customer"
       - name: lineitem
         description: "One record per line item within a single order (1 -> n)"
+      - name: nation
+        description: "One record per nation"
+      - name: orders
+        description: "One record per order"
+      - name: part
+        description: "One record per part"
+      - name: partsupp
+        description: "One record per part-supplier relationship"
+      - name: region
+        description: "One record per region"
+      - name: supplier
+        description: "One record per supplier"
