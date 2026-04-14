@@ -1,0 +1,168 @@
+version: 2
+
+models:
+  - name: stg_orders
+    description: Standardized order header records from the TPC-H `orders` source, with renamed fields for downstream joins and reporting.
+    columns:
+      - name: order_key
+        description: Primary key for the order.
+      - name: customer_key
+        description: Foreign key to the customer who placed the order.
+      - name: status_code
+        description: Current status code for the order.
+      - name: total_price
+        description: Total order amount recorded on the source order header.
+      - name: order_date
+        description: Date the order was placed.
+      - name: clerk_name
+        description: Clerk identifier associated with the order.
+      - name: priority_code
+        description: Order priority code from the source system.
+      - name: ship_priority
+        description: Shipping priority assigned to the order.
+      - name: comment
+        description: Free-text comment captured on the order.
+
+  - name: stg_customers
+    description: Standardized customer dimension attributes from the TPC-H `customer` source.
+    columns:
+      - name: customer_key
+        description: Primary key for the customer.
+      - name: name
+        description: Customer name.
+      - name: address
+        description: Customer street address.
+      - name: nation_key
+        description: Foreign key to the customer nation.
+      - name: phone_number
+        description: Customer phone number.
+      - name: account_balance
+        description: Current account balance for the customer.
+      - name: market_segment
+        description: Market segment assigned to the customer.
+      - name: comment
+        description: Free-text comment captured on the customer record.
+
+  - name: stg_line_items
+    description: Standardized order line items with derived pricing, discount, tax, and net sales calculations at the line grain.
+    columns:
+      - name: order_key
+        description: Foreign key to the parent order.
+      - name: part_key
+        description: Foreign key to the ordered part.
+      - name: supplier_key
+        description: Foreign key to the supplier fulfilling the line item.
+      - name: line_number
+        description: Sequence number of the line within the order.
+      - name: quantity
+        description: Quantity ordered for the line item.
+      - name: gross_item_sales_amount
+        description: Gross sales amount for the line item before discounts and tax.
+      - name: discount_percentage
+        description: Discount rate applied to the line item.
+      - name: tax_rate
+        description: Tax rate applied to the line item.
+      - name: return_flag
+        description: Indicator describing whether the line item was returned.
+      - name: status_code
+        description: Current status code for the line item.
+      - name: ship_date
+        description: Date the line item was shipped.
+      - name: commit_date
+        description: Date the supplier committed the line item.
+      - name: receipt_date
+        description: Date the customer received the line item.
+      - name: ship_instructions
+        description: Shipping instructions recorded for the line item.
+      - name: ship_mode
+        description: Shipping mode used for the line item.
+      - name: comment
+        description: Free-text comment captured on the line item.
+      - name: base_price
+        description: Derived per-unit base price before discounts.
+      - name: discounted_price
+        description: Derived per-unit price after discount is applied.
+      - name: discounted_item_sales_amount
+        description: Line item sales amount after discount and before tax.
+      - name: item_discount_amount
+        description: Discount amount for the line item, modeled as a negative value.
+      - name: item_tax_amount
+        description: Tax amount calculated on the discounted line item amount.
+      - name: net_item_sales_amount
+        description: Net line item sales amount after discount and tax.
+
+  - name: stg_nation
+    description: Standardized nation dimension attributes from the TPC-H `nation` source.
+    columns:
+      - name: nation_key
+        description: Primary key for the nation.
+      - name: nation_name
+        description: Nation name.
+      - name: region_key
+        description: Foreign key to the region.
+      - name: comment
+        description: Free-text comment captured on the nation record.
+
+  - name: stg_region
+    description: Standardized region dimension attributes from the TPC-H `region` source.
+    columns:
+      - name: region_key
+        description: Primary key for the region.
+      - name: region_name
+        description: Region name.
+      - name: comment
+        description: Free-text comment captured on the region record.
+
+  - name: stg_supplier
+    description: Standardized supplier dimension attributes from the TPC-H `supplier` source.
+    columns:
+      - name: supplier_key
+        description: Primary key for the supplier.
+      - name: supplier_name
+        description: Supplier name.
+      - name: address
+        description: Supplier street address.
+      - name: nation_key
+        description: Foreign key to the supplier nation.
+      - name: phone_number
+        description: Supplier phone number.
+      - name: account_balance
+        description: Current account balance for the supplier.
+      - name: comment
+        description: Free-text comment captured on the supplier record.
+
+  - name: stg_part
+    description: Standardized part dimension attributes from the TPC-H `part` source.
+    columns:
+      - name: part_key
+        description: Primary key for the part.
+      - name: part_name
+        description: Part name.
+      - name: manufacturer
+        description: Manufacturer identifier for the part.
+      - name: brand
+        description: Brand assigned to the part.
+      - name: part_type
+        description: Type classification for the part.
+      - name: size
+        description: Size specification for the part.
+      - name: container
+        description: Packaging container type for the part.
+      - name: retail_price
+        description: Retail price recorded on the part.
+      - name: comment
+        description: Free-text comment captured on the part record.
+
+  - name: stg_partsupp
+    description: Standardized part-supplier bridge records from the TPC-H `partsupp` source.
+    columns:
+      - name: part_key
+        description: Foreign key to the part.
+      - name: supplier_key
+        description: Foreign key to the supplier.
+      - name: available_quantity
+        description: Available quantity the supplier can provide for the part.
+      - name: supply_cost
+        description: Supplier cost for the part.
+      - name: comment
+        description: Free-text comment captured on the part-supplier relationship.

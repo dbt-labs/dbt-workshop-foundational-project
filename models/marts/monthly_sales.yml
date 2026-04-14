@@ -1,6 +1,60 @@
 version: 2
 
 models:
+  - name: fct_orders
+    description: Order-level fact table combining order headers, customer attributes, and aggregated line item sales metrics into one row per order.
+    columns:
+      - name: order_key
+        description: Primary key for the order.
+      - name: order_date
+        description: Date the order was placed.
+      - name: customer_key
+        description: Foreign key to the customer who placed the order.
+      - name: status_code
+        description: Current status code for the order.
+      - name: priority_code
+        description: Order priority code from the source system.
+      - name: ship_priority
+        description: Shipping priority assigned to the order.
+      - name: clerk_name
+        description: Clerk identifier associated with the order.
+      - name: name
+        description: Customer name associated with the order.
+      - name: market_segment
+        description: Market segment for the customer who placed the order.
+      - name: gross_item_sales_amount
+        description: Sum of gross sales amounts across all line items on the order before discounts and tax.
+      - name: item_discount_amount
+        description: Sum of line item discount amounts for the order, modeled as negative values.
+      - name: item_tax_amount
+        description: Sum of tax amounts across all line items on the order.
+      - name: net_item_sales_amount
+        description: Net sales amount for the order after discount and tax.
+
+
+  - name: dim_customer
+    description: Customer dimension enriched with nation and region attributes for downstream segmentation and geographic analysis.
+    columns:
+      - name: customer_key
+        description: Primary key for the customer.
+        data_tests:
+          - not_null
+          - unique
+      - name: name
+        description: Customer name.
+      - name: address
+        description: Customer street address.
+      - name: nation
+        description: Nation associated with the customer.
+      - name: region
+        description: Region associated with the customer via nation.
+      - name: phone_number
+        description: Customer phone number.
+      - name: account_balance
+        description: Current account balance for the customer.
+      - name: market_segment
+        description: Market segment assigned to the customer.
+
   - name: monthly_sales
     description: Monthly summary of order activity and sales amounts derived from `fct_orders`, with one row per order month.
     columns:
@@ -9,21 +63,15 @@ models:
         data_tests:
           - not_null
           - unique
-
       - name: order_count
         description: Number of orders placed in the month.
-
       - name: customer_count
         description: Number of distinct customers with at least one order in the month.
-
       - name: gross_sales_amount
         description: Sum of gross item sales before discounts and tax for orders in the month.
-
       - name: discount_amount
         description: Sum of discount amounts applied to orders in the month, modeled as negative values.
-
       - name: tax_amount
         description: Sum of tax amounts for orders in the month.
-
       - name: net_sales_amount
         description: Sum of net item sales after discounts and tax for orders in the month.

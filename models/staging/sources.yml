@@ -1,12 +1,24 @@
+version: 2
+
 sources:
   - name: tpch
-    description: My Sales Data
+    description: Sample TPC-H sales data from Snowflake used as the raw source layer for this project.
     database: snowflake_sample_data
     schema: tpch_sf1
     tables:
       - name: orders
-        description: "One record per order"
+        description: Raw order header records with one row per order.
       - name: customer
-        description: "One record per customer"
+        description: Raw customer records with one row per customer.
       - name: lineitem
-        description: "One record per line item within a single order (1 -> n)"
+        description: Raw order line items with one row per line item on an order.
+      - name: nation
+        description: Raw nation dimension records.
+      - name: part
+        description: Raw part dimension records.
+      - name: partsupp
+        description: Raw part-to-supplier relationship records.
+      - name: region
+        description: Raw region dimension records.
+      - name: supplier
+        description: Raw supplier dimension records.
