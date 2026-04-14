@@ -7,6 +7,7 @@ nation as (
 region as (
     select * from {{ ref('stg_regions') }}
 )
+
 select
     customer.customer_key, 
     customer.name, 
