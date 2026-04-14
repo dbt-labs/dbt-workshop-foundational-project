@@ -1,5 +1,6 @@
 sources:
   - name: tpch
+    description: My Sales Data
     database: snowflake_sample_data
     schema: tpch_sf1
     tables:
