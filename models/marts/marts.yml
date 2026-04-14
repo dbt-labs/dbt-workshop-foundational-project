@@ -1,0 +1,34 @@
+version: 2
+
+models:
+  - name: fct_orders
+    description: One record per order with customer attributes and aggregated order revenue amounts.
+    columns:
+      - name: order_key
+        description: Primary key for the order.
+        data_tests:
+          - unique
+          - not_null
+      - name: customer_key
+        description: Foreign key to the customer who placed the order.
+        data_tests:
+          - not_null
+      - name: order_date
+        description: Date the order was placed.
+        data_tests:
+          - not_null
+      - name: net_item_sales_amount
+        description: Net revenue for the order after discounts and tax.
+
+  - name: monthly_sales
+    description: Monthly summary of net revenue aggregated from fct_orders.
+    columns:
+      - name: order_month
+        description: First day of the month for the revenue summary.
+        data_tests:
+          - unique
+          - not_null
+      - name: revenue
+        description: Total net revenue for all orders in the month.
+        data_tests:
+          - not_null
