@@ -1,0 +1,26 @@
+version: 2
+
+models:
+  - name: fct_orders
+    description: One row per order with order-level sales amounts rolled up from line items and joined to customer attributes.
+
+  - name: monthly_sales
+    description: One row per month summarizing order volume, active customers, and sales amounts.
+    columns:
+      - name: order_month
+        description: First day of the calendar month for the summarized orders.
+        data_tests:
+          - not_null
+          - unique
+      - name: order_count
+        description: Number of orders placed in the month.
+      - name: customer_count
+        description: Number of distinct customers with at least one order in the month.
+      - name: gross_sales_amount
+        description: Sum of gross item sales amount before discounts and tax for the month.
+      - name: discount_amount
+        description: Sum of discount amounts for the month, stored as negative values.
+      - name: tax_amount
+        description: Sum of item tax amounts for the month.
+      - name: net_sales_amount
+        description: Sum of net item sales amount after discounts and tax for the month.

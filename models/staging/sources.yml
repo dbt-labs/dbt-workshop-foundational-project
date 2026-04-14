@@ -1,7 +1,8 @@
 sources:
   - name: tpch
-    database: raw
-    schema: tpch
+    description: My Sales Data #added config
+    database: snowflake_sample_data #raw
+    schema: tpch_sf1 #tpch
     tables:
       - name: orders
         description: "One record per order"
