@@ -1,0 +1,38 @@
+version: 2
+
+models:
+  - name: fct_orders
+    description: One record per order with customer attributes and rolled up order-level sales amounts.
+    columns:
+      - name: order_key
+        description: Primary key for the order.
+        data_tests:
+          - unique
+          - not_null
+      - name: order_date
+        description: Date the order was placed.
+      - name: customer_key
+        description: Customer associated with the order.
+
+  - name: monthly_sales
+    description: Monthly summary of order activity and sales amounts derived from fct_orders.
+    columns:
+      - name: order_month
+        description: First day of the month representing the reporting month.
+        data_tests:
+          - unique
+          - not_null
+      - name: order_count
+        description: Number of orders in the month.
+      - name: customer_count
+        description: Number of distinct customers who placed orders in the month.
+      - name: gross_sales_amount
+        description: Sum of gross item sales amount for all orders in the month.
+      - name: discount_amount
+        description: Sum of item discount amount for all orders in the month.
+      - name: tax_amount
+        description: Sum of item tax amount for all orders in the month.
+      - name: net_sales_amount
+        description: Sum of net item sales amount for all orders in the month.
+      - name: avg_order_net_sales_amount
+        description: Average net item sales amount per order in the month.
