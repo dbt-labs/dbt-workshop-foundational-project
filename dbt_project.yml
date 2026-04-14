@@ -32,7 +32,8 @@ clean-targets:         # directories to be removed by `dbt clean`
 # as tables. These settings can be overridden in the individual model files
 # using the `{{ config(...) }}` macro.
 
-models:
+models: 
+  +static_analysis: strict
   foundational_project:
     +materialized: view
     +access: public
