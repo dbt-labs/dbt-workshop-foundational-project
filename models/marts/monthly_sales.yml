@@ -1,0 +1,11 @@
+version: 2
+
+models:
+  - name: monthly_sales
+    description: Monthly summary of order volume, customer activity, and sales amounts aggregated from fct_orders.
+    columns:
+      - name: order_month
+        description: First day of the month for the aggregated order period.
+        data_tests:
+          - not_null
+          - unique
