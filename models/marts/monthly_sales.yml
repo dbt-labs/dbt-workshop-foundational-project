@@ -2,7 +2,45 @@ version: 2
 
 models:
   - name: fct_orders
-    description: One row per order with order-level sales amounts rolled up from line items and joined to customer attributes.
+    description: One row per order with customer attributes and order-level sales amounts rolled up from line items.
+    columns:
+      - name: order_key
+        description: Primary key for the order.
+        data_tests:
+          - not_null
+          - unique
+      - name: order_date
+        description: Date the order was placed.
+      - name: customer_key
+        description: Foreign key to the customer who placed the order.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_customers')
+                field: customer_key
+      - name: status_code
+        description: Order status code from the source system.
+      - name: priority_code
+        description: Priority assigned to the order.
+      - name: ship_priority
+        description: Shipping priority value from the source system.
+      - name: clerk_name
+        description: Clerk associated with the order.
+      - name: name
+        description: Customer name joined from the customer dimension.
+        data_tests:
+          - not_null
+      - name: market_segment
+        description: Customer market segment.
+      - name: gross_item_sales_amount
+        description: Total gross sales amount across all line items on the order before discounts and tax.
+      - name: item_discount_amount
+        description: Total discount amount across all line items on the order, stored as a negative value.
+      - name: item_tax_amount
+        description: Total tax amount across all line items on the order.
+      - name: net_item_sales_amount
+        description: Total net sales amount across all line items on the order after discounts and tax.
 
   - name: monthly_sales
     description: One row per month summarizing order volume, active customers, and sales amounts.
