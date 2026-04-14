@@ -1,0 +1,23 @@
+version: 2
+
+models:
+  - name: monthly_sales
+    description: "Monthly summary of order volume and sales amounts aggregated from `fct_orders` at the first day of each month."
+    columns:
+      - name: order_month
+        description: "The month of the order, truncated to the first day of the month."
+
+      - name: total_orders
+        description: "The total number of orders placed in the month."
+
+      - name: gross_item_sales_amount
+        description: "The sum of gross item sales amount across all orders in the month before discounts and tax."
+
+      - name: item_discount_amount
+        description: "The sum of item discount amount across all orders in the month."
+
+      - name: item_tax_amount
+        description: "The sum of item tax amount across all orders in the month."
+
+      - name: net_item_sales_amount
+        description: "The sum of net item sales amount across all orders in the month after discounts and tax adjustments."
