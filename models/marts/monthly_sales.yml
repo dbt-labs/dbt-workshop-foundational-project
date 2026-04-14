@@ -1,8 +1,60 @@
 version: 2
 
 models:
+  - name: fct_orders
+    description: Order-level fact table with one row per order, enriched with customer attributes and order item revenue rollups.
+    columns:
+      - name: order_key
+        description: Primary key for the order.
+        data_tests:
+          - not_null
+          - unique
+      - name: order_date
+        description: Date the order was placed.
+        data_tests:
+          - not_null
+      - name: customer_key
+        description: Foreign key to the customer who placed the order.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_customers')
+                field: customer_key
+      - name: status_code
+        description: Source order status code from TPC-H orders.
+      - name: priority_code
+        description: Source order priority assigned to the order.
+      - name: ship_priority
+        description: Shipping priority value from the source order record.
+      - name: clerk_name
+        description: Clerk associated with the order in the source system.
+      - name: name
+        description: Customer name associated with the order.
+        data_tests:
+          - not_null
+          
+      - name: market_segment
+        description: Market segment for the customer who placed the order.
+      - name: gross_item_sales_amount
+        description: Sum of gross line item sales for the order before discounts and tax.
+        data_tests:
+          - not_null
+      - name: item_discount_amount
+        description: Sum of discount amounts across all line items for the order.
+        data_tests:
+          - not_null
+      - name: item_tax_amount
+        description: Sum of tax amounts across all line items for the order.
+        data_tests:
+          - not_null
+      - name: net_item_sales_amount
+        description: Sum of net line item sales for the order after discounts and tax.
+        data_tests:
+          - not_null
+
   - name: monthly_sales
-    description: Monthly summary of orders aggregated from `fct_orders` at the calendar month grain.
+    description: Monthly sales summary aggregated from `fct_orders` at the calendar month grain.
     columns:
       - name: order_month
         description: First day of the calendar month for the aggregated orders.
@@ -11,13 +63,25 @@ models:
           - unique
       - name: order_count
         description: Number of orders placed in the month.
+        data_tests:
+          - not_null
       - name: customer_count
         description: Number of distinct customers with at least one order in the month.
+        data_tests:
+          - not_null
       - name: gross_sales_amount
         description: Total gross item sales amount for orders in the month before discounts and tax.
+        data_tests:
+          - not_null
       - name: discount_amount
         description: Total item discount amount for orders in the month.
+        data_tests:
+          - not_null
       - name: tax_amount
         description: Total item tax amount for orders in the month.
+        data_tests:
+          - not_null
       - name: net_sales_amount
         description: Total net item sales amount for orders in the month.
+        data_tests:
+          - not_null
