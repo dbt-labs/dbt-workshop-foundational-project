@@ -1,12 +1,36 @@
 sources:
   - name: tpch
-    description: My Sales Data
+    description: Source data from Snowflake sample TPCH dataset.
     database: snowflake_sample_data
     schema: tpch_sf1
     tables:
       - name: orders
-        description: "One record per order"
+        description: One record per order.
       - name: customer
-        description: "One record per customer"
+        description: One record per customer.
+        columns:
+          - name: c_custkey
+            description: Primary key for the customer record.
+            data_tests:
+              - not_null
+              - unique
+          - name: c_name
+            description: Customer name.
+          - name: c_address
+            description: Customer street address.
+          - name: c_nationkey
+            description: Foreign key to the customer's nation.
+          - name: c_phone
+            description: Customer phone number.
+          - name: c_acctbal
+            description: Current customer account balance.
+          - name: c_mktsegment
+            description: Market segment assigned to the customer.
+          - name: c_comment
+            description: Free-form comment associated with the customer.
       - name: lineitem
-        description: "One record per line item within a single order (1 -> n)"
+        description: One record per line item within a single order (1 -> n).
+      - name: nation
+        description: One record per nation.
+      - name: region
+        description: One record per region.
