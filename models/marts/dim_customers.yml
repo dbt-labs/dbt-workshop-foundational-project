@@ -1,0 +1,32 @@
+version: 2
+
+models:
+  - name: dim_customers
+    description: One row per customer with core customer attributes used across marts.
+    columns:
+      - name: customer_key
+        description: Primary key for the customer.
+        data_tests:
+          - not_null
+          - unique
+
+      - name: name
+        description: Customer name.
+
+      - name: address
+        description: Customer address.
+
+      - name: nation_key
+        description: Foreign key to the customer's nation.
+
+      - name: phone_number
+        description: Customer phone number.
+
+      - name: account_balance
+        description: Customer account balance.
+
+      - name: market_segment
+        description: Customer market segment.
+
+      - name: comment
+        description: Free-text comment associated with the customer.

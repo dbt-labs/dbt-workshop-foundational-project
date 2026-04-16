@@ -1,0 +1,31 @@
+version: 2
+
+models:
+  - name: monthly_sales
+    description: Monthly summary of orders with order volume and aggregated sales metrics.
+    columns:
+      - name: order_month
+        description: First day of the month representing the order month.
+        data_tests:
+          - unique
+          - not_null
+
+      - name: order_count
+        description: Number of orders placed in the month.
+        data_tests:
+          - not_null
+
+      - name: gross_sales_amount
+        description: Sum of gross item sales before discounts and taxes for the month.
+
+      - name: discount_amount
+        description: Sum of item discount amounts for orders in the month.
+
+      - name: tax_amount
+        description: Sum of item tax amounts for orders in the month.
+
+      - name: net_sales_amount
+        description: Sum of net item sales amounts for orders in the month.
+
+      - name: avg_order_value
+        description: Average net sales amount per order in the month.

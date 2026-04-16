@@ -1,11 +1,80 @@
+version: 2
+
 sources:
   - name: tpch
-    database: raw
-    schema: tpch
+    database: snowflake_sample_data
+    schema: tpch_sf1
     tables:
       - name: orders
         description: "One record per order"
+        columns:
+          - name: o_orderkey
+            data_tests:
+              - not_null
+              - unique
+
       - name: customer
         description: "One record per customer"
+        columns:
+          - name: c_custkey
+            description: "Primary key for the customer record"
+            data_tests:
+              - not_null
+              - unique
+
+          - name: c_name
+            description: "Customer name"
+
+          - name: c_address
+            description: "Customer address"
+
+          - name: c_nationkey
+            description: "Foreign key to the customer's nation"
+
+          - name: c_phone
+            description: "Customer phone number"
+
+          - name: c_acctbal
+            description: "Customer account balance"
+
+          - name: c_mktsegment
+            description: "Customer market segment"
+
+          - name: c_comment
+            description: "Free-text comment associated with the customer"
+
+      - name: nation
+        description: "One record per nation"
+        columns:
+          - name: n_nationkey
+            description: "Primary key for the nation"
+            data_tests:
+              - not_null
+              - unique
+
+          - name: n_name
+            description: "Nation name"
+
+          - name: n_regionkey
+            description: "Foreign key to the region"
+
+          - name: n_comment
+            description: "Free-text comment associated with the nation"
+
+      - name: region
+        description: "One record per region"
+        columns:
+          - name: r_regionkey
+            description: "Primary key for the region"
+            data_tests:
+              - not_null
+              - unique
+
+          - name: r_name
+            description: "Region name"
+
+          - name: r_comment
+            description: "Free-text comment associated with the region"
+
       - name: lineitem
         description: "One record per line item within a single order (1 -> n)"
