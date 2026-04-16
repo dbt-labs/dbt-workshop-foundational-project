@@ -36,3 +36,5 @@ models:
   foundational_project:
     +materialized: view
     +access: public
+vars:
+  database: "snowflake_sample_data"

@@ -1,0 +1,79 @@
+version: 2
+
+models:
+  - name: monthly_sales
+    description: Monthly order summary built from `fct_orders`, with order, customer, and sales metrics at the month grain.
+    semantic_model:
+      enabled: true
+      name: monthly_sales
+    agg_time_dimension: order_month
+    primary_entity: sales_month
+    columns:
+      - name: order_month
+        description: First day of the month for the aggregated order period.
+        data_tests:
+          - unique
+          - not_null
+        granularity: month
+        dimension:
+          type: time
+          name: order_month
+      - name: order_count
+        description: Number of orders placed in the month.
+        data_tests:
+          - not_null
+      - name: customer_count
+        description: Number of distinct customers who placed an order in the month.
+        data_tests:
+          - not_null
+      - name: gross_sales_amount
+        description: Sum of gross item sales before discounts and tax for orders in the month.
+      - name: discount_amount
+        description: Sum of item discount amounts for orders in the month.
+      - name: tax_amount
+        description: Sum of item tax amounts for orders in the month.
+      - name: net_sales_amount
+        description: Sum of net item sales amounts for orders in the month.
+
+    metrics:
+      - name: monthly_order_count
+        description: Total orders aggregated at the month grain.
+        label: Monthly Order Count
+        type: simple
+        agg: sum
+        expr: order_count
+
+      - name: monthly_customer_count
+        description: Total distinct customers aggregated at the month grain.
+        label: Monthly Customer Count
+        type: simple
+        agg: sum
+        expr: customer_count
+
+      - name: monthly_gross_sales_amount
+        description: Total gross sales aggregated at the month grain.
+        label: Monthly Gross Sales Amount
+        type: simple
+        agg: sum
+        expr: gross_sales_amount
+
+      - name: monthly_discount_amount
+        description: Total discount amount aggregated at the month grain.
+        label: Monthly Discount Amount
+        type: simple
+        agg: sum
+        expr: discount_amount
+
+      - name: monthly_tax_amount
+        description: Total tax amount aggregated at the month grain.
+        label: Monthly Tax Amount
+        type: simple
+        agg: sum
+        expr: tax_amount
+
+      - name: monthly_net_sales_amount
+        description: Total net sales aggregated at the month grain.
+        label: Monthly Net Sales Amount
+        type: simple
+        agg: sum
+        expr: net_sales_amount

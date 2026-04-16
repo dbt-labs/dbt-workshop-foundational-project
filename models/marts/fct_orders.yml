@@ -1,0 +1,117 @@
+version: 2
+
+models:
+  - name: fct_orders
+    description: Order fact model at the order grain with customer attributes and rolled-up item sales amounts.
+    semantic_model:
+      enabled: true
+      name: orders
+    agg_time_dimension: order_date
+    columns:
+      - name: order_key
+        description: Primary key for the order.
+        data_tests:
+          - unique
+          - not_null
+        entity:
+          type: primary
+          name: order
+
+      - name: order_date
+        description: Date the order was placed.
+        granularity: day
+        dimension:
+          type: time
+          name: order_date
+
+      - name: customer_key
+        description: Foreign key to the customer placing the order.
+        data_tests:
+          - not_null
+        entity:
+          type: foreign
+          name: customer
+
+      - name: status_code
+        description: Order status code.
+        dimension:
+          type: categorical
+          name: status_code
+
+      - name: priority_code
+        description: Order priority code.
+        dimension:
+          type: categorical
+          name: priority_code
+
+      - name: ship_priority
+        description: Shipping priority assigned to the order.
+        dimension:
+          type: categorical
+          name: ship_priority
+
+      - name: clerk_name
+        description: Clerk associated with the order.
+        dimension:
+          type: categorical
+          name: clerk_name
+
+      - name: name
+        description: Customer name from the joined customer dimension.
+        dimension:
+          type: categorical
+          name: customer_name
+
+      - name: market_segment
+        description: Customer market segment.
+        dimension:
+          type: categorical
+          name: market_segment
+
+      - name: gross_item_sales_amount
+        description: Gross item sales amount before discounts and tax.
+
+      - name: item_discount_amount
+        description: Discount amount applied to items in the order.
+
+      - name: item_tax_amount
+        description: Tax amount applied to items in the order.
+
+      - name: net_item_sales_amount
+        description: Net item sales amount after discounts.
+
+    metrics:
+      - name: order_count
+        description: Count of orders.
+        label: Order Count
+        type: simple
+        agg: count
+        expr: 1
+
+      - name: gross_item_sales_amount
+        description: Total gross item sales amount before discounts and tax.
+        label: Gross Item Sales Amount
+        type: simple
+        agg: sum
+        expr: gross_item_sales_amount
+
+      - name: item_discount_amount
+        description: Total item discount amount.
+        label: Item Discount Amount
+        type: simple
+        agg: sum
+        expr: item_discount_amount
+
+      - name: item_tax_amount
+        description: Total item tax amount.
+        label: Item Tax Amount
+        type: simple
+        agg: sum
+        expr: item_tax_amount
+
+      - name: net_item_sales_amount
+        description: Total net item sales amount.
+        label: Net Item Sales Amount
+        type: simple
+        agg: sum
+        expr: net_item_sales_amount
