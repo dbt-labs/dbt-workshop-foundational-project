@@ -1,0 +1,33 @@
+version: 2
+
+models:
+  - name: monthly_sales
+    description: Monthly summary of order volume, customer activity, and sales amounts derived from `fct_orders`.
+    columns:
+      - name: order_month
+        description: First day of the month for the aggregated order period.
+        data_tests:
+          - not_null
+          - unique
+
+      - name: order_count
+        description: Number of orders placed in the month.
+        data_tests:
+          - not_null
+
+      - name: customer_count
+        description: Number of distinct customers with at least one order in the month.
+        data_tests:
+          - not_null
+
+      - name: gross_sales_amount
+        description: Sum of gross item sales across all orders in the month.
+
+      - name: discount_amount
+        description: Sum of item discount amounts across all orders in the month.
+
+      - name: tax_amount
+        description: Sum of item tax amounts across all orders in the month.
+
+      - name: net_sales_amount
+        description: Sum of net item sales across all orders in the month.

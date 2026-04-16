@@ -1,0 +1,114 @@
+version: 2
+
+models:
+  - name: stg_orders
+    description: Cleaned order records from the TPCH `orders` source, with raw column names standardized to analytics-friendly names.
+    columns:
+      - name: order_key
+        description: Primary key for the order.
+      - name: customer_key
+        description: Foreign key to the customer who placed the order.
+      - name: status_code
+        description: Raw order status code.
+      - name: total_price
+        description: Total order price recorded on the raw order record.
+      - name: order_date
+        description: Date the order was placed.
+      - name: clerk_name
+        description: Clerk associated with the order.
+      - name: priority_code
+        description: Priority assigned to the order.
+      - name: ship_priority
+        description: Shipping priority recorded for the order.
+      - name: comment
+        description: Free-text comment on the order.
+
+  - name: stg_customers
+    description: Cleaned customer records from the TPCH `customer` source, with renamed columns and customer attributes used across marts.
+    columns:
+      - name: customer_key
+        description: Primary key for the customer.
+      - name: name
+        description: Customer name.
+      - name: address
+        description: Customer address.
+      - name: nation_key
+        description: Foreign key to the customer's nation.
+      - name: phone_number
+        description: Customer phone number.
+      - name: account_balance
+        description: Current account balance for the customer.
+      - name: market_segment
+        description: Market segment assigned to the customer.
+      - name: comment
+        description: Free-text comment on the customer.
+
+  - name: stg_line_items
+    description: Cleaned line-item records from the TPCH `lineitem` source with derived sales, discount, and tax amounts at line-item grain.
+    columns:
+      - name: order_key
+        description: Foreign key to the order.
+      - name: part_key
+        description: Foreign key to the part ordered.
+      - name: supplier_key
+        description: Foreign key to the supplier fulfilling the line item.
+      - name: line_number
+        description: Line number within the order.
+      - name: quantity
+        description: Quantity ordered for the line item.
+      - name: gross_item_sales_amount
+        description: Extended price for the line item before discounts and taxes.
+      - name: discount_percentage
+        description: Discount percentage applied to the line item.
+      - name: tax_rate
+        description: Tax rate applied to the line item.
+      - name: return_flag
+        description: Return flag for the line item.
+      - name: status_code
+        description: Raw status code for the line item.
+      - name: ship_date
+        description: Date the line item was shipped.
+      - name: commit_date
+        description: Date the line item was committed.
+      - name: receipt_date
+        description: Date the line item was received.
+      - name: ship_instructions
+        description: Shipping instructions for the line item.
+      - name: ship_mode
+        description: Shipping mode used for the line item.
+      - name: comment
+        description: Free-text comment on the line item.
+      - name: base_price
+        description: Per-unit base price derived from gross item sales divided by quantity.
+      - name: discounted_price
+        description: Per-unit price after discount is applied.
+      - name: discounted_item_sales_amount
+        description: Total line-item sales amount after discount and before tax.
+      - name: item_discount_amount
+        description: Discount amount modeled as a negative value.
+      - name: item_tax_amount
+        description: Tax amount calculated on the discounted line-item amount.
+      - name: net_item_sales_amount
+        description: Net line-item sales amount including discount and tax adjustments.
+
+  - name: stg_nations
+    description: Cleaned nation records from the TPCH `nation` source, used to enrich customers with geographic attributes.
+    columns:
+      - name: nation_key
+        description: Primary key for the nation.
+      - name: name
+        description: Nation name.
+      - name: region_key
+        description: Foreign key to the region.
+      - name: comment
+        description: Free-text comment on the nation.
+
+  - name: stg_regions
+    description: Cleaned region records from the TPCH `region` source.
+    columns:
+      - name: region_key
+        description: Primary key for the region.
+      - name: name
+        description: Region name.
+      - name: comment
+        description: Free-text comment on the region.

@@ -1,0 +1,52 @@
+version: 2
+
+models:
+  - name: fct_orders
+    description: Order-grain fact table combining order headers, customer attributes, and aggregated line-item sales metrics.
+    columns:
+      - name: order_key
+        description: Primary key for the order.
+      - name: order_date
+        description: Date the order was placed.
+      - name: customer_key
+        description: Foreign key to the customer who placed the order.
+      - name: status_code
+        description: Order status code.
+      - name: priority_code
+        description: Priority assigned to the order.
+      - name: ship_priority
+        description: Shipping priority recorded for the order.
+      - name: clerk_name
+        description: Clerk associated with the order.
+      - name: name
+        description: Customer name from `stg_customers`.
+      - name: market_segment
+        description: Customer market segment from `stg_customers`.
+      - name: gross_item_sales_amount
+        description: Sum of gross line-item sales across the order.
+      - name: item_discount_amount
+        description: Sum of discount amounts across the order, modeled as a negative value.
+      - name: item_tax_amount
+        description: Sum of tax amounts across the order.
+      - name: net_item_sales_amount
+        description: Sum of net line-item sales across the order.
+
+  - name: dim_customer
+    description: Customer dimension enriched with nation and region attributes for geographic analysis.
+    columns:
+      - name: customer_key
+        description: Primary key for the customer.
+      - name: name
+        description: Customer name.
+      - name: address
+        description: Customer address.
+      - name: nation
+        description: Nation associated with the customer.
+      - name: region
+        description: Region associated with the customer's nation.
+      - name: phone_number
+        description: Customer phone number.
+      - name: account_balance
+        description: Current account balance for the customer.
+      - name: market_segment
+        description: Market segment assigned to the customer.

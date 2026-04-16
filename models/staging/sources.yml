@@ -1,11 +1,132 @@
+version: 2
+
 sources:
   - name: tpch
-    database: raw
-    schema: tpch
+    database: snowflake_sample_data
+    schema: tpch_sf1
     tables:
       - name: orders
-        description: "One record per order"
+        description: One record per order.
+        columns:
+          - name: o_orderkey
+            description: Primary key for the order.
+            data_tests:
+              - not_null
+              - unique
+          - name: o_custkey
+            description: Foreign key to the customer who placed the order.
+            data_tests:
+              - not_null
+          - name: o_orderstatus
+            description: Current status code for the order.
+          - name: o_totalprice
+            description: Total order price recorded on the raw order record.
+          - name: o_orderdate
+            description: Date the order was placed.
+            data_tests:
+              - not_null
+          - name: o_orderpriority
+            description: Priority assigned to the order.
+          - name: o_clerk
+            description: Clerk associated with the order.
+          - name: o_shippriority
+            description: Shipping priority recorded for the order.
+          - name: o_comment
+            description: Free-text comment on the order.
+
       - name: customer
-        description: "One record per customer"
+        description: One record per customer.
+        columns:
+          - name: c_custkey
+            description: Primary key for the customer.
+            data_tests:
+              - not_null
+              - unique
+          - name: c_name
+            description: Customer name.
+          - name: c_address
+            description: Customer address.
+          - name: c_nationkey
+            description: Foreign key to the customer's nation.
+          - name: c_phone
+            description: Customer phone number.
+          - name: c_acctbal
+            description: Customer account balance.
+          - name: c_mktsegment
+            description: Market segment assigned to the customer.
+          - name: c_comment
+            description: Free-text comment on the customer.
+
       - name: lineitem
-        description: "One record per line item within a single order (1 -> n)"
+        description: One record per line item within a single order (1 -> n).
+        columns:
+          - name: l_orderkey
+            description: Foreign key to the order.
+            data_tests:
+              - not_null
+          - name: l_partkey
+            description: Foreign key to the part ordered.
+            data_tests:
+              - not_null
+          - name: l_suppkey
+            description: Foreign key to the supplier fulfilling the line item.
+            data_tests:
+              - not_null
+          - name: l_linenumber
+            description: Line number within the order.
+            data_tests:
+              - not_null
+          - name: l_quantity
+            description: Quantity ordered for the line item.
+          - name: l_extendedprice
+            description: Extended price for the line item before discounts and taxes.
+          - name: l_discount
+            description: Discount percentage applied to the line item.
+          - name: l_tax
+            description: Tax rate applied to the line item.
+          - name: l_returnflag
+            description: Return flag for the line item.
+          - name: l_linestatus
+            description: Status code for the line item.
+          - name: l_shipdate
+            description: Date the line item was shipped.
+          - name: l_commitdate
+            description: Date the line item was committed.
+          - name: l_receiptdate
+            description: Date the line item was received.
+          - name: l_shipinstruct
+            description: Shipping instructions for the line item.
+          - name: l_shipmode
+            description: Shipping mode used for the line item.
+          - name: l_comment
+            description: Free-text comment on the line item.
+
+      - name: nation
+        description: One record per nation.
+        columns:
+          - name: n_nationkey
+            description: Primary key for the nation.
+            data_tests:
+              - not_null
+              - unique
+          - name: n_name
+            description: Nation name.
+          - name: n_regionkey
+            description: Foreign key to the region.
+            data_tests:
+              - not_null
+          - name: n_comment
+            description: Free-text comment on the nation.
+
+      - name: region
+        description: One record per region.
+        columns:
+          - name: r_regionkey
+            description: Primary key for the region.
+            data_tests:
+              - not_null
+              - unique
+          - name: r_name
+            description: Region name.
+          - name: r_comment
+            description: Free-text comment on the region.
