@@ -33,6 +33,7 @@ clean-targets:         # directories to be removed by `dbt clean`
 # using the `{{ config(...) }}` macro.
 
 models:
+  +static_analysis: strict
   foundational_project:
     +materialized: view
     +access: public
