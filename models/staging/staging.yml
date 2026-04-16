@@ -1,0 +1,72 @@
+version: 2
+
+models:
+  - name: stg_nations
+    description: Standardized nation records from the TPCH `nation` source.
+    columns:
+      - name: nation_key
+        description: Primary key for the nation.
+        data_tests:
+          - not_null
+          - unique
+      - name: region_key
+        description: Foreign key to the region the nation belongs to.
+        data_tests:
+          - not_null
+      - name: name
+        description: Nation name.
+
+  - name: stg_regions
+    description: Standardized region records from the TPCH `region` source.
+    columns:
+      - name: region_key
+        description: Primary key for the region.
+        data_tests:
+          - not_null
+          - unique
+      - name: name
+        description: Region name.
+
+  - name: stg_parts
+    description: Standardized part records from the TPCH `part` source.
+    columns:
+      - name: part_key
+        description: Primary key for the part.
+        data_tests:
+          - not_null
+          - unique
+      - name: name
+        description: Part name.
+      - name: retail_price
+        description: Retail price for the part.
+
+  - name: stg_suppliers
+    description: Standardized supplier records from the TPCH `supplier` source.
+    columns:
+      - name: supplier_key
+        description: Primary key for the supplier.
+        data_tests:
+          - not_null
+          - unique
+      - name: nation_key
+        description: Foreign key to the supplier's nation.
+        data_tests:
+          - not_null
+      - name: name
+        description: Supplier name.
+
+  - name: stg_part_suppliers
+    description: Standardized part-supplier bridge records from the TPCH `partsupp` source.
+    columns:
+      - name: part_key
+        description: Foreign key to the supplied part.
+        data_tests:
+          - not_null
+      - name: supplier_key
+        description: Foreign key to the supplier.
+        data_tests:
+          - not_null
+      - name: available_quantity
+        description: Quantity of the part currently available from the supplier.
+      - name: supply_cost
+        description: Supplier cost for the part.
