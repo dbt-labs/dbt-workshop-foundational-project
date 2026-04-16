@@ -1,0 +1,50 @@
+version: 2
+
+models:
+  - name: monthly_orders
+    description: Monthly summary of orders built from `fct_orders`, with order volume, customer counts, and sales aggregates.
+    columns:
+      - name: order_month
+        description: First day of the order month.
+        data_tests:
+          - not_null
+          - unique
+      - name: order_count
+        description: Number of orders placed in the month.
+        data_tests:
+          - not_null
+      - name: customer_count
+        description: Number of distinct customers who placed orders in the month.
+      - name: gross_sales_amount
+        description: Sum of gross item sales amount for orders in the month.
+      - name: discount_amount
+        description: Sum of item discount amount for orders in the month.
+      - name: tax_amount
+        description: Sum of item tax amount for orders in the month.
+      - name: net_sales_amount
+        description: Sum of net item sales amount for orders in the month.
+      - name: avg_order_net_sales_amount
+        description: Average net item sales amount per order in the month.
+
+  - name: monthly_sales
+    description: Monthly sales summary built from `fct_orders`, with order volume and aggregated sales amounts.
+    columns:
+      - name: order_month
+        description: First day of the order month.
+        data_tests:
+          - not_null
+          - unique
+      - name: order_count
+        description: Number of orders in the month.
+        data_tests:
+          - not_null
+      - name: gross_sales_amount
+        description: Sum of gross item sales amount for orders in the month.
+      - name: discount_amount
+        description: Sum of item discount amount for orders in the month.
+      - name: tax_amount
+        description: Sum of item tax amount for orders in the month.
+      - name: net_sales_amount
+        description: Sum of net item sales amount for orders in the month.
+      - name: avg_order_net_sales_amount
+        description: Average net item sales amount per order in the month.
