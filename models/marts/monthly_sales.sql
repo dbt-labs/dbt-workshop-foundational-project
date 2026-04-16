@@ -1,3 +1,9 @@
+{{
+    config(
+        tags=['finance','sales']
+    )
+}}
+
 with orders as (
 
     select * from {{ ref('fct_orders') }}
