@@ -1,48 +1,196 @@
+version: 2
+
 models:
-  - name: stg_nations
-    description: "TPCH nations staged from the raw `nation` source."
+  - name: stg_orders
+    description: Standardized order records from the TPCH `orders` source with one row per order.
     columns:
-      - name: nation_key
+      - name: order_key
+        description: Primary key for the order.
         data_tests:
           - not_null
           - unique
-      - name: region_key
+      - name: customer_key
+        description: Foreign key to the customer that placed the order.
+      - name: status_code
+        description: Order lifecycle status code from the source system.
+      - name: total_price
+        description: Total order amount recorded on the source order header before downstream reshaping.
+      - name: order_date
+        description: Date the order was placed.
+      - name: clerk_name
+        description: Clerk identifier associated with the order.
+      - name: priority_code
+        description: Source order priority classification.
+      - name: ship_priority
+        description: Shipping priority value assigned to the order.
+      - name: comment
+        description: Free-text comment captured on the order.
+
+  - name: stg_customers
+    description: Standardized customer records from the TPCH `customer` source with one row per customer.
+    columns:
+      - name: customer_key
+        description: Primary key for the customer.
         data_tests:
           - not_null
+          - unique
+      - name: name
+        description: Customer name from the source system.
+      - name: address
+        description: Customer street address.
+      - name: nation_key
+        description: Foreign key to the customer's nation.
+      - name: phone_number
+        description: Customer phone number.
+      - name: account_balance
+        description: Current customer account balance from the source system.
+      - name: market_segment
+        description: Source market segment used to group customers for analysis.
+      - name: comment
+        description: Free-text comment captured on the customer record.
+
+  - name: stg_line_items
+    description: Standardized order line items from the TPCH `lineitem` source with one row per order line.
+    columns:
+      - name: order_key
+        description: Foreign key to the parent order.
+        data_tests:
+          - not_null
+      - name: part_key
+        description: Foreign key to the part ordered on the line item.
+      - name: supplier_key
+        description: Foreign key to the supplier fulfilling the line item.
+      - name: line_number
+        description: Sequence number of the line item within the order.
+      - name: quantity
+        description: Quantity ordered for the line item.
+      - name: gross_item_sales_amount
+        description: Extended line amount before discounts and tax.
+      - name: discount_percentage
+        description: Discount rate applied to the line item.
+      - name: tax_rate
+        description: Tax rate applied to the discounted line amount.
+      - name: return_flag
+        description: Flag indicating whether the line item was returned.
+      - name: status_code
+        description: Fulfillment status code for the line item.
+      - name: ship_date
+        description: Date the line item was shipped.
+      - name: commit_date
+        description: Date the supplier committed to ship the line item.
+      - name: receipt_date
+        description: Date the customer received the line item.
+      - name: ship_instructions
+        description: Shipping instructions provided for the line item.
+      - name: ship_mode
+        description: Shipping method used for the line item.
+      - name: comment
+        description: Free-text comment captured on the line item.
+      - name: base_price
+        description: Derived unit price calculated as gross line amount divided by quantity.
+      - name: discounted_price
+        description: Derived unit price after applying the line-level discount percentage.
+      - name: discounted_item_sales_amount
+        description: Gross line amount after applying the discount percentage and before tax.
+      - name: item_discount_amount
+        description: Discount amount represented as a negative value for additive reporting.
+      - name: item_tax_amount
+        description: Tax amount applied to the discounted line amount.
+      - name: net_item_sales_amount
+        description: Final line amount including discounts and tax.
+
+  - name: stg_nations
+    description: TPCH nations staged from the raw `nation` source.
+    columns:
+      - name: nation_key
+        description: Primary key for the nation.
+        data_tests:
+          - not_null
+          - unique
+      - name: name
+        description: Nation name.
+      - name: region_key
+        description: Foreign key to the region the nation belongs to.
+        data_tests:
+          - not_null
+      - name: comment
+        description: Free-text comment captured on the nation record.
 
   - name: stg_regions
-    description: "TPCH regions staged from the raw `region` source."
+    description: TPCH regions staged from the raw `region` source.
     columns:
       - name: region_key
+        description: Primary key for the region.
         data_tests:
           - not_null
           - unique
+      - name: name
+        description: Region name.
+      - name: comment
+        description: Free-text comment captured on the region record.
 
   - name: stg_suppliers
-    description: "TPCH suppliers staged from the raw `supplier` source."
+    description: TPCH suppliers staged from the raw `supplier` source.
     columns:
       - name: supplier_key
+        description: Primary key for the supplier.
         data_tests:
           - not_null
           - unique
+      - name: name
+        description: Supplier name.
+      - name: address
+        description: Supplier street address.
       - name: nation_key
+        description: Foreign key to the supplier's nation.
         data_tests:
           - not_null
+      - name: phone_number
+        description: Supplier phone number.
+      - name: account_balance
+        description: Current supplier account balance from the source system.
+      - name: comment
+        description: Free-text comment captured on the supplier record.
 
   - name: stg_parts
-    description: "TPCH parts staged from the raw `part` source."
+    description: TPCH parts staged from the raw `part` source.
     columns:
       - name: part_key
+        description: Primary key for the part.
         data_tests:
           - not_null
           - unique
+      - name: name
+        description: Part name from the source system.
+      - name: manufacturer
+        description: Manufacturer associated with the part.
+      - name: brand
+        description: Brand associated with the part.
+      - name: part_type
+        description: Source part type classification.
+      - name: size
+        description: Part size attribute from the source system.
+      - name: container
+        description: Packaging container type for the part.
+      - name: retail_price
+        description: Standard retail price of the part.
+      - name: comment
+        description: Free-text comment captured on the part record.
 
   - name: stg_part_suppliers
-    description: "TPCH part-supplier bridge rows staged from the raw `partsupp` source."
+    description: TPCH part-supplier bridge rows staged from the raw `partsupp` source.
     columns:
       - name: part_key
+        description: Foreign key to the supplied part.
         data_tests:
           - not_null
       - name: supplier_key
+        description: Foreign key to the supplier for the part.
         data_tests:
           - not_null
+      - name: available_quantity
+        description: Available quantity the supplier can provide for the part.
+      - name: supply_cost
+        description: Supplier cost for the part.
+      - name: comment
+        description: Free-text comment captured on the part-supplier relationship.
