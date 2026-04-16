@@ -1,0 +1,24 @@
+version: 2
+
+models:
+  - name: stg_nations
+    description: Standardized nation records from the TPCH source, with one row per nation.
+    columns:
+      - name: nation_key
+        description: Surrogate key for the nation record from the source system.
+      - name: name
+        description: Nation name.
+      - name: region_key
+        description: Foreign key to the associated region.
+      - name: comment
+        description: Free-text comment provided in the source table.
+
+  - name: stg_regions
+    description: Standardized region records from the TPCH source, with one row per region.
+    columns:
+      - name: region_key
+        description: Surrogate key for the region record from the source system.
+      - name: name
+        description: Region name.
+      - name: comment
+        description: Free-text comment provided in the source table.
