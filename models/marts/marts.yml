@@ -1,0 +1,29 @@
+version: 2
+
+models:
+  - name: fct_monthly_sales
+    description: Monthly sales summary at calendar-month grain derived from `fct_orders`.
+    columns:
+      - name: order_month
+        description: First day of the order month.
+        data_tests:
+          - not_null
+          - unique
+      - name: order_count
+        description: Number of orders booked in the month.
+        data_tests:
+          - not_null
+      - name: customer_count
+        description: Number of distinct customers with orders in the month.
+        data_tests:
+          - not_null
+      - name: gross_sales_amount
+        description: Sum of gross item sales before discounts and tax.
+      - name: discount_amount
+        description: Sum of item-level discount amounts for the month.
+      - name: tax_amount
+        description: Sum of item-level tax amounts for the month.
+      - name: net_sales_amount
+        description: Sum of net item sales including discounts and tax.
+      - name: avg_order_net_sales_amount
+        description: Average net sales amount per order in the month.
