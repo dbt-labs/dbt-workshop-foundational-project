@@ -1,0 +1,57 @@
+models:
+  - name: stg_customers
+    description: Customer source records with business-friendly column names.
+    columns:
+      - name: customer_key
+        description: Primary key for a customer.
+        data_tests:
+          - not_null
+          - unique
+      - name: nation_key
+        description: Foreign key to the customer's nation.
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('stg_nations')
+                field: nation_key
+
+  - name: stg_nations
+    description: Nation source records with renamed keys and attributes.
+    columns:
+      - name: nation_key
+        description: Primary key for a nation.
+        data_tests:
+          - not_null
+          - unique
+      - name: region_key
+        description: Foreign key to the region the nation belongs to.
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('stg_regions')
+                field: region_key
+
+  - name: stg_regions
+    description: Region source records with renamed keys and attributes.
+    columns:
+      - name: region_key
+        description: Primary key for a region.
+        data_tests:
+          - not_null
+          - unique
+
+  - name: stg_orders
+    description: Order source records with renamed keys, dates, and order attributes.
+    columns:
+      - name: order_key
+        description: Primary key for an order.
+        data_tests:
+          - not_null
+          - unique
+      - name: customer_key
+        description: Foreign key to the customer who placed the order.
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('stg_customers')
+                field: customer_key
