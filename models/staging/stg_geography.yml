@@ -1,0 +1,32 @@
+version: 2
+
+models:
+  - name: stg_nations
+    description: Standardized nation records from the TPCH `nation` source.
+    columns:
+      - name: nation_key
+        description: Primary key for the nation.
+        data_tests:
+          - not_null
+          - unique
+      - name: name
+        description: Nation name.
+      - name: region_key
+        description: Foreign key to the region the nation belongs to.
+        data_tests:
+          - not_null
+      - name: comment
+        description: Free-text comment from the source.
+
+  - name: stg_regions
+    description: Standardized region records from the TPCH `region` source.
+    columns:
+      - name: region_key
+        description: Primary key for the region.
+        data_tests:
+          - not_null
+          - unique
+      - name: name
+        description: Region name.
+      - name: comment
+        description: Free-text comment from the source.
