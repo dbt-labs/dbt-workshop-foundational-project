@@ -36,3 +36,4 @@ models:
   foundational_project:
     +materialized: view
     +access: public
+    +static_analysis: strict

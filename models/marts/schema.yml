@@ -1,0 +1,48 @@
+models:
+  - name: monthly_sales
+    description: Monthly sales summary aggregated from `fct_orders` at the order month grain.
+    columns:
+      - name: order_month
+        description: First day of the month representing the reporting month for the aggregated orders.
+        data_tests:
+          - not_null
+          - unique
+      - name: order_count
+        description: Number of orders placed in the month.
+        data_tests:
+          - not_null
+      - name: customer_count
+        description: Number of distinct customers with at least one order in the month.
+        data_tests:
+          - not_null
+      - name: gross_sales_amount
+        description: Sum of gross item sales across all orders in the month.
+      - name: discount_amount
+        description: Sum of item-level discounts across all orders in the month.
+      - name: tax_amount
+        description: Sum of item-level taxes across all orders in the month.
+      - name: net_sales_amount
+        description: Sum of net item sales across all orders in the month.
+
+  - name: dim_customers
+    description: Customer dimension enriched with nation and region attributes from TPCH.
+    columns:
+      - name: customer_key
+        description: Surrogate identifier for the customer.
+        data_tests:
+          - not_null
+          - unique
+      - name: name
+        description: Customer name.
+      - name: address
+        description: Customer address.
+      - name: nation
+        description: Nation associated with the customer.
+      - name: region
+        description: Region associated with the customer's nation.
+      - name: phone_number
+        description: Customer phone number.
+      - name: account_balance
+        description: Current customer account balance.
+      - name: market_segment
+        description: Market segment assigned to the customer.
