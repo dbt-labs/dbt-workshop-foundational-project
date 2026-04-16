@@ -1,0 +1,22 @@
+version: 2
+
+models:
+  - name: dim_customers
+    description: Customer dimension enriched with geographic attributes from nation and region lookups. One record per customer.
+    columns:
+      - name: customer_key
+        description: Unique key for each customer.
+      - name: name
+        description: Customer name.
+      - name: address
+        description: Customer street address.
+      - name: nation
+        description: Nation associated with the customer.
+      - name: region
+        description: Region associated with the customer's nation.
+      - name: phone_number
+        description: Customer phone number.
+      - name: account_balance
+        description: Current account balance for the customer.
+      - name: market_segment
+        description: Market segment assigned to the customer.
