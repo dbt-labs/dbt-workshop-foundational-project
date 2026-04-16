@@ -1,0 +1,78 @@
+version: 2
+
+models:
+  - name: stg_nations
+    description: Standardized nation records from the TPCH source with renamed keys for downstream joins.
+    columns:
+      - name: nation_key
+        description: Primary key for the nation.
+      - name: name
+        description: Name of the nation.
+      - name: region_key
+        description: Foreign key to the region the nation belongs to.
+      - name: comment
+        description: Free-text comment from the source record.
+
+  - name: stg_regions
+    description: Standardized region records from the TPCH source with renamed keys for downstream joins.
+    columns:
+      - name: region_key
+        description: Primary key for the region.
+      - name: name
+        description: Name of the region.
+      - name: comment
+        description: Free-text comment from the source record.
+
+  - name: stg_parts
+    description: Standardized part records from the TPCH source with business-friendly column names.
+    columns:
+      - name: part_key
+        description: Primary key for the part.
+      - name: name
+        description: Name of the part.
+      - name: manufacturer
+        description: Manufacturer associated with the part.
+      - name: brand
+        description: Brand associated with the part.
+      - name: part_type
+        description: Detailed type classification for the part.
+      - name: size
+        description: Size attribute for the part.
+      - name: container
+        description: Packaging container for the part.
+      - name: retail_price
+        description: Retail price of the part.
+      - name: comment
+        description: Free-text comment from the source record.
+
+  - name: stg_part_suppliers
+    description: Standardized part-supplier bridge records showing supplier availability and cost for each part.
+    columns:
+      - name: part_key
+        description: Foreign key to the part.
+      - name: supplier_key
+        description: Foreign key to the supplier.
+      - name: available_quantity
+        description: Quantity currently available from the supplier for the part.
+      - name: supply_cost
+        description: Supplier cost for the part.
+      - name: comment
+        description: Free-text comment from the source record.
+
+  - name: stg_suppliers
+    description: Standardized supplier records from the TPCH source with renamed keys and contact attributes.
+    columns:
+      - name: supplier_key
+        description: Primary key for the supplier.
+      - name: name
+        description: Name of the supplier.
+      - name: address
+        description: Mailing address for the supplier.
+      - name: nation_key
+        description: Foreign key to the supplier's nation.
+      - name: phone_number
+        description: Supplier phone number.
+      - name: account_balance
+        description: Current account balance for the supplier.
+      - name: comment
+        description: Free-text comment from the source record.
