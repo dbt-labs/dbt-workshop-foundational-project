@@ -1,0 +1,48 @@
+models:
+  - name: stg_nations
+    description: "TPCH nations staged from the raw `nation` source."
+    columns:
+      - name: nation_key
+        data_tests:
+          - not_null
+          - unique
+      - name: region_key
+        data_tests:
+          - not_null
+
+  - name: stg_regions
+    description: "TPCH regions staged from the raw `region` source."
+    columns:
+      - name: region_key
+        data_tests:
+          - not_null
+          - unique
+
+  - name: stg_suppliers
+    description: "TPCH suppliers staged from the raw `supplier` source."
+    columns:
+      - name: supplier_key
+        data_tests:
+          - not_null
+          - unique
+      - name: nation_key
+        data_tests:
+          - not_null
+
+  - name: stg_parts
+    description: "TPCH parts staged from the raw `part` source."
+    columns:
+      - name: part_key
+        data_tests:
+          - not_null
+          - unique
+
+  - name: stg_part_suppliers
+    description: "TPCH part-supplier bridge rows staged from the raw `partsupp` source."
+    columns:
+      - name: part_key
+        data_tests:
+          - not_null
+      - name: supplier_key
+        data_tests:
+          - not_null
