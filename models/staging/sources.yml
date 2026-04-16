@@ -1,11 +1,26 @@
+version: 2
+
 sources:
   - name: tpch
-    database: raw
-    schema: tpch
+    database: snowflake_sample_data
+    schema: tpch_sf1
     tables:
       - name: orders
         description: "One record per order"
+        columns:
+          - name: o_orderkey
+            data_tests:
+              - not_null
+              - unique
+
       - name: customer
         description: "One record per customer"
+
       - name: lineitem
         description: "One record per line item within a single order (1 -> n)"
+
+      - name: nation
+        description: "One record per nation"
+
+      - name: region
+        description: "One record per region"

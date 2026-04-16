@@ -1,0 +1,26 @@
+models:
+  - name: monthly_sales
+    description: One row per order month with summarized order counts and sales amounts.
+    columns:
+      - name: order_month
+        description: First day of the month for the summarized orders.
+        data_tests:
+          - not_null
+          - unique
+
+      - name: order_count
+        description: Number of orders placed in the month.
+        data_tests:
+          - not_null
+
+      - name: gross_sales_amount
+        description: Sum of gross item sales before discounts and taxes for the month.
+
+      - name: discount_amount
+        description: Sum of item discounts applied to orders in the month.
+
+      - name: tax_amount
+        description: Sum of item taxes for orders in the month.
+
+      - name: net_sales_amount
+        description: Sum of net item sales for the month.
