@@ -1,0 +1,25 @@
+version: 2
+
+models:
+  - name: monthly_sales
+    description: Monthly summary of orders aggregated from `stg_orders` at the month grain.
+    columns:
+      - name: order_month
+        description: First day of the month representing the monthly grain of the model.
+        data_tests:
+          - not_null
+          - unique
+      - name: order_count
+        description: Number of orders placed in the month.
+        data_tests:
+          - not_null
+      - name: customer_count
+        description: Number of distinct customers with at least one order in the month.
+        data_tests:
+          - not_null
+      - name: total_sales_amount
+        description: Sum of order total price for all orders in the month.
+        data_tests:
+          - not_null
+      - name: average_order_value
+        description: Average order total price for orders in the month.
