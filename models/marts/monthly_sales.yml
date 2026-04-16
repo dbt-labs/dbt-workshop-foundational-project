@@ -23,3 +23,63 @@ models:
         description: Sum of item-level tax amounts for the month.
       - name: net_sales_amount
         description: Sum of net item sales after discounts and tax for the month.
+
+  - name: fct_orders
+    description: Order-level fact table that combines staged order attributes with aggregated line item sales metrics and customer context.
+    columns:
+      - name: order_key
+        description: Primary key for the order.
+        data_tests:
+          - not_null
+          - unique
+      - name: order_date
+        description: Date the order was placed.
+        data_tests:
+          - not_null
+      - name: customer_key
+        description: Foreign key to the customer who placed the order.
+        data_tests:
+          - not_null
+      - name: status_code
+        description: Status code assigned to the order.
+      - name: priority_code
+        description: Priority classification assigned to the order.
+      - name: ship_priority
+        description: Shipping priority value recorded on the order.
+      - name: clerk_name
+        description: Clerk responsible for the order.
+      - name: name
+        description: Customer name associated with the order.
+      - name: market_segment
+        description: Market segment for the customer associated with the order.
+      - name: gross_item_sales_amount
+        description: Sum of gross line item sales amounts for the order before discounts and tax.
+      - name: item_discount_amount
+        description: Sum of modeled discount amounts for the order.
+      - name: item_tax_amount
+        description: Sum of modeled tax amounts for the order.
+      - name: net_item_sales_amount
+        description: Sum of line item sales after discounts and tax for the order.
+
+  - name: dim_customers
+    description: Customer dimension enriched with nation and region attributes from the TPCH reference tables.
+    columns:
+      - name: customer_key
+        description: Primary key for the customer.
+        data_tests:
+          - not_null
+          - unique
+      - name: name
+        description: Customer name.
+      - name: address
+        description: Customer mailing address.
+      - name: nation
+        description: Nation associated with the customer.
+      - name: region
+        description: Region associated with the customer's nation.
+      - name: phone_number
+        description: Customer phone number.
+      - name: account_balance
+        description: Current account balance recorded for the customer.
+      - name: market_segment
+        description: Market segment assigned to the customer.

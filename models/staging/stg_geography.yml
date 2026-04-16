@@ -30,3 +30,107 @@ models:
         description: Region name.
       - name: comment
         description: Free-text comment from the source.
+
+  - name: stg_orders
+    description: Standardized order records from the TPCH `orders` source.
+    columns:
+      - name: order_key
+        description: Primary key for the order.
+        data_tests:
+          - not_null
+          - unique
+      - name: customer_key
+        description: Foreign key to the customer who placed the order.
+        data_tests:
+          - not_null
+      - name: status_code
+        description: Status code assigned to the order.
+      - name: total_price
+        description: Total price recorded on the raw order.
+      - name: order_date
+        description: Date the order was placed.
+      - name: clerk_name
+        description: Clerk responsible for the order.
+      - name: priority_code
+        description: Priority classification assigned to the order.
+      - name: ship_priority
+        description: Shipping priority value recorded on the order.
+      - name: comment
+        description: Free-text comment from the source order.
+
+  - name: stg_customers
+    description: Standardized customer records from the TPCH `customer` source.
+    columns:
+      - name: customer_key
+        description: Primary key for the customer.
+        data_tests:
+          - not_null
+          - unique
+      - name: name
+        description: Customer name.
+      - name: address
+        description: Customer mailing address.
+      - name: nation_key
+        description: Foreign key to the customer's nation.
+        data_tests:
+          - not_null
+      - name: phone_number
+        description: Customer phone number.
+      - name: account_balance
+        description: Current account balance recorded for the customer.
+      - name: market_segment
+        description: Market segment assigned to the customer.
+      - name: comment
+        description: Free-text comment from the source customer.
+
+  - name: stg_line_items
+    description: Standardized line item records from the TPCH `lineitem` source with derived pricing, discount, tax, and net sales amounts.
+    columns:
+      - name: order_key
+        description: Foreign key to the order the line item belongs to.
+        data_tests:
+          - not_null
+      - name: part_key
+        description: Foreign key to the part on the line item.
+      - name: supplier_key
+        description: Foreign key to the supplier fulfilling the line item.
+      - name: line_number
+        description: Line item number within the order.
+        data_tests:
+          - not_null
+      - name: quantity
+        description: Quantity ordered for the line item.
+      - name: gross_item_sales_amount
+        description: Gross sales amount for the full line item before discounts and tax.
+      - name: discount_percentage
+        description: Discount percentage applied to the line item.
+      - name: tax_rate
+        description: Tax rate applied to the discounted line item amount.
+      - name: return_flag
+        description: Indicator showing whether the line item was returned.
+      - name: status_code
+        description: Status code assigned to the line item.
+      - name: ship_date
+        description: Date the line item was shipped.
+      - name: commit_date
+        description: Date the supplier committed to ship the line item.
+      - name: receipt_date
+        description: Date the line item was received.
+      - name: ship_instructions
+        description: Shipping instructions recorded for the line item.
+      - name: ship_mode
+        description: Shipping mode used for the line item.
+      - name: comment
+        description: Free-text comment from the source line item.
+      - name: base_price
+        description: Per-unit base price derived from the gross line item sales amount and quantity.
+      - name: discounted_price
+        description: Per-unit price after applying the discount percentage.
+      - name: discounted_item_sales_amount
+        description: Gross line item sales amount after applying the discount percentage and before tax.
+      - name: item_discount_amount
+        description: Modeled discount amount for the line item represented as a negative value.
+      - name: item_tax_amount
+        description: Tax amount applied after discount for the line item.
+      - name: net_item_sales_amount
+        description: Net line item sales amount after discount and tax.
