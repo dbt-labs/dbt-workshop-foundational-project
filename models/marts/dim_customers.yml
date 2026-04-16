@@ -2,7 +2,7 @@ version: 2
 
 models:
   - name: dim_customers
-    description: One row per customer with core customer attributes used across marts.
+    description: One row per customer enriched with nation and region attributes for mart consumption.
     columns:
       - name: customer_key
         description: Primary key for the customer.
@@ -16,17 +16,17 @@ models:
       - name: address
         description: Customer address.
 
-      - name: nation_key
-        description: Foreign key to the customer's nation.
+      - name: nation
+        description: Customer nation name.
+
+      - name: region
+        description: Customer region name.
 
       - name: phone_number
         description: Customer phone number.
 
       - name: account_balance
-        description: Customer account balance.
+        description: Current customer account balance.
 
       - name: market_segment
         description: Customer market segment.
-
-      - name: comment
-        description: Free-text comment associated with the customer.
