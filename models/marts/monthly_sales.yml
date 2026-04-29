@@ -1,0 +1,39 @@
+version: 2
+
+models:
+  - name: monthly_sales
+    description: Monthly orders mart with one row per calendar month. This model rolls up `fct_orders` into a month-grain summary for trend reporting, KPI tracking, and lightweight dashboard queries.
+    columns:
+      - name: order_month
+        description: First day of the calendar month representing the reporting period for the aggregated orders.
+        data_tests:
+          - not_null
+          - unique
+      - name: order_count
+        description: Total number of orders booked in the month.
+        data_tests:
+          - not_null
+      - name: customer_count
+        description: Number of distinct customers who placed at least one order in the month.
+        data_tests:
+          - not_null
+      - name: gross_sales_amount
+        description: Total gross item sales amount before discounts and tax for all orders in the month.
+        data_tests:
+          - not_null
+      - name: discount_amount
+        description: Total discount amount applied across the month. Discounts are modeled as negative values.
+        data_tests:
+          - not_null
+      - name: tax_amount
+        description: Total tax amount applied across the month.
+        data_tests:
+          - not_null
+      - name: net_sales_amount
+        description: Total net sales amount after discounts and tax for all orders in the month.
+        data_tests:
+          - not_null
+      - name: avg_order_net_sales_amount
+        description: Average net sales amount per order in the month.
+        data_tests:
+          - not_null
