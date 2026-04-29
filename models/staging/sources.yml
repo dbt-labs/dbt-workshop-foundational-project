@@ -1,11 +1,241 @@
+version: 2
+
 sources:
   - name: tpch
-    database: raw
-    schema: tpch
+    description: TPCH sample dataset from Snowflake with customers, orders, line items, products, suppliers, and geographic reference data.
+    database: snowflake_sample_data
+    schema: tpch_sf1
     tables:
-      - name: orders
-        description: "One record per order"
       - name: customer
-        description: "One record per customer"
+        description: One record per customer.
+        columns:
+          - name: c_custkey
+            description: Primary key for the customer.
+            data_tests:
+              - unique
+              - not_null
+          - name: c_name
+            description: Customer name.
+          - name: c_address
+            description: Customer address.
+          - name: c_nationkey
+            description: Foreign key to the customer's nation.
+            data_tests:
+              - not_null
+              - relationships:
+                  arguments:
+                    to: source('tpch', 'nation')
+                    field: n_nationkey
+          - name: c_phone
+            description: Customer phone number.
+          - name: c_acctbal
+            description: Customer account balance.
+          - name: c_mktsegment
+            description: Customer market segment.
+          - name: c_comment
+            description: Free-form comment about the customer.
+
       - name: lineitem
-        description: "One record per line item within a single order (1 -> n)"
+        description: One record per line item within an order.
+        columns:
+          - name: l_orderkey
+            description: Foreign key to the order for this line item.
+            data_tests:
+              - not_null
+              - relationships:
+                  arguments:
+                    to: source('tpch', 'orders')
+                    field: o_orderkey
+          - name: l_partkey
+            description: Foreign key to the part ordered on this line item.
+            data_tests:
+              - not_null
+              - relationships:
+                  arguments:
+                    to: source('tpch', 'part')
+                    field: p_partkey
+          - name: l_suppkey
+            description: Foreign key to the supplier fulfilling this line item.
+            data_tests:
+              - not_null
+              - relationships:
+                  arguments:
+                    to: source('tpch', 'supplier')
+                    field: s_suppkey
+          - name: l_linenumber
+            description: Line number of the item within the order.
+            data_tests:
+              - not_null
+          - name: l_quantity
+            description: Quantity ordered on the line item.
+          - name: l_extendedprice
+            description: Extended price before discount and tax.
+          - name: l_discount
+            description: Discount rate applied to the line item.
+          - name: l_tax
+            description: Tax rate applied to the line item.
+          - name: l_returnflag
+            description: Return flag for the line item.
+          - name: l_linestatus
+            description: Status of the line item.
+          - name: l_shipdate
+            description: Date the line item was shipped.
+          - name: l_commitdate
+            description: Date the line item was committed.
+          - name: l_receiptdate
+            description: Date the line item was received.
+          - name: l_shipinstruct
+            description: Shipping instructions for the line item.
+          - name: l_shipmode
+            description: Shipping mode for the line item.
+          - name: l_comment
+            description: Free-form comment about the line item.
+
+      - name: nation
+        description: Nation reference data used to group customers and suppliers by geography.
+        columns:
+          - name: n_nationkey
+            description: Primary key for the nation.
+            data_tests:
+              - unique
+              - not_null
+          - name: n_name
+            description: Nation name.
+            data_tests:
+              - not_null
+          - name: n_regionkey
+            description: Foreign key to the region the nation belongs to.
+            data_tests:
+              - not_null
+              - relationships:
+                  arguments:
+                    to: source('tpch', 'region')
+                    field: r_regionkey
+          - name: n_comment
+            description: Free-form comment about the nation.
+
+      - name: orders
+        description: One record per order.
+        columns:
+          - name: o_orderkey
+            description: Primary key for the order.
+            data_tests:
+              - unique
+              - not_null
+          - name: o_custkey
+            description: Foreign key to the customer who placed the order.
+            data_tests:
+              - not_null
+              - relationships:
+                  arguments:
+                    to: source('tpch', 'customer')
+                    field: c_custkey
+          - name: o_orderstatus
+            description: Status code for the order.
+          - name: o_totalprice
+            description: Total price recorded for the order.
+          - name: o_orderdate
+            description: Date the order was placed.
+            data_tests:
+              - not_null
+          - name: o_orderpriority
+            description: Priority classification for the order.
+          - name: o_clerk
+            description: Clerk assigned to the order.
+          - name: o_shippriority
+            description: Shipping priority for the order.
+          - name: o_comment
+            description: Free-form comment about the order.
+
+      - name: part
+        description: Product dimension with one record per part.
+        columns:
+          - name: p_partkey
+            description: Primary key for the part.
+            data_tests:
+              - unique
+              - not_null
+          - name: p_name
+            description: Part name.
+          - name: p_mfgr
+            description: Manufacturer of the part.
+          - name: p_brand
+            description: Brand of the part.
+          - name: p_type
+            description: Product type classification.
+          - name: p_size
+            description: Size of the part.
+          - name: p_container
+            description: Packaging container for the part.
+          - name: p_retailprice
+            description: Retail price of the part.
+          - name: p_comment
+            description: Free-form comment about the part.
+
+      - name: partsupp
+        description: Bridge table between parts and suppliers with supply cost and available quantity.
+        columns:
+          - name: ps_partkey
+            description: Foreign key to the part.
+            data_tests:
+              - not_null
+              - relationships:
+                  arguments:
+                    to: source('tpch', 'part')
+                    field: p_partkey
+          - name: ps_suppkey
+            description: Foreign key to the supplier.
+            data_tests:
+              - not_null
+              - relationships:
+                  arguments:
+                    to: source('tpch', 'supplier')
+                    field: s_suppkey
+          - name: ps_availqty
+            description: Available quantity the supplier can provide for the part.
+          - name: ps_supplycost
+            description: Supply cost of the part from the supplier.
+          - name: ps_comment
+            description: Free-form comment about the part-supplier relationship.
+
+      - name: region
+        description: Region reference data for higher-level geography.
+        columns:
+          - name: r_regionkey
+            description: Primary key for the region.
+            data_tests:
+              - unique
+              - not_null
+          - name: r_name
+            description: Region name.
+            data_tests:
+              - not_null
+          - name: r_comment
+            description: Free-form comment about the region.
+
+      - name: supplier
+        description: One record per supplier.
+        columns:
+          - name: s_suppkey
+            description: Primary key for the supplier.
+            data_tests:
+              - unique
+              - not_null
+          - name: s_name
+            description: Supplier name.
+          - name: s_address
+            description: Supplier address.
+          - name: s_nationkey
+            description: Foreign key to the supplier's nation.
+            data_tests:
+              - not_null
+              - relationships:
+                  arguments:
+                    to: source('tpch', 'nation')
+                    field: n_nationkey
+          - name: s_phone
+            description: Supplier phone number.
+          - name: s_acctbal
+            description: Supplier account balance.
+          - name: s_comment
+            description: Free-form comment about the supplier.
