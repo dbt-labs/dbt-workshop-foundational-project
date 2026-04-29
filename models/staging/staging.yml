@@ -1,0 +1,134 @@
+version: 2
+
+models:
+  - name: stg_orders
+    description: Cleaned order staging model with one row per order and standardized column names from `source('tpch', 'orders')`.
+    columns:
+      - name: order_key
+        description: Primary key for the order.
+        data_tests:
+          - not_null
+          - unique
+      - name: customer_key
+        description: Customer key associated with the order.
+        data_tests:
+          - not_null
+      - name: status_code
+        description: Order status code from TPC-H.
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ['F', 'O', 'P']
+      - name: total_price
+        description: Total recorded order price from the source order record.
+        data_tests:
+          - not_null
+      - name: order_date
+        description: Date the order was placed.
+        data_tests:
+          - not_null
+      - name: clerk_name
+        description: Clerk responsible for the order.
+      - name: priority_code
+        description: Source order priority code.
+      - name: ship_priority
+        description: Shipping priority associated with the order.
+      - name: comment
+        description: Free-text comment captured on the source order.
+
+  - name: stg_customers
+    description: Cleaned customer staging model with one row per customer and renamed source columns.
+    columns:
+      - name: customer_key
+        description: Primary key for the customer.
+        data_tests:
+          - not_null
+          - unique
+      - name: name
+        description: Customer name.
+        data_tests:
+          - not_null
+      - name: address
+        description: Customer street address.
+      - name: nation_key
+        description: Nation key associated with the customer.
+      - name: phone_number
+        description: Customer phone number.
+      - name: account_balance
+        description: Current account balance for the customer.
+      - name: market_segment
+        description: Market segment assigned to the customer.
+      - name: comment
+        description: Free-text comment captured on the source customer.
+
+  - name: stg_line_items
+    description: Cleaned line item staging model with one row per order line and derived sales, discount, tax, and net amount columns.
+    data_tests:
+      - unique_line_item_grain:
+          arguments:
+            columns: ['order_key', 'line_number']
+    columns:
+      - name: order_key
+        description: Order key associated with the line item.
+        data_tests:
+          - not_null
+      - name: line_number
+        description: Line number within the order.
+        data_tests:
+          - not_null
+      - name: part_key
+        description: Part key for the item on the order line.
+        data_tests:
+          - not_null
+      - name: supplier_key
+        description: Supplier key for the item on the order line.
+        data_tests:
+          - not_null
+      - name: quantity
+        description: Quantity ordered on the line item.
+        data_tests:
+          - not_null
+      - name: gross_item_sales_amount
+        description: Extended sales amount for the line item before discounts and taxes.
+        data_tests:
+          - not_null
+      - name: discount_percentage
+        description: Discount percentage applied to the line item.
+      - name: tax_rate
+        description: Tax rate applied to the discounted line item.
+      - name: return_flag
+        description: Return status code for the line item.
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ['A', 'N', 'R']
+      - name: status_code
+        description: Fulfillment status code for the line item.
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ['F', 'O']
+      - name: ship_date
+        description: Date the line item shipped.
+      - name: commit_date
+        description: Date committed for shipment.
+      - name: receipt_date
+        description: Date the line item was received.
+      - name: ship_instructions
+        description: Shipping instructions from the source system.
+      - name: ship_mode
+        description: Shipping mode used for the line item.
+      - name: comment
+        description: Free-text comment captured on the source line item.
+      - name: base_price
+        description: Derived unit price before discount.
+      - name: discounted_price
+        description: Derived unit price after discount.
+      - name: discounted_item_sales_amount
+        description: Line item sales amount after discount and before tax.
+      - name: item_discount_amount
+        description: Discount amount represented as a negative value.
+      - name: item_tax_amount
+        description: Tax amount applied after discount.
+      - name: net_item_sales_amount
+        description: Net line item sales amount after discount and tax.

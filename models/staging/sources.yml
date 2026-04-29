@@ -1,11 +1,223 @@
+version: 2
+
 sources:
   - name: tpch
-    database: raw
-    schema: tpch
+    description: Sample TPC-H source data from Snowflake used to build the staging and mart layers in this project.
+    database: snowflake_sample_data
+    schema: tpch_sf1
     tables:
-      - name: orders
-        description: "One record per order"
       - name: customer
-        description: "One record per customer"
+        description: One record per customer in the source system.
+        columns:
+          - name: c_custkey
+            description: Primary key for the customer.
+            data_tests:
+              - not_null
+              - unique
+          - name: c_name
+            description: Customer name.
+            data_tests:
+              - not_null
+          - name: c_address
+            description: Customer address.
+          - name: c_nationkey
+            description: Foreign key to the customer's nation.
+            data_tests:
+              - not_null
+          - name: c_phone
+            description: Customer phone number.
+          - name: c_acctbal
+            description: Customer account balance.
+          - name: c_mktsegment
+            description: Customer market segment.
+          - name: c_comment
+            description: Free-text comment for the customer.
+
       - name: lineitem
-        description: "One record per line item within a single order (1 -> n)"
+        description: One record per order line item in the source system.
+        columns:
+          - name: l_orderkey
+            description: Foreign key to the order associated with the line item.
+            data_tests:
+              - not_null
+          - name: l_partkey
+            description: Foreign key to the part on the line item.
+            data_tests:
+              - not_null
+          - name: l_suppkey
+            description: Foreign key to the supplier fulfilling the line item.
+            data_tests:
+              - not_null
+          - name: l_linenumber
+            description: Line number within the order.
+            data_tests:
+              - not_null
+          - name: l_quantity
+            description: Quantity ordered for the line item.
+            data_tests:
+              - not_null
+          - name: l_extendedprice
+            description: Extended price for the line item before discount and tax.
+            data_tests:
+              - not_null
+          - name: l_discount
+            description: Discount percentage applied to the line item.
+          - name: l_tax
+            description: Tax rate applied to the line item.
+          - name: l_returnflag
+            description: Return flag for the line item.
+          - name: l_linestatus
+            description: Status code for the line item.
+          - name: l_shipdate
+            description: Ship date for the line item.
+          - name: l_commitdate
+            description: Commit date for the line item.
+          - name: l_receiptdate
+            description: Receipt date for the line item.
+          - name: l_shipinstruct
+            description: Shipping instructions for the line item.
+          - name: l_shipmode
+            description: Shipping mode for the line item.
+          - name: l_comment
+            description: Free-text comment for the line item.
+
+      - name: nation
+        description: Lookup table of nations used to group customers and suppliers.
+        columns:
+          - name: n_nationkey
+            description: Primary key for the nation.
+            data_tests:
+              - not_null
+              - unique
+          - name: n_name
+            description: Nation name.
+            data_tests:
+              - not_null
+          - name: n_regionkey
+            description: Foreign key to the region.
+            data_tests:
+              - not_null
+          - name: n_comment
+            description: Free-text comment for the nation.
+
+      - name: orders
+        description: One record per order in the source system.
+        columns:
+          - name: o_orderkey
+            description: Primary key for the order.
+            data_tests:
+              - not_null
+              - unique
+          - name: o_custkey
+            description: Foreign key to the customer who placed the order.
+            data_tests:
+              - not_null
+          - name: o_orderstatus
+            description: Status code for the order.
+          - name: o_totalprice
+            description: Total price recorded for the order.
+            data_tests:
+              - not_null
+          - name: o_orderdate
+            description: Date the order was placed.
+            data_tests:
+              - not_null
+          - name: o_orderpriority
+            description: Priority assigned to the order.
+          - name: o_clerk
+            description: Clerk associated with the order.
+          - name: o_shippriority
+            description: Shipping priority for the order.
+          - name: o_comment
+            description: Free-text comment for the order.
+
+      - name: part
+        description: One record per part available for sale.
+        columns:
+          - name: p_partkey
+            description: Primary key for the part.
+            data_tests:
+              - not_null
+              - unique
+          - name: p_name
+            description: Part name.
+            data_tests:
+              - not_null
+          - name: p_mfgr
+            description: Manufacturer of the part.
+          - name: p_brand
+            description: Brand of the part.
+          - name: p_type
+            description: Type classification for the part.
+          - name: p_size
+            description: Size of the part.
+          - name: p_container
+            description: Container type for the part.
+          - name: p_retailprice
+            description: Retail price of the part.
+            data_tests:
+              - not_null
+          - name: p_comment
+            description: Free-text comment for the part.
+
+      - name: partsupp
+        description: Bridge table relating parts to suppliers, including supply cost and available quantity.
+        columns:
+          - name: ps_partkey
+            description: Foreign key to the part.
+            data_tests:
+              - not_null
+          - name: ps_suppkey
+            description: Foreign key to the supplier.
+            data_tests:
+              - not_null
+          - name: ps_availqty
+            description: Available quantity the supplier can provide for the part.
+            data_tests:
+              - not_null
+          - name: ps_supplycost
+            description: Supply cost for the part from the supplier.
+            data_tests:
+              - not_null
+          - name: ps_comment
+            description: Free-text comment for the part-supplier relationship.
+
+      - name: region
+        description: Lookup table of regions used to group nations.
+        columns:
+          - name: r_regionkey
+            description: Primary key for the region.
+            data_tests:
+              - not_null
+              - unique
+          - name: r_name
+            description: Region name.
+            data_tests:
+              - not_null
+          - name: r_comment
+            description: Free-text comment for the region.
+
+      - name: supplier
+        description: One record per supplier in the source system.
+        columns:
+          - name: s_suppkey
+            description: Primary key for the supplier.
+            data_tests:
+              - not_null
+              - unique
+          - name: s_name
+            description: Supplier name.
+            data_tests:
+              - not_null
+          - name: s_address
+            description: Supplier address.
+          - name: s_nationkey
+            description: Foreign key to the supplier's nation.
+            data_tests:
+              - not_null
+          - name: s_phone
+            description: Supplier phone number.
+          - name: s_acctbal
+            description: Supplier account balance.
+          - name: s_comment
+            description: Free-text comment for the supplier.
