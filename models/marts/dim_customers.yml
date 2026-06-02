@@ -1,0 +1,35 @@
+version: 2
+
+models:
+  - name: dim_customers
+    description: customer dimension with one record per customer and core profile attributes used for reporting and segmentation.
+    columns:
+      - name: customer_key
+        description: unique identifier for a customer.
+        data_tests:
+          - not_null
+          - unique
+      - name: name
+        description: customer name.
+        data_tests:
+          - not_null
+      - name: address
+        description: customer mailing address.
+        data_tests:
+          - not_null
+      - name: nation
+        description: customer nation.
+        data_tests:
+          - not_null
+      - name: region
+        description: customer geographic region.
+        data_tests:
+          - not_null
+      - name: phone_number
+        description: customer phone number.
+      - name: account_balance
+        description: current account balance for the customer.
+      - name: market_segment
+        description: business segment the customer belongs to.
+        data_tests:
+          - not_null
