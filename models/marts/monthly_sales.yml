@@ -1,0 +1,24 @@
+version: 2
+
+models:
+  - name: monthly_sales
+    description: monthly sales performance by market segment.
+    data_tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns:
+              - order_month
+              - market_segment
+    columns:
+      - name: order_month
+        description: calendar month the sales are attributed to.
+        data_tests:
+          - not_null
+      - name: market_segment
+        description: customer market segment associated with the sale.
+        data_tests:
+          - not_null
+      - name: total_revenue
+        description: total sales revenue for the month and market segment.
+        data_tests:
+          - not_null
