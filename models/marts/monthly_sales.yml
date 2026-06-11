@@ -1,0 +1,20 @@
+version: 2
+
+models:
+  - name: monthly_sales
+    description: Monthly revenue by market segment, aggregated from `fct_orders` at the grain of one row per order month and market segment.
+    columns:
+      - name: order_month
+        description: First day of the month representing the reporting period for the aggregated sales.
+        data_tests:
+          - not_null
+
+      - name: market_segment
+        description: Customer market segment used to group revenue for monthly reporting.
+        data_tests:
+          - not_null
+
+      - name: total_revenue
+        description: Sum of `gross_item_sales_amount` for all orders in the month and market segment.
+        data_tests:
+          - not_null
