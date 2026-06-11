@@ -1,0 +1,19 @@
+version: 2
+
+models:
+  - name: monthly_sales
+    description: monthly sales summary by market segment.
+    columns:
+      - name: order_month
+        description: month the sales are attributed to.
+        data_tests:
+          - not_null
+      - name: market_segment
+        description: customer market segment associated with the sale.
+        data_tests:
+          - not_null
+      - name: total_revenue
+        description: total sales amount for the month and market segment.
+        data_tests:
+          - not_null
+
