@@ -1,0 +1,22 @@
+version: 2
+
+models:
+  - name: monthly_sales
+    description: monthly revenue by market segment.
+    data_tests:
+      - unique:
+          arguments:
+            column_name: "concat(to_varchar(order_month), '||', market_segment)"
+    columns:
+      - name: order_month
+        description: the calendar month the sales are associated with.
+        data_tests:
+          - not_null
+      - name: market_segment
+        description: the customer market segment for the sales.
+        data_tests:
+          - not_null
+      - name: total_revenue
+        description: total sales revenue for the month and market segment.
+        data_tests:
+          - not_null
