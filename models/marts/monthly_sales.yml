@@ -1,0 +1,18 @@
+version: 2
+
+models:
+  - name: monthly_sales
+    description: monthly revenue by market segment, with one row per month and segment
+    columns:
+      - name: order_month
+        description: calendar month the sales activity belongs to
+        data_tests:
+          - not_null
+      - name: market_segment
+        description: customer market segment associated with the sales
+        data_tests:
+          - not_null
+      - name: total_revenue
+        description: total sales revenue recognized for the month and market segment
+        data_tests:
+          - not_null
