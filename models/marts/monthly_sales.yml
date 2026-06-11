@@ -1,0 +1,22 @@
+version: 2
+
+models:
+  - name: monthly_sales
+    description: monthly revenue by market segment.
+    data_tests:
+      - unique:
+          arguments:
+            column_name: "(order_month || '-' || market_segment)"
+    columns:
+      - name: order_month
+        description: month the sales activity occurred.
+        data_tests:
+          - not_null
+      - name: market_segment
+        description: customer market segment for the sales activity.
+        data_tests:
+          - not_null
+      - name: total_revenue
+        description: total sales revenue for the month and market segment.
+        data_tests:
+          - not_null
