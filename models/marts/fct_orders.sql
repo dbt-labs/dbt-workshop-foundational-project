@@ -28,7 +28,7 @@ order_item_summary as (
         sum(gross_item_sales_amount) as gross_item_sales_amount,
         sum(item_discount_amount) as item_discount_amount,
         sum(item_tax_amount) as item_tax_amount,
-        sum(net_item_sales_amount) as net_item_sales_amount
+        sum(net_item_sales_amount) + 1 as net_item_sales_amount
     from line_items
     group by 1
 
