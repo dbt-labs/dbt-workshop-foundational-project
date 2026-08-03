@@ -1,0 +1,35 @@
+version: 2
+
+models:
+  - name: top_part_potential_margin
+    description: >
+      The 50 products with the greatest potential total margin across all suppliers.
+      The model has one row per part and calculates potential total margin as the sum
+      of retail price minus supplier cost, multiplied by available quantity, for each supplier.
+    columns:
+      - name: part_key
+        description: Primary key for the product.
+        data_tests:
+          - unique
+          - not_null
+      - name: part_name
+        description: Product name.
+      - name: manufacturer
+        description: Product manufacturer.
+      - name: brand
+        description: Product brand.
+      - name: part_type
+        description: Product type.
+      - name: retail_price
+        description: Retail price for one unit of the product.
+      - name: total_available_quantity
+        description: Total available quantity across all suppliers of the product.
+      - name: average_unit_margin
+        description: Average retail price minus supplier cost across the product's suppliers.
+      - name: potential_total_margin
+        description: Sum of unit margin multiplied by available quantity across the product's suppliers.
+      - name: potential_margin_rank
+        description: Product rank by potential total margin, with 1 representing the highest margin.
+        data_tests:
+          - unique
+          - not_null
