@@ -9,3 +9,5 @@ sources:
         description: "One record per customer"
       - name: lineitem
         description: "One record per line item within a single order (1 -> n)"
+      - name: part 
+      - name: partsupp
