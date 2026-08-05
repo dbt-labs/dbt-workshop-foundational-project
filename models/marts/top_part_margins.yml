@@ -1,0 +1,32 @@
+version: 2
+
+models:
+  - name: top_part_margins
+    description: >
+      The 50 parts with the highest total available-inventory margin. Each row represents
+      one part, aggregating its supplier inventory; total margin is the sum of each
+      supplier's unit margin multiplied by its available quantity.
+    columns:
+      - name: part_key
+        description: Primary key for the part.
+        data_tests:
+          - not_null
+          - unique
+      - name: part_name
+        description: Descriptive name of the part.
+      - name: manufacturer
+        description: Manufacturer assigned to the part.
+      - name: brand
+        description: Brand assigned to the part.
+      - name: part_type
+        description: Product type assigned to the part.
+      - name: unit_retail_price
+        description: Retail price per unit of the part.
+      - name: best_unit_margin
+        description: Highest supplier-level unit margin for the part, calculated as retail price minus unit cost.
+      - name: total_available_quantity
+        description: Total available quantity across all suppliers for the part.
+      - name: total_margin
+        description: Total available-inventory margin across suppliers, calculated as unit margin multiplied by available quantity.
+      - name: total_margin_rank
+        description: Descending rank of the part by total margin; this model retains ranks 1 through 50.
