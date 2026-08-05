@@ -1,0 +1,58 @@
+version: 2
+
+models:
+  - name: monthly_sales
+    description: Monthly gross item sales by customer market segment. The model has one row per calendar month and market segment for trend reporting; months without orders for a segment are not represented.
+    data_tests:
+      - unique:
+          column_name: "(order_month || '|' || market_segment)"
+    columns:
+      - name: order_month
+        description: First day of the calendar month containing the order date; used as the reporting period for the aggregation.
+        data_tests:
+          - not_null
+      - name: market_segment
+        description: TPC-H customer market segment associated with the orders included in the monthly aggregate.
+        data_tests:
+          - not_null
+      - name: total_revenue
+        description: Sum of gross item sales amounts for orders in the month and market segment, before item-level discounts and taxes.
+        data_tests:
+          - not_null
+
+
+  - name: top_product_margins
+    description: Top 50 products ranked by total margin potential. For each product, the model selects the supplier with the highest retail-price-minus-supply-cost unit margin, multiplies that margin by the selected supplier's available quantity, and ranks products descending by the result.
+    data_tests:
+      - unique:
+          column_name: part_key
+    columns:
+      - name: part_key
+        description: Stable identifier for the ranked product.
+        data_tests:
+          - not_null
+      - name: part_name
+        description: Name of the ranked product from the TPC-H part source.
+        data_tests:
+          - not_null
+      - name: supplier_key
+        description: Supplier selected for the product because it provides the highest unit margin; lower supplier keys break unit-margin ties.
+        data_tests:
+          - not_null
+      - name: available_quantity
+        description: Inventory quantity available from the selected supplier and used in the total margin calculation.
+        data_tests:
+          - not_null
+      - name: best_unit_margin
+        description: Highest available per-unit margin for the product, calculated as retail price minus the selected supplier's supply cost.
+        data_tests:
+          - not_null
+      - name: total_margin
+        description: Margin potential for the product, calculated as best unit margin multiplied by available quantity from the selected supplier.
+        data_tests:
+          - not_null
+      - name: total_margin_rank
+        description: Product rank by total margin in descending order, with part key used to break ties.
+        data_tests:
+          - unique
+          - not_null

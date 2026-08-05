@@ -9,3 +9,46 @@ sources:
         description: "One record per customer"
       - name: lineitem
         description: "One record per line item within a single order (1 -> n)"
+      - name: part
+        description: "One record per TPC-H product"
+      - name: partsupp
+        description: "One record per product and supplier combination, including available inventory and supply cost"
+
+models:
+  - name: stg_tpch__part
+    description: TPC-H product records renamed for consistent downstream use. One row per product.
+    columns:
+      - name: part_key
+        description: Stable identifier for the TPC-H product.
+        data_tests:
+          - unique
+          - not_null
+      - name: part_name
+        description: Product name supplied by TPC-H.
+      - name: retail_price
+        description: Listed retail price for one unit of the product.
+        data_tests:
+          - not_null
+
+  - name: stg_tpch__partsupp
+    description: TPC-H supplier inventory and cost records renamed for consistent downstream use. One row per product and supplier combination.
+    data_tests:
+      - unique:
+          column_name: "(part_key || '|' || supplier_key)"
+    columns:
+      - name: part_key
+        description: Identifier of the product supplied by this supplier.
+        data_tests:
+          - not_null
+      - name: supplier_key
+        description: Identifier of the supplier for the product inventory record.
+        data_tests:
+          - not_null
+      - name: available_quantity
+        description: Quantity of the product currently available from the supplier.
+        data_tests:
+          - not_null
+      - name: supply_cost
+        description: Supplier cost for one unit of the product.
+        data_tests:
+          - not_null
