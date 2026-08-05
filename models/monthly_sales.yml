@@ -1,0 +1,26 @@
+version: 2
+
+models:
+  - name: monthly_sales
+    description: >
+      Monthly gross sales summarized by customer market segment, with one row for each
+      combination of calendar month and segment. Use this model for trend reporting and
+      segment-level revenue analysis; totals are based on gross item sales before discounts
+      and tax.
+    data_tests:
+      - unique:
+          arguments:
+            column_name: "(order_month || '|' || market_segment)"
+    columns:
+      - name: order_month
+        description: Calendar month in which the order was placed, truncated from `order_date`.
+        data_tests:
+          - not_null
+      - name: market_segment
+        description: Customer market segment associated with orders contributing to the month's revenue.
+        data_tests:
+          - not_null
+      - name: total_revenue
+        description: Sum of gross item sales for orders in the calendar month and market segment, before discounts and tax.
+        data_tests:
+          - not_null
