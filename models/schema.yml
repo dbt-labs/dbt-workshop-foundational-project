@@ -1,0 +1,23 @@
+version: 2
+
+models:
+  - name: monthly_sales
+    description: >
+      Monthly gross revenue summarized by customer market segment. Each row represents
+      one order month and market segment; revenue is aggregated from the gross sales
+      amount of all order line items in that group.
+    columns:
+      - name: order_month
+        description: Calendar month of the orders contributing to the revenue total.
+        data_tests:
+          - not_null
+
+      - name: market_segment
+        description: Customer market segment associated with the orders in the monthly total.
+        data_tests:
+          - not_null
+
+      - name: total_revenue
+        description: Sum of gross item sales for the order month and market segment.
+        data_tests:
+          - not_null
