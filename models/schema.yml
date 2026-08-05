@@ -10,3 +10,29 @@ models:
         description: Customer market segment associated with the orders contributing to the monthly revenue total.
       - name: total_revenue
         description: Sum of gross item sales for orders in the reporting month and market segment, before item-level discounts and taxes.
+
+
+  - name: tests
+    description: Top 50 parts ranked by total margin. One row per part, combining its retail price with quantity-weighted supplier cost and total available quantity across suppliers.
+    columns:
+      - name: p_partkey
+        description: Unique identifier for the part.
+        data_tests:
+          - unique
+          - not_null
+      - name: part_name
+        description: Descriptive name of the part.
+      - name: part_brand
+        description: Brand assigned to the part in the product catalog.
+      - name: unit_retail_price
+        description: Catalog retail price for one unit of the part.
+      - name: total_quantity
+        description: Total quantity available across all suppliers for the part.
+      - name: unit_cost
+        description: Quantity-weighted average supplier cost per unit across all suppliers for the part.
+      - name: unit_margin
+        description: Difference between the part's unit retail price and its quantity-weighted average unit cost.
+      - name: total_margin
+        description: Unit margin multiplied by total available quantity across suppliers.
+      - name: margin_rank
+        description: Descending rank by total margin, with part key used to break ties deterministically.
