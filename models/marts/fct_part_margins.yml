@@ -1,0 +1,30 @@
+version: 2
+
+models:
+  - name: fct_part_margins
+    description: One record per part for the 50 parts with the highest total inventory margin across suppliers. Total margin is the sum of each supplier's available quantity multiplied by the difference between the part retail price and that supplier's unit supply cost.
+    columns:
+      - name: part_key
+        description: Primary key for the part.
+        data_tests:
+          - not_null
+          - unique
+      - name: part_name
+        description: Name of the part.
+      - name: manufacturer
+        description: Manufacturer assigned to the part.
+      - name: brand
+        description: Brand assigned to the part.
+      - name: part_type
+        description: TPC-H classification of the part.
+      - name: unit_retail_price
+        description: Retail price per unit of the part.
+      - name: best_unit_margin
+        description: Largest retail-price-minus-supply-cost margin available for the part across its suppliers.
+      - name: total_margin
+        description: Sum of supplier inventory quantities multiplied by their respective unit margins.
+      - name: total_margin_rank
+        description: Descending rank by total margin, with part key used to break ties.
+        data_tests:
+          - not_null
+          - unique
