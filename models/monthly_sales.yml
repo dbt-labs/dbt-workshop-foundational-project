@@ -1,0 +1,18 @@
+version: 2
+
+models:
+  - name: monthly_sales
+    description: "Monthly gross sales revenue aggregated by customer market segment."
+    columns:
+      - name: order_month
+        description: "First day of the calendar month in which the orders were placed."
+        data_tests:
+          - not_null
+      - name: market_segment
+        description: "Customer market segment associated with the orders."
+        data_tests:
+          - not_null
+      - name: total_revenue
+        description: "Sum of gross item sales amounts for the month and market segment."
+        data_tests:
+          - not_null
