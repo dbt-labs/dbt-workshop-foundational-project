@@ -1,0 +1,38 @@
+version: 2
+
+models:
+  - name: top_50_part_margins
+    description: >
+      The 50 parts with the highest potential inventory margin. One row per part;
+      total margin sums each supplier's available quantity multiplied by that
+      supplier's unit margin. Unit margin is the retail price less the supplier
+      cost, and the best unit margin uses the lowest available supplier cost.
+    columns:
+      - name: part_key
+        description: Stable identifier for the part and the model's row-level grain.
+        data_tests:
+          - not_null
+          - unique
+      - name: part_name
+        description: Name of the part from the source catalog.
+      - name: manufacturer_name
+        description: Manufacturer assigned to the part in the source catalog.
+      - name: brand_name
+        description: Brand assigned to the part in the source catalog.
+      - name: part_type
+        description: Source classification of the part.
+      - name: unit_retail_price
+        description: Retail price per unit of the part.
+      - name: lowest_unit_cost
+        description: Lowest unit supply cost across suppliers that have the part available.
+      - name: total_available_quantity
+        description: Sum of available inventory quantity across all suppliers for the part.
+      - name: best_unit_margin
+        description: Highest supplier-level unit margin, calculated as retail price less the lowest unit cost.
+      - name: total_margin
+        description: Potential margin across all available supplier inventory, calculated as the sum of unit margin multiplied by available quantity.
+      - name: margin_rank
+        description: Descending rank by total margin; ties are broken by best unit margin and then part key.
+        data_tests:
+          - not_null
+          - unique
