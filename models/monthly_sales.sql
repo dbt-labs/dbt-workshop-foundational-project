@@ -7,4 +7,4 @@ FROM
    {{ ref('fct_orders') }}
 GROUP BY
    1, 2
-ORDER BY 1 ASC;
+ORDER BY 1 ASC
