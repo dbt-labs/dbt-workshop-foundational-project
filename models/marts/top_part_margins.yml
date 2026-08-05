@@ -1,0 +1,75 @@
+version: 2
+
+models:
+  - name: top_part_margins
+    description: >
+      Top 50 parts ranked by total potential margin. Each row represents one part and
+      aggregates supplier-level margins calculated from that supplier's unit cost and
+      available quantity. Total margin is the sum of supplier-level unit margin multiplied
+      by available quantity.
+    columns:
+      - name: part_key
+        description: Unique identifier for the part from the TPCH part source.
+        data_tests:
+          - unique
+          - not_null
+
+      - name: part_name
+        description: Descriptive name of the part.
+        data_tests:
+          - not_null
+
+      - name: manufacturer
+        description: Manufacturer associated with the part.
+        data_tests:
+          - not_null
+
+      - name: brand
+        description: Brand associated with the part.
+        data_tests:
+          - not_null
+
+      - name: part_type
+        description: Product type classification for the part.
+        data_tests:
+          - not_null
+
+      - name: unit_retail_price
+        description: Listed retail price for one unit of the part.
+        data_tests:
+          - not_null
+
+      - name: total_available_quantity
+        description: Sum of available inventory quantity across all suppliers for the part.
+        data_tests:
+          - not_null
+
+      - name: weighted_average_unit_cost
+        description: Quantity-weighted average supplier unit cost for the part.
+        data_tests:
+          - not_null
+
+      - name: unit_margin
+        description: Quantity-weighted potential margin per unit, calculated as unit retail price minus weighted average unit cost.
+        data_tests:
+          - not_null
+
+      - name: total_margin
+        description: Sum of each supplier's unit margin multiplied by that supplier's available quantity.
+        data_tests:
+          - not_null
+
+      - name: unit_margin_rank
+        description: Descending rank of the part by quantity-weighted unit margin, with part key used to resolve ties.
+        data_tests:
+          - unique
+          - not_null
+
+      - name: total_margin_rank
+        description: Descending rank of the part by total margin, with part key used to resolve ties. Only ranks 1 through 50 are included.
+        data_tests:
+          - unique
+          - not_null
+          - accepted_values:
+              arguments:
+                values: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50]

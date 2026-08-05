@@ -1,0 +1,22 @@
+version: 2
+
+models:
+  - name: monthly_sales
+    description: >
+      Monthly gross item sales summarized by customer market segment. Each row represents
+      one calendar month and market segment combination from `fct_orders`.
+    columns:
+      - name: order_month
+        description: Calendar month in which the order was placed, derived by truncating `order_date` to the month.
+        data_tests:
+          - not_null
+
+      - name: market_segment
+        description: Customer market segment associated with the orders contributing to the monthly revenue total.
+        data_tests:
+          - not_null
+
+      - name: total_revenue
+        description: Sum of gross item sales amounts for orders in the calendar month and market segment.
+        data_tests:
+          - not_null
