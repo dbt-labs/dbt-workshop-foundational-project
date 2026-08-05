@@ -1,4 +1,4 @@
-#monthly_sales.sql
+--monthly_sales.sql
 SELECT
    DATE_TRUNC('month', order_date) AS order_month,
    market_segment,
