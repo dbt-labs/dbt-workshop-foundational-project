@@ -1,0 +1,12 @@
+#monthly_sales.yml
+models:
+  - name: monthly_sales
+    description:
+      This model aggregates sales data on a monthly basis, providing insights
+      into total revenue generated per market segment each month.
+    columns:
+      - name: order_month
+        description: The month in which the order was placed.
+        data_tests:
+          - not_null
+      - name: market_segment

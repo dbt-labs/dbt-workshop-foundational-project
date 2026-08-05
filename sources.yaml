@@ -1,3 +1,4 @@
+#sources.yaml
 sources:
   - name: tpch
     description: "TPCH data source from Snowflake Sample Data"
@@ -8,7 +9,7 @@ sources:
         description: "One record per order"
       - name: customer
         description: "One record per customer"
-      - name: lineitem
+      - name: lineitem:
         description: "One record per line item within a single order (1 -> n)"
-      - name: part
+      - name: part 
       - name: partsupp
