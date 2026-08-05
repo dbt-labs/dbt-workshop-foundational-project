@@ -1,0 +1,37 @@
+version: 2
+
+models:
+  - name: top_part_margins
+    description: Top 50 parts ranked by total margin across all available supplier inventory. The model has one row per part.
+    columns:
+      - name: p_partkey
+        description: Unique identifier for the part.
+        data_tests:
+          - not_null
+          - unique
+
+      - name: p_name
+        description: Descriptive name of the part.
+        data_tests:
+          - not_null
+
+      - name: p_retailprice
+        description: Retail price per unit of the part.
+        data_tests:
+          - not_null
+
+      - name: best_unit_margin
+        description: Highest unit margin available for the part, calculated as retail price minus supplier unit cost.
+        data_tests:
+          - not_null
+
+      - name: total_margin
+        description: Total margin across supplier inventory, calculated as the sum of unit margin multiplied by available quantity.
+        data_tests:
+          - not_null
+
+      - name: total_margin_rank
+        description: Descending rank of the part by total margin.
+        data_tests:
+          - not_null
+          - unique
