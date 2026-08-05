@@ -21,3 +21,54 @@ models:
         description: Sum of order net sales, including tax and discounts, for the month and market segment.
         data_tests:
           - not_null
+
+
+
+  - name: top_part_margins
+    description: The 50 part-supplier inventory records with the highest potential total margin. Each row uses a supplier's unit cost and available quantity, joined to its part's retail price.
+    columns:
+      - name: total_margin_rank
+        description: Descending rank of potential total margin, with part and supplier keys used to break ties deterministically.
+        data_tests:
+          - not_null
+          - unique
+      - name: part_key
+        description: Identifier of the part associated with the supplier inventory record.
+        data_tests:
+          - not_null
+      - name: supplier_key
+        description: Identifier of the supplier providing the part inventory record.
+        data_tests:
+          - not_null
+      - name: product_name
+        description: Source product name for the part.
+      - name: manufacturer
+        description: Source manufacturer classification for the part.
+      - name: brand
+        description: Source brand classification for the part.
+      - name: product_type
+        description: Source product-type classification for the part.
+      - name: part_size
+        description: Source size attribute for the part.
+      - name: container
+        description: Source packaging container for the part.
+      - name: unit_retail_price
+        description: Retail price per unit for the part.
+        data_tests:
+          - not_null
+      - name: unit_cost
+        description: Supply cost per unit charged by the supplier.
+        data_tests:
+          - not_null
+      - name: unit_margin
+        description: Potential margin per unit, calculated as unit retail price minus the supplier unit cost.
+        data_tests:
+          - not_null
+      - name: total_quantity
+        description: Available quantity for this part from this supplier.
+        data_tests:
+          - not_null
+      - name: total_margin
+        description: Potential margin for the available supplier inventory, calculated as unit margin multiplied by total quantity.
+        data_tests:
+          - not_null
