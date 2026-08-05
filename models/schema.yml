@@ -1,0 +1,122 @@
+version: 2
+
+models:
+  - name: stg_orders
+    description: One row per TPC-H order, renamed from the raw `tpch.orders` source for consistent downstream use.
+    columns:
+      - name: order_key
+        description: Unique identifier for the order from the source system.
+      - name: customer_key
+        description: Identifier of the customer who placed the order.
+      - name: status_code
+        description: Source order lifecycle status code.
+      - name: total_price
+        description: Total monetary value recorded on the source order.
+      - name: order_date
+        description: Calendar date on which the order was placed.
+      - name: clerk_name
+        description: Clerk identifier recorded on the order.
+      - name: priority_code
+        description: Source-defined priority assigned to the order.
+      - name: ship_priority
+        description: Source-defined shipping priority for the order.
+      - name: comment
+        description: Free-text comment supplied with the source order.
+
+  - name: stg_customers
+    description: One row per TPC-H customer, renamed from the raw `tpch.customer` source for consistent downstream use.
+    columns:
+      - name: customer_key
+        description: Unique identifier for the customer from the source system.
+      - name: name
+        description: Customer name recorded in the source system.
+      - name: address
+        description: Customer mailing address.
+      - name: nation_key
+        description: Identifier of the customer's nation in the source system.
+      - name: phone_number
+        description: Customer telephone number.
+      - name: account_balance
+        description: Account balance recorded for the customer.
+      - name: market_segment
+        description: Source-defined market segment used to categorize the customer.
+      - name: comment
+        description: Free-text comment supplied with the source customer record.
+
+  - name: stg_line_items
+    description: One row per order line item from `tpch.lineitem`, with sales, discount, tax, and net amounts calculated for order-level rollups.
+    columns:
+      - name: order_key
+        description: Identifier of the order containing this line item.
+      - name: part_key
+        description: Identifier of the part sold on the line item.
+      - name: supplier_key
+        description: Identifier of the supplier associated with the line item.
+      - name: line_number
+        description: Line number that distinguishes items within an order.
+      - name: quantity
+        description: Number of units ordered on the line item.
+      - name: gross_item_sales_amount
+        description: Extended line-item sales amount before discounts and tax.
+      - name: discount_percentage
+        description: Discount rate applied to the line item as a decimal percentage.
+      - name: tax_rate
+        description: Tax rate applied to the discounted line-item amount as a decimal percentage.
+      - name: return_flag
+        description: Source return-status flag for the line item.
+      - name: status_code
+        description: Source line-item lifecycle status code.
+      - name: ship_date
+        description: Date the line item was shipped.
+      - name: commit_date
+        description: Date the supplier committed to ship the line item.
+      - name: receipt_date
+        description: Date the customer received the line item.
+      - name: ship_instructions
+        description: Shipping instructions recorded for the line item.
+      - name: ship_mode
+        description: Shipping method used for the line item.
+      - name: comment
+        description: Free-text comment supplied with the source line item.
+      - name: base_price
+        description: Per-unit price calculated as gross sales divided by quantity; null when quantity is zero.
+      - name: discounted_price
+        description: Per-unit price after applying the line-item discount.
+      - name: discounted_item_sales_amount
+        description: Gross line-item sales after applying the discount and before tax.
+      - name: item_discount_amount
+        description: Discount represented as a negative monetary amount for additive sales rollups.
+      - name: item_tax_amount
+        description: Tax calculated on the discounted line-item sales amount.
+      - name: net_item_sales_amount
+        description: Final line-item sales amount after applying the discount and tax.
+
+  - name: fct_orders
+    description: One row per order with customer attributes and line-item sales rolled up to the order grain. Orders without a matching customer or line item are excluded.
+    columns:
+      - name: order_key
+        description: Unique identifier for the order; the model's primary key.
+      - name: order_date
+        description: Calendar date on which the order was placed.
+      - name: customer_key
+        description: Identifier of the customer who placed the order.
+      - name: status_code
+        description: Source order lifecycle status code.
+      - name: priority_code
+        description: Source-defined priority assigned to the order.
+      - name: ship_priority
+        description: Source-defined shipping priority for the order.
+      - name: clerk_name
+        description: Clerk identifier recorded on the order.
+      - name: name
+        description: Customer name joined from `stg_customers`.
+      - name: market_segment
+        description: Source-defined market segment joined from `stg_customers`.
+      - name: gross_item_sales_amount
+        description: Sum of line-item gross sales before discounts and tax for the order.
+      - name: item_discount_amount
+        description: Sum of negative line-item discount amounts for the order.
+      - name: item_tax_amount
+        description: Sum of tax calculated on discounted line items for the order.
+      - name: net_item_sales_amount
+        description: Sum of line-item sales after discounts and tax for the order.
