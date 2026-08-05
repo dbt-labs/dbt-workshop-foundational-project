@@ -1,0 +1,74 @@
+version: 2
+
+models:
+  - name: int_part_supplier_margins
+    description: >
+      Supplier-part margin detail at one row per part and supplier. It joins retail pricing
+      from parts to supplier cost and available quantity, then calculates unit and available
+      inventory margin for each supplier offer.
+    columns:
+      - name: part_key
+        description: Unique identifier for the part from the TPCH part source.
+        data_tests:
+          - not_null
+      - name: supplier_key
+        description: Unique identifier for the supplier offering the part.
+        data_tests:
+          - not_null
+      - name: unit_retail_price
+        description: Retail price per unit of the part.
+        data_tests:
+          - not_null
+      - name: unit_cost
+        description: Supplier cost per unit for this supplier-part offer.
+        data_tests:
+          - not_null
+      - name: available_quantity
+        description: Units currently available from this supplier for the part.
+        data_tests:
+          - not_null
+      - name: unit_margin
+        description: Retail price less supplier unit cost for this supplier-part offer.
+        data_tests:
+          - not_null
+      - name: total_margin
+        description: Unit margin multiplied by available quantity for this supplier-part offer.
+        data_tests:
+          - not_null
+
+  - name: top_50_parts_by_margin
+    description: >
+      The 50 parts with the highest total available-inventory margin. Each row represents one
+      part, with total margin summed across supplier offers and best unit margin retained for
+      comparison.
+    columns:
+      - name: part_key
+        description: Unique identifier for the ranked part.
+        data_tests:
+          - unique
+          - not_null
+      - name: part_name
+        description: Descriptive name of the ranked part.
+        data_tests:
+          - not_null
+      - name: unit_retail_price
+        description: Retail price per unit of the part.
+        data_tests:
+          - not_null
+      - name: best_unit_margin
+        description: Highest retail-price-minus-supplier-cost margin across the part's supplier offers.
+        data_tests:
+          - not_null
+      - name: total_available_quantity
+        description: Available quantity summed across all supplier offers for the part.
+        data_tests:
+          - not_null
+      - name: total_margin
+        description: Sum of supplier-offer unit margin times available quantity for the part.
+        data_tests:
+          - not_null
+      - name: margin_rank
+        description: Deterministic rank by descending total margin, then best unit margin and part key.
+        data_tests:
+          - unique
+          - not_null
