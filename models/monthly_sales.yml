@@ -1,0 +1,14 @@
+version: 2
+
+models:
+  - name: monthly_sales
+    description: One row per calendar month and customer market segment, aggregating gross line-item sales from fct_orders for monthly revenue trend reporting.
+    columns:
+      - name: order_month
+        description: First calendar day of the month containing the order date.
+        data_tests:
+          - not_null
+      - name: market_segment
+        description: Market segment of customers contributing to the monthly revenue total.
+      - name: total_revenue
+        description: Sum of gross item sales for orders placed in the month and market segment.
