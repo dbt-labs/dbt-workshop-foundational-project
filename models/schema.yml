@@ -1,0 +1,55 @@
+version: 2
+
+models:
+  - name: monthly_sales
+    description: "Monthly gross sales rollup with one row per order month and customer market segment. Revenue is calculated from pre-discount, pre-tax line-item sales aggregated through `fct_orders`."
+    columns:
+      - name: order_month
+        description: "First calendar day of the month in which the order was placed."
+      - name: market_segment
+        description: "Customer market segment used to partition monthly sales."
+      - name: total_revenue
+        description: "Sum of gross item sales before discounts and tax for the month and market segment."
+
+
+  - name: top_part_margins
+    description: "Top 50 parts ranked by total available-inventory margin. The model joins part attributes to supplier inventory, computes a quantity-weighted supplier cost per part, then calculates unit margin as retail price less weighted cost and total margin as unit margin multiplied by total available quantity."
+    columns:
+      - name: part_key
+        description: "Unique part identifier; the grain of this model is one row per part."
+        data_tests:
+          - unique
+          - not_null
+      - name: part_name
+        description: "Part name from the TPC-H part source."
+      - name: manufacturer
+        description: "Manufacturer label assigned to the part."
+      - name: brand
+        description: "Brand label assigned to the part."
+      - name: part_type
+        description: "Product type classification from the part source."
+      - name: unit_retail_price
+        description: "Listed retail price for one unit of the part."
+        data_tests:
+          - not_null
+      - name: total_available_quantity
+        description: "Total available inventory across all suppliers for the part."
+        data_tests:
+          - not_null
+      - name: weighted_average_unit_cost
+        description: "Quantity-weighted average supplier cost per unit across the part's available supplier inventory."
+        data_tests:
+          - not_null
+      - name: unit_margin
+        description: "Per-unit margin calculated as unit retail price minus weighted average unit cost."
+        data_tests:
+          - not_null
+      - name: total_margin
+        description: "Total available-inventory margin calculated as unit margin multiplied by total available quantity."
+        data_tests:
+          - not_null
+      - name: total_margin_rank
+        description: "Deterministic descending rank by total margin, then unit margin and part key; only ranks 1 through 50 are retained."
+        data_tests:
+          - unique
+          - not_null
