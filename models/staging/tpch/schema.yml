@@ -1,0 +1,24 @@
+version: 2
+
+models:
+  - name: stg_tpch__part
+    description: One row per TPC-H part, preserving the source attributes for downstream product and supplier analysis.
+    columns:
+      - name: p_partkey
+        description: Unique identifier for the part in the TPC-H source.
+      - name: p_name
+        description: Descriptive name assigned to the part.
+      - name: p_mfgr
+        description: Manufacturer label recorded for the part.
+      - name: p_brand
+        description: Brand label recorded for the part.
+      - name: p_type
+        description: Product type classification for the part.
+      - name: p_size
+        description: Size attribute recorded for the part.
+      - name: p_container
+        description: Packaging container type for the part.
+      - name: p_retailprice
+        description: Retail price recorded for the part in the source.
+      - name: p_comment
+        description: Free-text comment supplied with the part record.

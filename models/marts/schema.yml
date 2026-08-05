@@ -1,0 +1,46 @@
+version: 2
+
+models:
+  - name: monthly_sales
+    description: One row per order month and customer market segment, summarizing gross order revenue from `fct_orders`.
+    columns:
+      - name: order_month
+        description: First day of the calendar month in which the order was placed.
+      - name: market_segment
+        description: Customer market segment for the orders included in the monthly total.
+      - name: total_revenue
+        description: Sum of gross line-item sales amounts for orders in the month and market segment, before discounts and tax.
+
+
+
+  - name: top_part_margins
+    description: Top 50 TPC-H parts by total available-inventory margin. One row per part with supplier costs weighted by each supplier's available quantity; parts without supplier records are excluded.
+    columns:
+      - name: part_key
+        description: Unique identifier for the part.
+        data_tests:
+          - unique
+          - not_null
+      - name: part_name
+        description: Descriptive name assigned to the part.
+      - name: manufacturer
+        description: Manufacturer label recorded for the part.
+      - name: brand
+        description: Brand label recorded for the part.
+      - name: part_type
+        description: Product type classification for the part.
+      - name: unit_retail_price
+        description: Source retail price per unit of the part.
+      - name: total_available_quantity
+        description: Sum of available quantities across all suppliers for the part.
+      - name: unit_cost
+        description: Quantity-weighted average supplier cost per unit, calculated from supplier cost and available quantity.
+      - name: unit_margin
+        description: Per-unit margin calculated as unit retail price minus the quantity-weighted unit cost.
+      - name: total_margin
+        description: Total available-inventory margin calculated as unit margin multiplied by total available quantity.
+      - name: margin_rank
+        description: Deterministic descending rank by total margin, then unit margin and part key; values range from 1 through 50.
+        data_tests:
+          - unique
+          - not_null
