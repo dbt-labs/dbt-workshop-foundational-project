@@ -1,7 +1,7 @@
 sources:
   - name: tpch
-    database: raw
-    schema: tpch
+    database: snowflake_sample_date
+    schema: tpch_sf1
     tables:
       - name: orders
         description: "One record per order"
