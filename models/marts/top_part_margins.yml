@@ -1,0 +1,44 @@
+version: 2
+
+models:
+  - name: top_part_margins
+    description: >
+      The 50 parts with the highest total margin based on available supplier inventory.
+      Each row represents one part; supplier costs are weighted by each supplier's available
+      quantity so unit and total margin reflect the aggregate supplier inventory position.
+    columns:
+      - name: p_partkey
+        description: Unique TPCH part identifier and grain-defining key for this ranking.
+        data_tests:
+          - unique
+          - not_null
+      - name: p_name
+        description: Descriptive TPCH part name for identifying the ranked product.
+      - name: p_mfgr
+        description: Manufacturer associated with the part.
+      - name: p_brand
+        description: Brand associated with the part.
+      - name: p_type
+        description: Product type classification for the part.
+      - name: p_size
+        description: Size attribute supplied for the part.
+      - name: p_container
+        description: Packaging or container type for the part.
+      - name: p_retailprice
+        description: Per-unit retail price used as the revenue basis for margin.
+      - name: total_available_quantity
+        description: Sum of available quantities across all suppliers for the part.
+      - name: weighted_avg_supply_cost
+        description: Available-quantity-weighted average supplier cost per unit across suppliers for the part.
+      - name: unit_margin
+        description: Per-unit margin calculated as retail price less weighted average supply cost.
+      - name: total_margin
+        description: Margin across available inventory, calculated as unit margin multiplied by total available quantity.
+      - name: unit_margin_rank
+        description: Descending rank of the part's unit margin across all parts; lower values indicate higher margin.
+        data_tests:
+          - not_null
+      - name: total_margin_rank
+        description: Descending rank of the part's total margin across all parts; this model retains ranks 1 through 50.
+        data_tests:
+          - not_null
