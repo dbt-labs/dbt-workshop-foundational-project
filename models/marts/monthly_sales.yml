@@ -1,0 +1,21 @@
+version: 2
+
+models:
+  - name: monthly_sales
+    description: >
+      Monthly net revenue aggregated from `fct_orders`, with one row for each
+      calendar month and market segment combination. Use this model for trend
+      analysis and segment-level revenue reporting.
+    columns:
+      - name: order_month
+        description: Calendar month containing the order date, truncated to the first day of the month.
+        data_tests:
+          - not_null
+      - name: market_segment
+        description: Market segment associated with the orders contributing to the monthly revenue total.
+        data_tests:
+          - not_null
+      - name: total_revenue
+        description: Sum of net item sales amount for the month and market segment after order-level adjustments.
+        data_tests:
+          - not_null
