@@ -1,0 +1,23 @@
+version: 2
+
+models:
+  - name: monthly_sales
+    description: One row per calendar month and customer market segment, aggregating net order sales for monthly revenue reporting.
+    data_tests:
+      - unique:
+          name: monthly_sales_unique_month_segment
+          arguments:
+            column_name: "(order_month || '-' || market_segment)"
+    columns:
+      - name: order_month
+        description: First day of the month in which the order was placed; the model's monthly time grain.
+        data_tests:
+          - not_null
+      - name: market_segment
+        description: Customer market segment used to split monthly revenue.
+        data_tests:
+          - not_null
+      - name: total_revenue
+        description: Sum of order net sales, including tax and discounts, for the month and market segment.
+        data_tests:
+          - not_null
