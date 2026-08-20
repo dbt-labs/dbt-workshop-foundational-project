@@ -1,0 +1,24 @@
+models:
+  - name: monthly_sales
+    description: >
+      Monthly gross sales by customer market segment for revenue trend analysis.
+      One row per calendar month and market segment, based on orders with matching
+      line items and customers in `fct_orders`.
+    data_tests:
+      - unique:
+          name: unique_monthly_sales_grain
+          arguments:
+            column_name: "(order_month || '|' || market_segment)"
+    columns:
+      - name: order_month
+        description: The calendar month of the order, truncated to the first day of the month.
+        data_tests:
+          - not_null
+      - name: market_segment
+        description: The market segment assigned to the customer who placed the order.
+        data_tests:
+          - not_null
+      - name: total_revenue
+        description: Gross line-item sales before discounts and tax, summed for the month and market segment.
+        data_tests:
+          - not_null
