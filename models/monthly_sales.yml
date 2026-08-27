@@ -1,0 +1,27 @@
+models:
+  - name: monthly_sales
+    description: "Monthly gross sales by market segment. One row per order month and market segment."
+    data_tests:
+      - unique:
+          name: unique_monthly_sales_grain
+          arguments:
+            column_name: "concat(to_varchar(order_month), '|', market_segment)"
+    columns:
+      - name: order_month
+        description: "Month in which the orders were placed."
+        data_tests:
+          - not_null
+      - name: market_segment
+        description: "Customer market segment associated with the orders."
+        data_tests:
+          - not_null
+
+      - name: total_revenue
+        description: "Total gross item sales amount for the month and market segment."
+        data_tests:
+          - not_null:
+              config:
+                severity: warn
+                error_if: ">100"
+                warn_if: ">10"
+        
