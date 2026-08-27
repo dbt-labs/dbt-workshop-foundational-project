@@ -1,0 +1,21 @@
+models:
+  - name: monthly_sales
+    description: Monthly revenue by market segment, with one row per order month and market segment.
+    data_tests:
+      - unique:
+          arguments:
+            column_name: "(to_varchar(order_month) || '|' || market_segment)"
+    columns:
+      - name: order_month
+        data_tests:
+          - not_null
+      - name: market_segment
+        data_tests:
+          - not_null
+
+      - name: total_revenue
+        data_tests:
+          - not_null:
+              config:
+                severity: warn
+
