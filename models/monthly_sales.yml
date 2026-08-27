@@ -1,0 +1,22 @@
+version: 2
+
+models:
+  - name: monthly_sales
+    description: Monthly gross revenue summarized by market segment.
+    data_tests:
+      - unique:
+          arguments:
+            column_name: "(order_month || '-' || market_segment)"
+    columns:
+      - name: order_month
+        description: Month of the order used for revenue aggregation.
+        data_tests:
+          - not_null
+      - name: market_segment
+        description: Customer market segment associated with the order.
+        data_tests:
+          - not_null
+      - name: total_revenue
+        description: Sum of gross item sales for the month and market segment.
+        data_tests:
+          - not_null
