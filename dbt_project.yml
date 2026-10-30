@@ -24,6 +24,9 @@ clean-targets:         # directories to be removed by `dbt clean`
     - "target"
     - "dbt_modules"
 
+info_schema: 
+  version: 1
+
 
 # Configuring models
 # Full documentation: https://docs.getdbt.com/docs/configuring-models
@@ -34,5 +37,6 @@ clean-targets:         # directories to be removed by `dbt clean`
 
 models:
   foundational_project:
+    +static_analysis: strict
     +materialized: view
     +access: public
