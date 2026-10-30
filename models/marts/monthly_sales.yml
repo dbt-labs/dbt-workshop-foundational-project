@@ -1,0 +1,24 @@
+models:
+  - name: monthly_sales
+    description: >-
+      Monthly gross item sales summarized by market segment for revenue trend
+      reporting. Each row represents one order month and market segment.
+    data_tests:
+      - unique:
+          arguments:
+            column_name: "concat(to_varchar(order_month), '||', market_segment)"
+    columns:
+      - name: order_month
+        description: The calendar month of the order, truncated to the first day of the month.
+        data_tests:
+          - not_null
+
+      - name: market_segment
+        description: The customer market segment used to group monthly gross item sales.
+        data_tests:
+          - not_null
+
+      - name: total_revenue
+        description: The sum of gross item sales amount for the order month and market segment.
+        data_tests:
+          - not_null
