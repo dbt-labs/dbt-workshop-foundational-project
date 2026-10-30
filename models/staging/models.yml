@@ -1,0 +1,26 @@
+models:
+  - name: stg_customers
+    description: >-
+      Cleaned and consistently named customer records from the TPCH customer
+      source. Each row represents one customer.
+
+  - name: stg_line_items
+    description: >-
+      Cleaned order line items from the TPCH lineitem source, including
+      calculated gross, discount, tax, and net sales amounts. Each row
+      represents one line item within an order.
+
+  - name: stg_nations
+    description: >-
+      Cleaned nation reference data from the TPCH nation source. Each row
+      represents one nation and includes its parent region key.
+
+  - name: stg_orders
+    description: >-
+      Cleaned and consistently named order records from the TPCH orders source.
+      Each row represents one order.
+
+  - name: stg_regions
+    description: >-
+      Cleaned region reference data from the TPCH region source. Each row
+      represents one region.

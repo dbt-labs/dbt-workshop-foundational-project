@@ -1,0 +1,12 @@
+models:
+  - name: dim_customers
+    description: >-
+      Customer attributes enriched with nation and region names for geographic
+      and market-segment analysis. Each row represents one customer with a
+      matching nation and region.
+
+  - name: fct_orders
+    description: >-
+      Order-level sales facts enriched with customer name and market segment.
+      Line-item amounts are aggregated to the order grain, so each row
+      represents one order with matching line items and customer details.
