@@ -40,3 +40,4 @@ models:
     +static_analysis: strict
     +materialized: view
     +access: public
+    +lag_tolerance: 1s
