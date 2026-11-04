@@ -1,7 +1,7 @@
 sources:
   - name: tpch
     database: analytics
-    schema: snowflake_sample_copy
+    schema: dbt_pfield_snowflake_sample_copy
     tables:
       - name: orders
         description: "One record per order"
