@@ -1,0 +1,111 @@
+version: 2
+
+models:
+  - name: customer_tier
+    description: >-
+      Customer lifetime-value tiers migrated from stored_procs/customer_tier.sql.
+      One row per customer with at least one matching order. Rebuilt as a table
+      on each run. Uses stg_customers and stg_orders, retaining the procedure's
+      inner join and all order statuses without a date filter. Thresholds are
+      inherited legacy business rules and still require finance review; this
+      migration intentionally preserves their order, overlaps, and gaps.
+    columns:
+      - name: customer_key
+        description: >-
+          Customer identifier from stg_customers, cast to NUMBER(38, 0).
+          Unique at this model's grain; customers without orders are excluded.
+        data_tests:
+          - unique
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_customers')
+                field: customer_key
+      - name: lifetime_value
+        description: >-
+          Sum of stg_orders.total_price across all matching orders for the
+          customer, stored as NUMBER(38, 2). This uses order-header total price,
+          not line-item net sales. SUM ignores NULL prices and returns NULL
+          when all prices are NULL. Tier assignment uses the original sum
+          before the output cast.
+      - name: tier_name
+        description: >-
+          First matching legacy CASE arm wins, in this exact order:
+          tier1 for lifetime value <= 200000 (including negatives);
+          tier2 for > 2000000; tier3 for 1000000 through 1999999 inclusive;
+          tier4 for 0 through 999999 inclusive, effectively > 200000 through
+          999999 because tier1 wins first. NULL is intentional for values
+          > 999999 and < 1000000, > 1999999 and <= 2000000, or a NULL sum.
+          A warning-level not_null test replaces the procedure's NULL-count
+          notice without blocking builds for these legacy gaps.
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ['tier1', 'tier2', 'tier3', 'tier4']
+          - not_null:
+              config:
+                severity: warn
+
+unit_tests:
+  - name: customer_tier_preserves_legacy_boundaries
+    description: >-
+      Locks down CASE precedence, inclusive boundaries, fractional gaps,
+      negative and NULL totals, aggregation across orders, and inner-join
+      exclusion of customers without orders and orders without customers.
+    model: customer_tier
+    given:
+      - input: ref('stg_customers')
+        rows:
+          - {customer_key: 1}
+          - {customer_key: 2}
+          - {customer_key: 3}
+          - {customer_key: 4}
+          - {customer_key: 5}
+          - {customer_key: 6}
+          - {customer_key: 7}
+          - {customer_key: 8}
+          - {customer_key: 9}
+          - {customer_key: 10}
+          - {customer_key: 11}
+          - {customer_key: 12}
+          - {customer_key: 13}
+          - {customer_key: 14}
+          - {customer_key: 15}
+          - {customer_key: 16}
+      - input: ref('stg_orders')
+        rows:
+          - {customer_key: 1, total_price: -0.01}
+          - {customer_key: 2, total_price: 0}
+          - {customer_key: 3, total_price: 199999.99}
+          - {customer_key: 4, total_price: 200000}
+          - {customer_key: 5, total_price: 200000.01}
+          - {customer_key: 6, total_price: 999999}
+          - {customer_key: 7, total_price: 999999.01}
+          - {customer_key: 8, total_price: 999999.99}
+          - {customer_key: 9, total_price: 1000000}
+          - {customer_key: 10, total_price: 1999999}
+          - {customer_key: 11, total_price: 1999999.01}
+          - {customer_key: 12, total_price: 2000000}
+          - {customer_key: 13, total_price: 2000000.01}
+          - {customer_key: 14, total_price: 150000}
+          - {customer_key: 14, total_price: 150000}
+          - {customer_key: 14, total_price: null}
+          - {customer_key: 15, total_price: null}
+          - {customer_key: 999, total_price: 3000000}
+    expect:
+      rows:
+        - {customer_key: 1, lifetime_value: -0.01, tier_name: tier1}
+        - {customer_key: 2, lifetime_value: 0, tier_name: tier1}
+        - {customer_key: 3, lifetime_value: 199999.99, tier_name: tier1}
+        - {customer_key: 4, lifetime_value: 200000, tier_name: tier1}
+        - {customer_key: 5, lifetime_value: 200000.01, tier_name: tier4}
+        - {customer_key: 6, lifetime_value: 999999, tier_name: tier4}
+        - {customer_key: 7, lifetime_value: 999999.01, tier_name: null}
+        - {customer_key: 8, lifetime_value: 999999.99, tier_name: null}
+        - {customer_key: 9, lifetime_value: 1000000, tier_name: tier3}
+        - {customer_key: 10, lifetime_value: 1999999, tier_name: tier3}
+        - {customer_key: 11, lifetime_value: 1999999.01, tier_name: null}
+        - {customer_key: 12, lifetime_value: 2000000, tier_name: null}
+        - {customer_key: 13, lifetime_value: 2000000.01, tier_name: tier2}
+        - {customer_key: 14, lifetime_value: 300000, tier_name: tier4}
+        - {customer_key: 15, lifetime_value: null, tier_name: null}
