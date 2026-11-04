@@ -1,0 +1,35 @@
+version: 2
+
+models:
+  - name: stg_customers
+    description: >-
+      Customer records from the TPC-H customer source, with source columns renamed
+      for downstream models. One row per customer_key, including contact details,
+      nation_key, account balance, and market segment. No customers are filtered out.
+
+  - name: stg_line_items
+    description: >-
+      Order line items from the TPC-H lineitem source, at the grain of order_key
+      and line_number. Renames source columns and calculates unit prices, discounted
+      sales, discount amounts, tax amounts, and net sales. Discounts are represented
+      as negative amounts, tax is calculated after discounts, and net sales include
+      tax. No line items are filtered out.
+
+  - name: stg_nations
+    description: >-
+      Nation lookup from the TPC-H nation source, with source columns renamed.
+      One row per nation_key, containing the nation name, its region_key, and the
+      source comment. Used to connect customers to their nation and region.
+
+  - name: stg_orders
+    description: >-
+      Order headers from the TPC-H orders source, with source columns renamed.
+      One row per order_key, including the customer_key, order date, source total
+      price, status, priorities, and clerk. Includes all source order statuses
+      without filtering.
+
+  - name: stg_regions
+    description: >-
+      Region lookup from the TPC-H region source, with source columns renamed.
+      One row per region_key, containing the region name and source comment.
+      Used to associate nations with their region.

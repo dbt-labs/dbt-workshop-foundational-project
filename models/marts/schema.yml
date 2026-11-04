@@ -1,0 +1,17 @@
+version: 2
+
+models:
+  - name: dim_customers
+    description: >-
+      Customer dimension at the grain of customer_key, enriching staged customer
+      records with nation and region names. Includes contact details, account
+      balance, and market segment. Inner joins to the nation and region lookups
+      retain only customers with matching records in both lookups.
+
+  - name: fct_orders
+    description: >-
+      Order fact table at the grain of order_key, combining staged order headers
+      with customer names and market segments and order-level sums of line-item
+      gross sales, discounts, taxes, and net sales. Discount amounts are negative,
+      and net sales include tax. Inner joins retain only orders with line items
+      and a matching customer; no order-status filter is applied.
