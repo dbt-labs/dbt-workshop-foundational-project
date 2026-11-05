@@ -1,0 +1,49 @@
+version: 2
+
+models:
+  - name: stg_customers
+    description: >-
+      Customer records from the TPC-H customer source, with one row per
+      customer_key. Renames source fields for customer contact details,
+      nation, account balance, and market segment without filtering records.
+
+  - name: stg_orders
+    description: >-
+      Order headers from the TPC-H orders source, with one row per order_key.
+      Provides the customer key, order date, status, total price, clerk, and
+      priority fields without filtering order status.
+
+  - name: stg_line_items
+    description: >-
+      Order line items from the TPC-H lineitem source, with one row per
+      order_key and line_number combination. Includes product, supplier,
+      quantity, shipping dates, and gross sales, plus calculated unit prices,
+      discounts, tax, and net sales. Discounts are represented as negative
+      amounts, and net sales include tax.
+
+  - name: stg_nations
+    description: >-
+      Nation reference data from the TPC-H nation source, with one row per
+      nation_key. Provides the nation name, its region_key, and source comment
+      for enriching customer geography.
+
+  - name: stg_regions
+    description: >-
+      Region reference data from the TPC-H region source, with one row per
+      region_key. Provides the region name and source comment for grouping
+      nations and customers geographically.
+
+  - name: fct_orders
+    description: >-
+      Order-level sales fact table, with one row per order_key. Aggregates
+      line-item gross sales, discounts, tax, and net sales and enriches orders
+      with customer name and market segment. Inner joins retain only orders
+      with matching line items and customer records; no order-status filter
+      is applied.
+
+  - name: dim_customers
+    description: >-
+      Customer dimension, with one row per customer_key, containing contact
+      details, account balance, market segment, nation, and region. Enriches
+      stg_customers through inner joins to stg_nations and stg_regions, retaining
+      only customers with matching nation and region records.
