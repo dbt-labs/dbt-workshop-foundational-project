@@ -1,0 +1,29 @@
+version: 2
+
+models:
+  - name: stg_customers
+    description: >-
+      One row per TPC-H customer, with customer contact details, nation key,
+      account balance, and market segment standardized from the customer source.
+
+  - name: stg_orders
+    description: >-
+      One row per TPC-H order, with its customer key, order date, status,
+      total price, clerk, and priority attributes standardized from the orders source.
+
+  - name: stg_line_items
+    description: >-
+      One row per TPC-H order line item, identified by order key and line number,
+      with product and supplier keys, quantities, shipping attributes, and calculated
+      prices and sales amounts. Discounts are negative amounts; net sales include
+      discounts and tax.
+
+  - name: stg_nations
+    description: >-
+      One row per TPC-H nation, with its nation key, name, region key, and comment
+      standardized from the nation source.
+
+  - name: stg_regions
+    description: >-
+      One row per TPC-H region, with its region key, name, and comment
+      standardized from the region source.

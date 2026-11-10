@@ -1,0 +1,19 @@
+version: 2
+
+models:
+  - name: dim_customers
+    description: >-
+      One row per customer with matching nation and region records, combining
+      customer contact details, account balance, and market segment with
+      nation and region names.
+
+  - name: fct_orders
+    description: >-
+      One row per order with matching line items and a customer record, combining
+      order attributes and customer market segment with line-item totals for
+      gross sales, discounts, tax, and net sales.
+
+  - name: monthly_sales
+    description: >-
+      One row per order month and customer market segment, summarizing gross
+      item sales from fct_orders as total_revenue before discounts and tax.
