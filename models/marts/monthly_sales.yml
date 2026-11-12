@@ -1,0 +1,23 @@
+models:
+  - name: monthly_sales
+    description: >
+      Monthly order revenue rollup from fct_orders. One row per calendar month
+      of order_date. The most recent month may be partial.
+    columns:
+      - name: order_month
+        description: First day of the calendar month the orders were placed in. Grain of the model.
+        data_tests:
+          - unique
+          - not_null
+      - name: order_count
+        description: Count of distinct orders placed in the month.
+      - name: gross_revenue
+        description: Sum of gross item sales amount before discounts and tax.
+      - name: discount_amount
+        description: Sum of item discount amounts.
+      - name: tax_amount
+        description: Sum of item tax amounts.
+      - name: net_revenue
+        description: Sum of net item sales amount. The primary revenue measure.
+        data_tests:
+          - not_null
