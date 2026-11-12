@@ -1,0 +1,33 @@
+version: 2
+
+models:
+  - name: stg_customers
+    description: >-
+      One row per customer from the TPC-H customer source, with source columns
+      renamed for downstream use. Provides customer contact details, nation key,
+      account balance, and market segment without filtering source records.
+
+  - name: stg_line_items
+    description: >-
+      One row per order line, identified by order_key and line_number, from the
+      TPC-H lineitem source. Standardizes product, supplier, shipping, and status
+      fields and calculates per-unit prices, negative discount amounts, tax on
+      discounted sales, and net item sales including tax for order-level reporting.
+
+  - name: stg_nations
+    description: >-
+      One row per nation from the TPC-H nation source, with standardized nation
+      keys, names, region keys, and comments. Links customers to geographic
+      regions for downstream customer enrichment and reporting.
+
+  - name: stg_orders
+    description: >-
+      One row per order from the TPC-H orders source, with source columns renamed
+      for downstream use. Provides the customer key, order date, source total
+      price, order status, and fulfillment priorities without filtering statuses.
+
+  - name: stg_regions
+    description: >-
+      One row per geographic region from the TPC-H region source, with standardized
+      region keys, names, and comments. Provides the regional lookup used to group
+      nations and enrich customer reporting.
