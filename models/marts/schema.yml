@@ -1,0 +1,18 @@
+version: 2
+
+models:
+  - name: dim_customers
+    description: >-
+      One row per customer, enriched with nation and region names. Includes
+      customer contact details, account balance, and market segment. Inner joins
+      to the nation and region staging models include only customers with
+      matching geography records.
+
+  - name: fct_orders
+    description: >-
+      One row per order, enriched with customer name and market segment and
+      sales amounts summed across its line items. Includes order date, customer
+      key, status, priority, shipping priority, and clerk. Gross sales are before
+      discounts and tax; discount amounts are negative, and net sales include
+      discounts and tax. Inner joins include only orders with at least one line
+      item and a matching customer record.

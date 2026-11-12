@@ -34,5 +34,10 @@ clean-targets:         # directories to be removed by `dbt clean`
 
 models:
   foundational_project:
+    +static_analysis: strict
     +materialized: view
     +access: public
+
+# dbt checks
+info_schema:
+  version: 1
