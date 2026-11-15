@@ -34,9 +34,9 @@ clean-targets:         # directories to be removed by `dbt clean`
 
 models:
   foundational_project:
+    +state:
+      lag_tolerance: 10m
     +materialized: view
     +access: public
 
 
-state:
-  lag_tolerance: 10m
