@@ -36,3 +36,7 @@ models:
   foundational_project:
     +materialized: view
     +access: public
+
+
+state:
+  lag_tolerance: 10m
