@@ -11,7 +11,7 @@ select
     customer.address,
     nation,
     region,
-    customer.phone,
+    customer.phone_number,
     customer.account_balance,
     customer.market_segment
 from customer

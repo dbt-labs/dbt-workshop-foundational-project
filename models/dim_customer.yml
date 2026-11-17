@@ -1,0 +1,3 @@
+models:
+  - name: dim_customer
+    description: "Customer dimension. One row per customer, enriched with nation and region names."
