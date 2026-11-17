@@ -1,11 +1,147 @@
+version: 2
+
 sources:
   - name: tpch
-    database: raw
+    description: >
+      TPC-H source tables in TPCH_NOW.TPCH. Orders, customers, and line items
+      feed the staging models and sales marts; the remaining tables provide
+      geographic, product, and supplier reference data.
+    database: tpch_now
     schema: tpch
     tables:
       - name: orders
-        description: "One record per order"
+        description: >
+          One row per order, identified by o_orderkey. Provides the customer,
+          order date, status, and header-level price used by stg_orders.
+          No order-status filtering is applied in staging.
+        columns:
+          - name: o_orderkey
+            description: "Order identifier; renamed to order_key in stg_orders."
+            data_tests:
+              - unique
+              - not_null
+          - name: o_custkey
+            description: "Customer placing the order; joins to customer.c_custkey."
+            data_tests:
+              - not_null
+              - relationships:
+                  arguments:
+                    to: source('tpch', 'customer')
+                    field: c_custkey
+          - name: o_orderdate
+            description: >
+              Order date used for sales reporting period assignment, rather than
+              shipment or receipt dates.
+            data_tests:
+              - not_null
+          - name: o_orderstatus
+            description: "Source order-status code, passed through as status_code."
+          - name: o_totalprice
+            description: >
+              Source order-header total, passed through as total_price.
+              Sales marts calculate gross sales from line-item extended prices.
+          - name: o_orderpriority
+            description: "Source order-priority label, renamed to priority_code."
+          - name: o_shippriority
+            description: "Source shipping-priority value, renamed to ship_priority."
+          - name: o_clerk
+            description: "Clerk associated with the order, renamed to clerk_name."
+          - name: o_comment
+            description: "Free-text order comment retained in staging."
       - name: customer
-        description: "One record per customer"
+        description: >
+          One row per customer, identified by c_custkey. Supplies customer
+          attributes and the market segment used to break down sales in the marts.
+        columns:
+          - name: c_custkey
+            description: "Customer identifier; renamed to customer_key in staging."
+            data_tests:
+              - unique
+              - not_null
+          - name: c_name
+            description: "Customer name passed through to the order fact."
+          - name: c_address
+            description: "Customer address retained in staging."
+          - name: c_nationkey
+            description: "Source nation identifier, renamed to nation_key."
+          - name: c_phone
+            description: "Source customer phone string, renamed to phone_number."
+          - name: c_acctbal
+            description: "Source customer account balance, renamed to account_balance."
+          - name: c_mktsegment
+            description: >
+              Customer market-segment label used to group sales.
+              Passed through as market_segment without remapping.
+            data_tests:
+              - not_null
+          - name: c_comment
+            description: "Free-text customer comment retained in staging."
       - name: lineitem
-        description: "One record per line item within a single order (1 -> n)"
+        description: >
+          One row per line within an order, identified by the combination of
+          l_orderkey and l_linenumber. Supplies quantities, gross extended prices,
+          discount rates, and tax rates used to calculate order sales amounts.
+        data_tests:
+          - unique:
+              name: tpch_lineitem_unique_order_line
+              arguments:
+                column_name: "to_varchar(l_orderkey) || '|' || to_varchar(l_linenumber)"
+        columns:
+          - name: l_orderkey
+            description: "Parent order identifier; joins to orders.o_orderkey."
+            data_tests:
+              - not_null
+              - relationships:
+                  arguments:
+                    to: source('tpch', 'orders')
+                    field: o_orderkey
+          - name: l_linenumber
+            description: "Line number within an order; not globally unique."
+            data_tests:
+              - not_null
+          - name: l_partkey
+            description: "Source part identifier, renamed to part_key."
+          - name: l_suppkey
+            description: "Source supplier identifier, renamed to supplier_key."
+          - name: l_quantity
+            description: "Line-item quantity; used to derive the per-unit base price."
+          - name: l_extendedprice
+            description: >
+              Gross amount for the entire line, before discounts and tax.
+              Renamed to gross_item_sales_amount; this is not a per-unit price.
+            data_tests:
+              - not_null
+          - name: l_discount
+            description: >
+              Discount fraction used to calculate the negative item_discount_amount
+              as -l_extendedprice * l_discount.
+          - name: l_tax
+            description: >
+              Tax fraction applied to the discounted line amount to calculate
+              item_tax_amount.
+          - name: l_returnflag
+            description: "Source return indicator, renamed to return_flag."
+          - name: l_linestatus
+            description: "Source line-status code, renamed to status_code."
+          - name: l_shipdate
+            description: "Line-item shipment date; not used to assign sales periods."
+          - name: l_commitdate
+            description: "Source line-item commitment date, renamed to commit_date."
+          - name: l_receiptdate
+            description: "Line-item receipt date; not used to assign sales periods."
+          - name: l_shipinstruct
+            description: "Source shipping instructions, renamed to ship_instructions."
+          - name: l_shipmode
+            description: "Source shipment mode, renamed to ship_mode."
+          - name: l_comment
+            description: "Free-text line-item comment retained in staging."
+      - name: nation
+        description: "TPC-H nation reference data for geographic enrichment."
+      - name: part
+        description: "TPC-H product-part reference data for line-item enrichment."
+      - name: partsupp
+        description: "TPC-H part-supplier association data for supply-side analysis."
+      - name: region
+        description: "TPC-H region reference data for geographic enrichment."
+      - name: supplier
+        description: "TPC-H supplier reference data for supply-side analysis."
