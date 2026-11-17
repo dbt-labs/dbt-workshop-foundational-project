@@ -1,0 +1,104 @@
+version: 2
+
+models:
+  - name: fortnightly_sales
+    description: >-
+      Sales reporting at one row per fixed 14-day period containing orders from
+      fct_orders, bucketed by order_date. Periods are aligned to the
+      fortnight_anchor_date variable (default 1991-12-30); use a Monday anchor
+      for Monday-through-Sunday fortnights. Periods without orders are omitted,
+      and the latest period may be incomplete. Includes all order statuses
+      present in fct_orders. Amounts sum order-level line-item totals; discounts
+      are negative and net sales includes tax. Customer counts are distinct
+      within each period and must not be summed to calculate distinct customers
+      across multiple periods.
+    columns:
+      - name: fortnight_start_date
+        description: >-
+          Inclusive start date and unique key of the 14-day reporting period,
+          aligned to fortnight_anchor_date. A Monday when the anchor is a Monday.
+        data_tests:
+          - not_null
+          - unique
+      - name: fortnight_end_date
+        description: >-
+          Inclusive end date, 13 days after fortnight_start_date. A Sunday when
+          the anchor is a Monday; does not imply the period is complete.
+        data_tests:
+          - not_null
+          - unique
+      - name: order_count
+        description: >-
+          Number of fct_orders rows with order_date in this period. Represents
+          orders with matching line items and customers in the upstream fact.
+        data_tests:
+          - not_null
+      - name: customer_count
+        description: >-
+          Count of distinct non-null customer_key values among orders in this
+          period. A customer may be counted in more than one period.
+        data_tests:
+          - not_null
+      - name: gross_sales_amount
+        description: >-
+          Sum of gross_item_sales_amount from fct_orders for the period, before
+          discounts and tax. Uses line-item extended prices, not unit prices.
+        data_tests:
+          - not_null
+      - name: discount_amount
+        description: >-
+          Sum of item_discount_amount for the period. Discounts are represented
+          as negative amounts and are added to gross sales to reduce revenue.
+        data_tests:
+          - not_null
+      - name: tax_amount
+        description: >-
+          Sum of item_tax_amount for the period. Upstream tax is calculated on
+          gross line-item sales after discounts.
+        data_tests:
+          - not_null
+      - name: net_sales_amount
+        description: >-
+          Sum of net_item_sales_amount for the period, including tax. Equals
+          gross_sales_amount plus discount_amount plus tax_amount.
+        data_tests:
+          - not_null
+
+data_tests:
+  - name: assert_fortnightly_sales_valid_periods_and_counts
+    description: >-
+      Checks 14-day bucket alignment to fortnight_anchor_date, inclusive end
+      dates, positive order counts, and customer counts between zero and the
+      order count. On failure, inspect the failed period and the order_date and
+      customer_key values in fct_orders; confirm the anchor variable is consistent.
+  - name: assert_fortnightly_sales_amounts_reconcile
+    description: >-
+      Checks that gross sales plus signed discounts plus tax equals net sales
+      within 0.0001, matching upstream four-decimal precision. On failure, inspect
+      the period's fct_orders totals and the line-item discount and tax calculations.
+
+
+unit_tests:
+  - name: fortnightly_sales_buckets_by_fortnight
+    description: The anchor is Monday 1991-12-30, so 1992-01-12 is the last day of fortnight one and 1992-01-13 starts fortnight two.
+    model: fortnightly_sales
+    given:
+      - input: ref('fct_orders')
+        rows:
+          - {order_date: '1992-01-01', customer_key: 1, gross_item_sales_amount: 100, item_discount_amount: -10, item_tax_amount: 9, net_item_sales_amount: 99}
+          - {order_date: '1992-01-12', customer_key: 1, gross_item_sales_amount: 200, item_discount_amount: -20, item_tax_amount: 18, net_item_sales_amount: 198}
+          - {order_date: '1992-01-13', customer_key: 2, gross_item_sales_amount: 300, item_discount_amount: -30, item_tax_amount: 27, net_item_sales_amount: 297}
+          - {order_date: '1992-01-27', customer_key: 3, gross_item_sales_amount: 400, item_discount_amount: -40, item_tax_amount: 36, net_item_sales_amount: 396}
+    expect:
+      rows:
+        - {fortnight_start_date: '1991-12-30', fortnight_end_date: '1992-01-12', order_count: 2, customer_count: 1, gross_sales_amount: 300, discount_amount: -30, tax_amount: 27, net_sales_amount: 297}
+        - {fortnight_start_date: '1992-01-13', fortnight_end_date: '1992-01-26', order_count: 1, customer_count: 1, gross_sales_amount: 300, discount_amount: -30, tax_amount: 27, net_sales_amount: 297}
+        - {fortnight_start_date: '1992-01-27', fortnight_end_date: '1992-02-09', order_count: 1, customer_count: 1, gross_sales_amount: 400, discount_amount: -40, tax_amount: 36, net_sales_amount: 396}
+
+  - name: fortnightly_sales_returns_no_rows_for_empty_input
+    model: fortnightly_sales
+    given:
+      - input: ref('fct_orders')
+        rows: []
+    expect:
+      rows: []
