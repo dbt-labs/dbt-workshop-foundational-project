@@ -9,3 +9,8 @@ sources:
         description: "One record per customer"
       - name: lineitem
         description: "One record per line item within a single order (1 -> n)"
+      - name: nation
+        description: "One record per nation, including its region key"
+      - name: region
+        description: "One record per region"
+
