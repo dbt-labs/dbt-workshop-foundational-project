@@ -1,0 +1,47 @@
+version: 2
+
+models:
+  - name: stg_customers
+    description: >-
+      Staged TPC-H customers with one row per customer_key. Renames source
+      columns for customer identity, contact details, nation, account balance,
+      and market segment without filtering source records.
+
+  - name: stg_orders
+    description: >-
+      Staged TPC-H orders with one row per order_key. Renames source columns
+      for the customer, order date, status, total price, clerk, and order and
+      shipping priorities without filtering source records.
+
+  - name: stg_line_items
+    description: >-
+      Staged TPC-H order line items with one row per order_key and line_number
+      combination. Includes product, supplier, quantity, shipping, and status
+      details. Derives unit prices and gross, discounted, discount, tax, and
+      net sales amounts. Discounts are negative amounts, tax is calculated
+      after discounts, and net sales include tax.
+
+  - name: stg_nations
+    description: >-
+      Staged TPC-H nations with one row per nation_key. Provides the nation
+      name, its parent region_key, and source comment for geographic enrichment.
+
+  - name: stg_regions
+    description: >-
+      Staged TPC-H regions with one row per region_key. Provides the region
+      name and source comment for geographic enrichment.
+
+  - name: dim_customers
+    description: >-
+      Customer dimension with one row per customer_key, combining staged
+      customer identity, contact details, account balance, and market segment
+      with nation and region names. Inner joins retain only customers with
+      matching nation and region records; no purchase history is required.
+
+  - name: fct_orders
+    description: >-
+      Order fact table with one row per order_key. Enriches staged orders with
+      customer name and market segment and aggregates line-item gross sales,
+      negative discount amounts, tax, and net sales including tax to order
+      grain. Inner joins retain only orders with matching line items and a
+      customer record. No order-status filter is applied.
