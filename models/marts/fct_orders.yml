@@ -1,0 +1,9 @@
+version: 2
+
+models:
+  - name: fct_orders
+    description: >-
+      Order-level sales fact model with one row per order, including order date,
+      status, priority, clerk, and customer name and market segment. Aggregates
+      gross item sales, discounts, tax, and net item sales from line items by
+      order_key. Includes only orders with line items and a matching customer.
