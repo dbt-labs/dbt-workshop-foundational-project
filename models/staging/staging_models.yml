@@ -45,18 +45,10 @@ models:
         description: 部品キーです。
         data_tests:
           - not_null
-          - relationships:
-              arguments:
-                to: ref('stg_part')
-                field: part_key
       - name: supplier_key
         description: 供給者キーです。
         data_tests:
           - not_null
-          - relationships:
-              arguments:
-                to: ref('stg_supplier')
-                field: supplier_key
       - name: line_number
         description: 注文明細の行番号です。
         data_tests:
@@ -152,85 +144,6 @@ models:
       - name: nation_comment
         description: 国に関するコメントです。
 
-  - name: stg_part
-    description: part ソースを分析用に整形したステージングモデルです。
-    columns:
-      - name: part_key
-        description: 部品キーです。
-        data_tests:
-          - not_null
-          - unique
-      - name: part_name
-        description: 部品名です。
-      - name: manufacturer_name
-        description: 製造業者名です。
-      - name: brand_name
-        description: ブランド名です。
-      - name: part_type
-        description: 部品タイプです。
-      - name: part_size
-        description: 部品サイズです。
-      - name: container_type
-        description: 容器種別です。
-      - name: retail_price
-        description: 小売価格です。
-      - name: comment
-        description: 部品に関するコメントです。
-
-  - name: stg_partsupp
-    description: partsupp ソースを分析用に整形したステージングモデルです。
-    columns:
-      - name: part_key
-        description: 部品キーです。
-        data_tests:
-          - not_null
-          - relationships:
-              arguments:
-                to: ref('stg_part')
-                field: part_key
-      - name: supplier_key
-        description: 供給者キーです。
-        data_tests:
-          - not_null
-          - relationships:
-              arguments:
-                to: ref('stg_supplier')
-                field: supplier_key
-      - name: available_quantity
-        description: 利用可能数量です。
-      - name: supply_cost
-        description: 供給原価です。
-      - name: comment
-        description: 部品供給に関するコメントです。
-
-  - name: stg_part_update_dt
-    description: part_update_dt ソースを分析用に整形したステージングモデルです。
-    columns:
-      - name: part_key
-        description: 部品キーです。
-        data_tests:
-          - not_null
-      - name: part_name
-        description: 部品名です。
-      - name: manufacturer_name
-        description: 製造業者名です。
-      - name: brand_name
-        description: ブランド名です。
-      - name: part_type
-        description: 部品タイプです。
-      - name: part_size
-        description: 部品サイズです。
-      - name: container_type
-        description: 容器種別です。
-      - name: retail_price
-        description: 小売価格です。
-      - name: comment
-        description: 部品に関するコメントです。
-      - name: update_at
-        description: レコード更新日時です。
-        data_tests:
-          - not_null
-
   - name: stg_regions
     description: region ソースを分析用に整形したステージングモデルです。
     columns:
@@ -243,30 +156,3 @@ models:
         description: 地域名です。
       - name: region_comment
         description: 地域に関するコメントです。
-
-  - name: stg_supplier
-    description: supplier ソースを分析用に整形したステージングモデルです。
-    columns:
-      - name: supplier_key
-        description: 供給者キーです。
-        data_tests:
-          - not_null
-          - unique
-      - name: supplier_name
-        description: 供給者名です。
-      - name: address
-        description: 供給者住所です。
-      - name: nation_key
-        description: 供給者の所属国キーです。
-        data_tests:
-          - not_null
-          - relationships:
-              arguments:
-                to: ref('stg_nations')
-                field: nation_key
-      - name: phone_number
-        description: 供給者の電話番号です。
-      - name: account_balance
-        description: 供給者の口座残高です。
-      - name: comment
-        description: 供給者に関するコメントです。
