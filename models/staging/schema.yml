@@ -1,0 +1,51 @@
+version: 2
+
+models:
+  - name: stg_customers
+    description: >-
+      Stages the TPC-H customer source at one row per customer_key, with readable
+      column names for customer contact details, nation, account balance, and
+      market segment. Preserves all source rows without joins or filters.
+
+  - name: stg_orders
+    description: >-
+      Stages the TPC-H orders source at one row per order_key, with readable
+      column names for the customer reference, order date, status, total price,
+      priority, and clerk. Preserves all source rows without joins or filters.
+
+  - name: stg_line_items
+    description: >-
+      Stages TPC-H order line items at one row per order_key and line_number.
+      Renames source fields and calculates unit prices, discounted sales,
+      negative discount amounts, tax on discounted sales, and net sales
+      including tax. Unit prices are null when quantity is zero. Preserves all
+      source rows without joins or filters.
+
+  - name: stg_nations
+    description: >-
+      Stages the TPC-H nation source at one row per nation_key, with nation name,
+      region_key, and source comment. Provides nation-to-region mappings while
+      preserving all source rows without joins or filters.
+
+  - name: stg_regions
+    description: >-
+      Stages the TPC-H region source at one row per region_key, with region name
+      and source comment. Preserves all source rows without joins or filters.
+
+  - name: stg_parts
+    description: >-
+      Stages the TPC-H part source at one row per part_key, with readable column
+      names for part name, manufacturer, brand, type, size, container, retail
+      price, and source comment. Preserves all source rows without joins or filters.
+
+  - name: stg_part_suppliers
+    description: >-
+      Stages the TPC-H partsupp source at one row per part_key and supplier_key
+      combination, describing the available quantity and supply cost for each
+      part-supplier pairing. Preserves all source rows without joins or filters.
+
+  - name: stg_suppliers
+    description: >-
+      Stages the TPC-H supplier source at one row per supplier_key, with readable
+      column names for supplier contact details, nation_key, account balance,
+      and source comment. Preserves all source rows without joins or filters.

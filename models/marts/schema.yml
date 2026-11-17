@@ -1,0 +1,17 @@
+version: 2
+
+models:
+  - name: dim_customers
+    description: >-
+      Customer dimension at one row per customer_key, enriching staged customer
+      contact details, account balance, and market segment with nation and region
+      names. Inner joins to staged nations and regions retain only customers
+      with matching geography records.
+
+  - name: fct_orders
+    description: >-
+      Order fact table at one row per order_key, combining staged order details
+      and customer attributes with line-item totals for gross sales, discounts,
+      tax, and net sales including tax. Discount amounts are negative. Inner
+      joins retain only orders with both line items and a matching customer;
+      no additional order-status or date filters are applied.
