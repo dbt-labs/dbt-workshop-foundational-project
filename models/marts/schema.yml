@@ -1,0 +1,16 @@
+version: 2
+
+models:
+  - name: fct_orders
+    description: >-
+      Order fact table at order_key grain, combining staged order headers with
+      customer name and market segment and line-item amounts aggregated by
+      order. Includes gross sales, negative discount amounts, tax, and net sales
+      including discounts and tax. Inner joins retain only orders with matching
+      line items and customers. No order-status filter is applied.
+
+  - name: dim_customers
+    description: >-
+      Unimplemented customer dimension placeholder. The SQL file is currently
+      empty and defines no query, output columns, or grain. Implement and
+      validate the model before using it in downstream analysis.

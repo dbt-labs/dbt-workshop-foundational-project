@@ -1,0 +1,59 @@
+version: 2
+
+models:
+  - name: stg_customers
+    description: >-
+      Customer records from tpch.customer with source-prefixed fields renamed
+      for downstream use. One row per source customer, identified by
+      customer_key, including nation, contact details, account balance, and
+      market segment. No rows are filtered and no currency conversion is applied.
+
+  - name: stg_orders
+    description: >-
+      Order headers from tpch.orders with source-prefixed fields renamed for
+      downstream use. One row per source order, identified by order_key,
+      including customer_key, order date, status, total price, and priority
+      fields. Retains all source order statuses without filtering.
+
+  - name: stg_line_items
+    description: >-
+      Order line items from tpch.lineitem, at the source grain of order_key and
+      line_number. Renames source fields and calculates unit prices, discounted
+      sales, negative discount amounts, tax, and net sales. Gross sales come
+      from the source line extended price; net sales include discounts and tax.
+      Unit prices are null when quantity is zero. No source rows are filtered.
+
+  - name: stg_nations
+    description: >-
+      Nation reference records from tpch.nation with source-prefixed fields
+      renamed for downstream joins. One row per source nation, identified by
+      nation_key, with its name, region_key, and source comment. No rows are
+      filtered or aggregated.
+
+  - name: stg_regions
+    description: >-
+      Region reference records from tpch.region with source-prefixed fields
+      renamed for downstream joins. One row per source region, identified by
+      region_key, with its name and source comment. No rows are filtered or
+      aggregated.
+
+  - name: stg_parts
+    description: >-
+      Part catalog records from tpch.part with source-prefixed fields renamed
+      for downstream use. One row per source part, identified by part_key,
+      including manufacturer, brand, type, size, container, and retail price.
+      No rows are filtered and source price values are preserved unchanged.
+
+  - name: stg_part_suppliers
+    description: >-
+      Part availability and supply cost records from tpch.partsupp at the
+      source grain of part_key and supplier_key. Renames source-prefixed
+      fields and retains available quantity, supply cost, and source comment
+      without filtering, aggregation, or currency conversion.
+
+  - name: stg_suppliers
+    description: >-
+      Supplier records from tpch.supplier with source-prefixed fields renamed
+      for downstream use. One row per source supplier, identified by
+      supplier_key, including nation_key, contact details, and account balance.
+      No rows are filtered and source balance values are preserved unchanged.
