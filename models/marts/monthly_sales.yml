@@ -1,0 +1,25 @@
+models:
+  - name: monthly_sales
+    description: >
+      Monthly gross revenue by customer market segment, aggregated from
+      fct_orders. One row per order_month + market_segment. Revenue is gross
+      (before discounts and tax). Grain uniqueness and non-negative revenue are
+      enforced by singular tests in `tests/`.
+    columns:
+      - name: order_month
+        description: "First day of the calendar month the orders were placed in (truncated from fct_orders.order_date)."
+        data_tests:
+          - not_null
+
+      - name: market_segment
+        description: "Market segment of the customer who placed the orders (from fct_orders.market_segment)."
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ['AUTOMOBILE', 'BUILDING', 'FURNITURE', 'HOUSEHOLD', 'MACHINERY']
+
+      - name: total_revenue
+        description: "Sum of gross item sales amount for all orders in the month and segment, before discounts and tax."
+        data_tests:
+          - not_null
