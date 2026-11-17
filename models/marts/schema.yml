@@ -1,0 +1,16 @@
+version: 2
+
+models:
+  - name: fct_orders
+    description: >-
+      Order-level sales fact joining staged order headers to customer details
+      and line-item amounts aggregated by order_key. Includes gross sales,
+      discounts, tax, and net sales along with order attributes and customer
+      market segment. Inner joins exclude orders without matching line items
+      or customers; no order-status filter is applied.
+  - name: dim_customers
+    description: >-
+      Customer dimension joining stg_customers to nation and region reference
+      data for geographic analysis. Includes customer key, contact details,
+      account balance, and market segment. Inner joins exclude customers
+      without matching nation or region records.

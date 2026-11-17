@@ -1,0 +1,51 @@
+version: 2
+
+models:
+  - name: stg_customers
+    description: >-
+      Customer records from tpch.customer with readable column names for
+      customer and nation keys, contact details, account balance, and market
+      segment. Preserves source rows without filtering or joining.
+  - name: stg_orders
+    description: >-
+      Order headers from tpch.orders with renamed order and customer keys,
+      order date, status, priorities, clerk, total price, and comment.
+      Preserves source rows without filtering or joining.
+  - name: stg_line_items
+    description: >-
+      Order line items from tpch.lineitem at order_key and line_number grain.
+      Renames source columns and calculates unit prices, discounted sales,
+      negative discount amounts, tax amounts, and net sales including tax.
+      Unit price is null when quantity is zero.
+  - name: stg_nations
+    description: >-
+      Nation reference records from tpch.nation with renamed nation and region
+      keys, name, and comment. Preserves source rows for geographic joins.
+  - name: stg_regions
+    description: >-
+      Region reference records from tpch.region with renamed region key,
+      name, and comment. Preserves source rows for geographic joins.
+  - name: stg_parts
+    description: >-
+      Part catalog records from tpch.part with readable names for part key,
+      manufacturer, brand, type, size, container, retail price, and comment.
+      Preserves all source columns and rows without filtering or joining.
+  - name: stg_part_suppliers
+    description: >-
+      Part-supplier supply records from tpch.partsupp at part_key and
+      supplier_key grain, including available quantity, supply cost, and
+      comment. Preserves source rows without filtering or joining.
+  - name: stg_suppliers
+    description: >-
+      Supplier records from tpch.supplier with renamed supplier and nation
+      keys, contact details, account balance, and comment. Preserves source
+      rows without filtering or joining.
+  - name: stg_tbl_test
+    description: >-
+      Pass-through staging view of the id column from tpch.tbl_test.
+      Applies no filtering, deduplication, or business transformations.
+  - name: stg_tpch__customer
+    description: >-
+      Incomplete customer staging scaffold referencing tpch.customer.
+      Its projection is empty and its final CTE reference needs correction;
+      use stg_customers for the implemented customer staging transformation.
