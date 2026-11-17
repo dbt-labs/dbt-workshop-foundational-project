@@ -1,0 +1,33 @@
+version: 2
+
+models:
+  - name: monthly_sales
+    description: "Order-level pass-through of stg_orders; currently one row per order, without monthly aggregation."
+    columns:
+      - name: order_key
+        description: "Unique identifier for an order."
+        data_tests:
+          - unique
+          - not_null
+
+      - name: customer_key
+        description: "Identifier of the customer who placed the order."
+        data_tests:
+          - not_null
+
+      - name: order_date
+        description: "Date the order was placed."
+        data_tests:
+          - not_null
+
+      - name: total_price
+        description: "Total price of the order."
+        data_tests:
+          - not_null
+
+      - name: status_code
+        description: "Order status code from the TPCH orders source."
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ['F', 'O', 'P']
