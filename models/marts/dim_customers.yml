@@ -1,0 +1,33 @@
+version: 2
+
+models:
+  - name: dim_customers
+    description: >-
+      One row per customer, enriched with the customer's nation and region names.
+      Built with inner joins from stg_customers to stg_nations and stg_regions, so a
+      customer with an unmatched nation_key would be dropped. The
+      assert_dim_customers_has_all_customers test guards against that.
+    columns:
+      - name: customer_key
+        description: Primary key of the customer, from stg_customers.
+        data_tests:
+          - unique
+          - not_null
+      - name: name
+        description: Customer name.
+      - name: address
+        description: Customer street address.
+      - name: nation
+        description: Name of the customer's nation, from stg_nations.
+        data_tests:
+          - not_null
+      - name: region
+        description: Name of the region the customer's nation belongs to, from stg_regions.
+        data_tests:
+          - not_null
+      - name: phone_number
+        description: Customer phone number.
+      - name: account_balance
+        description: Customer account balance as recorded in the source system. Can be negative.
+      - name: market_segment
+        description: Customer market segment (e.g. AUTOMOBILE, BUILDING), the same value used in monthly_sales.

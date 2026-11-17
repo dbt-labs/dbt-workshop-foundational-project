@@ -1,0 +1,20 @@
+version: 2
+
+models:
+  - name: stg_regions
+    description: >-
+      One row per TPC-H geographic region, renamed from the tpch.region source.
+      Regions are the top of the geography hierarchy: customer -> nation -> region.
+    columns:
+      - name: region_key
+        description: Primary key of the region, from r_regionkey.
+        data_tests:
+          - unique
+          - not_null
+      - name: region
+        description: Region name (e.g. AFRICA, AMERICA, ASIA, EUROPE, MIDDLE EAST), from r_name.
+        data_tests:
+          - unique
+          - not_null
+      - name: region_comment
+        description: Free-text comment on the region from the source system, from r_comment.

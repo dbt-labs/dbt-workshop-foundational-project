@@ -1,0 +1,27 @@
+version: 2
+
+models:
+  - name: stg_nations
+    description: >-
+      One row per TPC-H nation, renamed from the tpch.nation source. Each nation
+      belongs to exactly one region in stg_regions.
+    columns:
+      - name: nation_key
+        description: Primary key of the nation, from n_nationkey. Customers link here via nation_key.
+        data_tests:
+          - unique
+          - not_null
+      - name: nation
+        description: Nation name, from n_name.
+        data_tests:
+          - not_null
+      - name: region_key
+        description: Foreign key to stg_regions, from n_regionkey.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_regions')
+                field: region_key
+      - name: nation_comment
+        description: Free-text comment on the nation from the source system, from n_comment.

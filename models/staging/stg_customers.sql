@@ -1,5 +1,5 @@
 with source as (
-
+    -- a comment 
     select * from {{ source('tpch', 'customer') }}
 
 ),
