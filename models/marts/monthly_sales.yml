@@ -1,0 +1,27 @@
+version: 2
+
+models:
+  - name: monthly_sales
+    description: >-
+      One row per order month and customer market segment. Sums gross line-item
+      sales from fct_orders across all order statuses. The total_revenue column
+      is before discounts and tax, not net revenue. Only orders included in
+      fct_orders contribute; month/segment combinations with no orders are absent.
+    data_tests:
+      - unique:
+          name: unique_monthly_sales_month_segment
+          arguments:
+            column_name: "(order_month || '|' || market_segment)"
+    columns:
+      - name: order_month
+        description: Order placement date truncated to the first day of its calendar month.
+        data_tests:
+          - not_null
+      - name: market_segment
+        description: Customer market segment from fct_orders; forms the grain together with order_month.
+        data_tests:
+          - not_null
+      - name: total_revenue
+        description: Sum of fct_orders.gross_item_sales_amount for the month and market segment, before discounts and tax.
+        data_tests:
+          - not_null

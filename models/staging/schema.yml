@@ -1,0 +1,162 @@
+version: 2
+
+models:
+  - name: stg_customers
+    description: >-
+      One row per TPCH customer, with source fields renamed for use in customer
+      dimensions and order reporting. No filtering or balance adjustments are applied.
+    columns:
+      - name: customer_key
+        description: Source customer identifier and primary key.
+        data_tests: [unique, not_null]
+      - name: name
+        description: Customer name as supplied by TPCH.
+      - name: address
+        description: Customer street address from the source.
+      - name: nation_key
+        description: Customer's nation; joins to stg_nations.nation_key.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_nations')
+                field: nation_key
+      - name: phone_number
+        description: Source customer phone number, retained as text.
+      - name: account_balance
+        description: Source customer account balance; negative balances are retained.
+      - name: market_segment
+        description: Source customer market segment used to group monthly gross sales.
+      - name: comment
+        description: Unmodified free-text source comment about the customer.
+
+  - name: stg_orders
+    description: >-
+      One row per TPCH order with source identifiers, status, dates, and priorities.
+      All source orders are retained; line-item amounts are calculated separately.
+    columns:
+      - name: order_key
+        description: Source order identifier and primary key.
+        data_tests: [unique, not_null]
+      - name: customer_key
+        description: Customer placing the order; joins to stg_customers.customer_key.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_customers')
+                field: customer_key
+      - name: status_code
+        description: Unmodified TPCH order status code; observed values are O, F, and P.
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ['O', 'F', 'P']
+      - name: total_price
+        description: Order total supplied by the source, not recalculated from staged line items.
+      - name: order_date
+        description: Source order placement date, used to assign the sales reporting month.
+        data_tests: [not_null]
+
+      - name: clerk_name
+        description: Source identifier for the clerk associated with the order.
+      - name: priority_code
+        description: Unmodified source order priority label.
+      - name: ship_priority
+        description: Source shipping priority value.
+      - name: comment
+        description: Unmodified free-text source comment about the order.
+
+  - name: stg_line_items
+    description: >-
+      One row per order_key and line_number from TPCH lineitem. Calculates unit
+      prices, signed discounts, tax on discounted sales, and tax-inclusive net sales.
+      No line items are filtered out.
+    data_tests:
+      - unique:
+          name: unique_stg_line_items_order_line
+          arguments:
+            column_name: "(order_key || '-' || line_number)"
+    columns:
+      - name: order_key
+        description: Order containing the line item; part of the composite primary key.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_orders')
+                field: order_key
+      - name: part_key
+        description: Source part identifier for the item sold.
+      - name: supplier_key
+        description: Source supplier identifier for the item sold.
+      - name: line_number
+        description: Line number within an order; unique together with order_key.
+        data_tests: [not_null]
+      - name: quantity
+        description: Number of units on the line; used as the divisor for base_price.
+      - name: gross_item_sales_amount
+        description: Source extended line price before discounts and tax; already includes quantity.
+      - name: discount_percentage
+        description: Source discount fraction; 0.05 represents a five-percent discount.
+      - name: tax_rate
+        description: Source tax fraction applied to the discounted line amount.
+      - name: return_flag
+        description: Unmodified source line-item return flag.
+      - name: status_code
+        description: Unmodified source line-item status code; distinct from the order status.
+      - name: ship_date
+        description: Source shipment date for the line item.
+      - name: commit_date
+        description: Source committed date for the line item.
+      - name: receipt_date
+        description: Source receipt date for the line item.
+      - name: ship_instructions
+        description: Source shipping instructions for the line item.
+      - name: ship_mode
+        description: Source shipping mode for the line item.
+      - name: comment
+        description: Unmodified free-text source comment about the line item.
+      - name: base_price
+        description: Gross line amount divided by quantity, rounded to four decimal places; null if quantity is zero.
+      - name: discounted_price
+        description: Rounded base_price multiplied by one minus the discount fraction, rounded to four decimal places; excludes tax.
+      - name: discounted_item_sales_amount
+        description: Gross line amount multiplied by one minus the discount fraction, rounded to four decimal places; excludes tax.
+      - name: item_discount_amount
+        description: Negative gross line amount multiplied by the discount fraction, rounded to four decimal places.
+      - name: item_tax_amount
+        description: Gross line amount plus the signed discount, multiplied by tax_rate and rounded to four decimal places.
+      - name: net_item_sales_amount
+        description: Gross line amount plus the signed discount and tax, rounded to four decimal places.
+
+  - name: stg_nations
+    description: One row per TPCH nation, providing the nation-to-region mapping used to enrich customers.
+    columns:
+      - name: nation_key
+        description: Source nation identifier and primary key.
+        data_tests: [unique, not_null]
+      - name: nation
+        description: Source nation name used in customer reporting.
+      - name: region_key
+        description: Region containing the nation; joins to stg_regions.region_key.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_regions')
+                field: region_key
+      - name: nation_comment
+        description: Unmodified free-text source comment about the nation.
+
+  - name: stg_regions
+    description: One row per TPCH region, used to group nations and customers geographically.
+    columns:
+      - name: region_key
+        description: Source region identifier and primary key.
+        data_tests: [unique, not_null]
+      - name: region
+        description: Source region name used in customer reporting.
+      - name: region_comment
+        description: Unmodified free-text source comment about the region.
