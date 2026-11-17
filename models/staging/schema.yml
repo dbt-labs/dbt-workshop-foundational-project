@@ -1,0 +1,44 @@
+version: 2
+
+models:
+  - name: stg_customers
+    description: >-
+      Customer records from tpch.customer, with source-prefixed columns renamed
+      for downstream joins and reporting. Retains the source customer grain and
+      all rows, including nation, contact details, account balance, and market segment.
+  - name: stg_orders
+    description: >-
+      Order headers from tpch.orders, with source-prefixed columns renamed for
+      downstream joins and reporting. Retains the source order grain and all rows,
+      including customer key, order date, status, priority, and total price.
+  - name: stg_line_items
+    description: >-
+      Order line items from tpch.lineitem at the source order-key and line-number
+      grain. Renames source columns and calculates unit prices, discounts as
+      negative amounts, tax amounts, and net item sales for order-level aggregation.
+      No source rows are filtered out.
+  - name: stg_nations
+    description: >-
+      Nation reference records from tpch.nation, retaining the source nation grain
+      and all rows. Renames the nation key, name, region key, and comment for
+      geography joins from customers and suppliers.
+  - name: stg_regions
+    description: >-
+      Region reference records from tpch.region, retaining the source region grain
+      and all rows. Renames the region key, name, and comment for geography joins
+      from nations.
+  - name: stg_parts
+    description: >-
+      Part catalog records from tpch.part, retaining the source part grain and all
+      rows. Renames source columns for product reporting, including manufacturer,
+      brand, type, size, container, and retail price.
+  - name: stg_part_suppliers
+    description: >-
+      Part-supplier availability and cost records from tpch.partsupp at the source
+      part-key and supplier-key grain. Renames the keys, available quantity, supply
+      cost, and comment without joining, filtering, or aggregating source rows.
+  - name: stg_suppliers
+    description: >-
+      Supplier records from tpch.supplier, retaining the source supplier grain and
+      all rows. Renames supplier and nation keys, name, address, phone number,
+      account balance, and comment for procurement and geography joins.

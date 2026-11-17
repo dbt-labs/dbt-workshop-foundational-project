@@ -1,0 +1,11 @@
+version: 2
+
+models:
+  - name: fct_orders
+    description: >-
+      Order-level sales fact model combining stg_orders with item amounts summed
+      by order_key from stg_line_items and customer details from stg_customers.
+      Intended grain is one row per order. Includes gross item sales, negative
+      discount amounts, tax amounts, and net item sales, plus customer name and
+      market segment. Inner joins include only orders with matching line items
+      and a matching customer; no additional status or date filters are applied.
