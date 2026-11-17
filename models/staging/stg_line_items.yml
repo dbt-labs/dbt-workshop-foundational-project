@@ -1,0 +1,3 @@
+models:
+  - name: stg_line_items
+    description: "Staging model for TPC-H line items. One row per line item within an order (order_key + line_number), with source columns renamed and derived pricing amounts calculated."

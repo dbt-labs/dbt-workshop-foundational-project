@@ -1,0 +1,3 @@
+models:
+  - name: stg_nations
+    description: "Staging model for TPC-H nations. One row per nation, with source columns renamed and a key to its region."
