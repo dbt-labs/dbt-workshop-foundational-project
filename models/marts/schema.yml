@@ -1,0 +1,18 @@
+version: 2
+
+models:
+  - name: dim_customers
+    description: >-
+      One row per customer with matching nation and region records. Enriches
+      staged customer contact details, account balance, and market segment
+      with nation and region names through inner joins; customers without
+      matching geographic records are excluded.
+
+  - name: fct_orders
+    description: >-
+      One row per order with matching line items and a matching customer.
+      Aggregates line-item gross sales, negative discount amounts, tax, and
+      net sales including tax to the order grain, and adds customer name and
+      market segment alongside order date, status, and priority attributes.
+      Inner joins exclude orders without line items or a matching customer.
+      Includes all order statuses present in the staged orders.
