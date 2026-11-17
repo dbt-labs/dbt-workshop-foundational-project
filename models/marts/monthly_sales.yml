@@ -1,0 +1,43 @@
+version: 2
+
+models:
+  - name: monthly_sales
+    description: >-
+      Monthly gross sales by customer market segment for sales trend and segment
+      reporting. One row per order_month and market_segment, aggregated from
+      fct_orders with no order-status filter. Only month-and-segment combinations
+      present in fct_orders are included; missing combinations are not filled
+      with zeroes. Revenue is gross item sales before discounts and tax, not
+      net revenue.
+    data_tests:
+      - unique:
+          name: monthly_sales_unique_month_segment
+          description: >-
+            Ensures one row per calendar month and market segment. If this fails,
+            inspect duplicate month-and-segment groups before using this model
+            in downstream revenue reporting.
+          arguments:
+            column_name: "to_char(order_month, 'YYYY-MM-DD') || '|' || market_segment"
+    columns:
+      - name: order_month
+        description: >-
+          Calendar month of the order, calculated by truncating fct_orders.order_date
+          to the first day of the month. Together with market_segment, defines
+          the row grain.
+        data_tests:
+          - not_null
+      - name: market_segment
+        description: >-
+          Customer market segment carried through fct_orders from stg_customers.
+          Groups sales according to the customer segment available upstream;
+          this model does not apply a separate historical segment lookup.
+        data_tests:
+          - not_null
+      - name: total_revenue
+        description: >-
+          Sum of fct_orders.gross_item_sales_amount for the order month and market
+          segment. The underlying amount is sourced from line-item extended
+          prices, before discounts and tax. Includes every order status present
+          in fct_orders and applies no currency conversion.
+        data_tests:
+          - not_null
