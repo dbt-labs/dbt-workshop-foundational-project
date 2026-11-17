@@ -1,0 +1,43 @@
+version: 2
+
+models:
+  - name: monthly_sales
+    description: >-
+      Monthly gross item sales by customer market segment, with one row per
+      order_month and market_segment combination. Aggregates all orders included
+      in fct_orders without an additional order-status filter. Only month and
+      segment combinations with orders are included; missing combinations are
+      not filled with zeroes.
+    columns:
+      - name: order_month
+        description: >-
+          Calendar month of the order, derived by truncating fct_orders.order_date
+          to the first day of the month. Together with market_segment, defines
+          the grain of this model.
+        data_tests:
+          - not_null
+      - name: market_segment
+        description: >-
+          Customer market segment carried through fct_orders from its customer
+          join. Together with order_month, defines the grain of this model.
+        data_tests:
+          - not_null
+      - name: total_revenue
+        description: >-
+          Sum of fct_orders.gross_item_sales_amount for the order month and
+          customer market segment. Uses the gross item sales measure rather
+          than the separate net item sales, discount, or tax measures.
+          Currency is inherited from the upstream data and is not converted
+          by this model.
+        data_tests:
+          - not_null
+
+data_tests:
+  - name: monthly_sales_unique_grain
+    description: >-
+      Ensures each order month and market segment appears at most once.
+      If this fails, inspect changes to the model's grouping or any added joins.
+  - name: monthly_sales_month_start
+    description: >-
+      Ensures every non-null order_month is truncated to the start of its
+      calendar month. If this fails, inspect the order_date transformation.

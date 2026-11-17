@@ -36,3 +36,6 @@ models:
   foundational_project:
     +materialized: view
     +access: public
+
+info_schema: 
+  version: 1
