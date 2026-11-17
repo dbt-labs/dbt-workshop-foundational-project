@@ -1,6 +1,7 @@
 sources:
   - name: tpch
-    database: raw
+    description: "TPCH data source from Snowflake Sample Data"
+    database: tpch_now
     schema: tpch
     tables:
       - name: orders
@@ -9,3 +10,8 @@ sources:
         description: "One record per customer"
       - name: lineitem
         description: "One record per line item within a single order (1 -> n)"
+      - name: nation 
+      - name: part 
+      - name: partsupp 
+      - name: region 
+      - name: supplier
