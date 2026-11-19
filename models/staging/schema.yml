@@ -1,0 +1,37 @@
+version: 2
+
+models:
+  - name: stg_orders
+    description: >-
+      Staged TPC-H orders with source columns renamed for downstream use.
+      One row per order, identified by order_key, including the customer key,
+      order date, total price, status, clerk, and priority details. No source
+      orders are filtered out by this model.
+
+  - name: stg_customers
+    description: >-
+      Staged TPC-H customer records with standardized column names. One row
+      per customer, identified by customer_key, including contact details,
+      nation key, account balance, and market segment. Provides customer
+      attributes for the customer dimension and order fact model.
+
+  - name: stg_line_items
+    description: >-
+      Staged TPC-H order line items at the grain of order_key and line_number.
+      Includes product, supplier, quantity, shipping details, and gross item
+      sales, with calculated unit prices, discounts, taxes, and net item
+      sales. Discount amounts are negative, taxes apply after discounts,
+      and net item sales include tax. Unit price calculations return null
+      when quantity is zero.
+
+  - name: stg_nations
+    description: >-
+      Staged TPC-H nation lookup with one row per nation_key. Renames the
+      nation name, parent region key, and source comment for use in
+      enriching customer records with geographic attributes.
+
+  - name: stg_regions
+    description: >-
+      Staged TPC-H region lookup with one row per region_key. Renames the
+      region name and source comment for use in grouping nations and
+      enriching customer records with regional attributes.
