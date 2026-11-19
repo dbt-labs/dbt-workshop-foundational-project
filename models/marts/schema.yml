@@ -1,0 +1,54 @@
+version: 2
+
+models:
+  - name: fct_orders
+    description: >-
+      Order-grain revenue fact table, materialized as a table. Aggregates line-item
+      gross sales, discounts, taxes, and net sales by order_key, then inner joins
+      order headers and customers. One row per order with both line items and a
+      matching customer; orders missing either match are excluded. Customer name
+      and market segment reflect the customer records used at build time, not
+      historical snapshots. Revenue uses source monetary units without currency
+      conversion. Gross sales exclude discount and tax; net sales include both.
+    columns:
+      - name: order_key
+        description: Unique order identifier and primary key of the fact table.
+        data_tests:
+          - unique
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_orders')
+                field: order_key
+      - name: order_date
+        description: Date the order was placed, from stg_orders.
+      - name: customer_key
+        description: Identifier of the customer who placed the order, joined to stg_customers.
+      - name: status_code
+        description: Order-header status code from stg_orders, not the line-item status.
+      - name: priority_code
+        description: Order priority code from stg_orders.
+      - name: ship_priority
+        description: Shipping priority from the order header.
+      - name: clerk_name
+        description: Clerk assigned to the order according to the source order header.
+      - name: name
+        description: Customer name from stg_customers at model build time.
+      - name: market_segment
+        description: Customer market segment from stg_customers at model build time.
+      - name: gross_item_sales_amount
+        description: Sum of extended line amounts for the order before discount and tax.
+        data_tests:
+          - not_null
+      - name: item_discount_amount
+        description: Sum of line-item discounts for the order, represented as negative amounts.
+        data_tests:
+          - not_null
+      - name: item_tax_amount
+        description: Sum of line-item tax amounts for the order, calculated after discounts.
+        data_tests:
+          - not_null
+      - name: net_item_sales_amount
+        description: Sum of net line sales; equals gross sales plus negative discounts plus tax.
+        data_tests:
+          - not_null

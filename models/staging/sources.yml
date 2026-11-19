@@ -1,11 +1,105 @@
+version: 2
+
 sources:
   - name: tpch
-    database: raw
+    description: >-
+      Raw TPCH customer, order, line-item, product, supplier, and geography data
+      in Snowflake, plus the tbl_test utility table. Staging models rename source
+      columns and preserve source monetary units without currency conversion.
+    database: tpch_now
     schema: tpch
     tables:
       - name: orders
-        description: "One record per order"
+        description: >-
+          One record per order, identified by o_orderkey. Includes the ordering
+          customer, order date, status, priorities, and the source header total.
       - name: customer
-        description: "One record per customer"
+        description: >-
+          One record per customer, identified by c_custkey. Provides customer name,
+          contact details, account balance, and market segment.
       - name: lineitem
-        description: "One record per line item within a single order (1 -> n)"
+        description: >-
+          One record per line item within an order, identified by the combination
+          of l_orderkey and l_linenumber. Extended prices are line totals before
+          discount and tax; discount and tax fields are used as fractional rates.
+      - name: nation
+        description: One record per TPCH nation, identified by n_nationkey, with its region assignment.
+        columns:
+          - name: n_nationkey
+            description: Source nation identifier.
+          - name: n_name
+            description: Nation name as supplied by TPCH.
+          - name: n_regionkey
+            description: Identifier referencing region.r_regionkey.
+          - name: n_comment
+            description: Free-text source comment about the nation.
+      - name: region
+        description: One record per TPCH geographic region, identified by r_regionkey.
+        columns:
+          - name: r_regionkey
+            description: Source region identifier.
+          - name: r_name
+            description: Region name as supplied by TPCH.
+          - name: r_comment
+            description: Free-text source comment about the region.
+      - name: part
+        description: One record per part, identified by p_partkey, with product attributes and retail price.
+        columns:
+          - name: p_partkey
+            description: Source part identifier.
+          - name: p_name
+            description: Part name as supplied by TPCH.
+          - name: p_mfgr
+            description: Manufacturer label assigned to the part.
+          - name: p_brand
+            description: Brand label assigned to the part.
+          - name: p_type
+            description: Source classification describing the part type.
+          - name: p_size
+            description: Numeric source size designation; no physical unit is specified.
+          - name: p_container
+            description: Source packaging or container designation.
+          - name: p_retailprice
+            description: Retail price in source monetary units, without currency conversion.
+          - name: p_comment
+            description: Free-text source comment about the part.
+      - name: supplier
+        description: One record per supplier, identified by s_suppkey, with contact details and nation assignment.
+        columns:
+          - name: s_suppkey
+            description: Source supplier identifier.
+          - name: s_name
+            description: Supplier name as supplied by TPCH.
+          - name: s_address
+            description: Supplier street address as supplied by the source.
+          - name: s_nationkey
+            description: Identifier referencing nation.n_nationkey.
+          - name: s_phone
+            description: Supplier telephone number as supplied by the source.
+          - name: s_acctbal
+            description: Supplier account balance in source monetary units; negative balances are permitted.
+          - name: s_comment
+            description: Free-text source comment about the supplier.
+      - name: partsupp
+        description: >-
+          One record per (ps_partkey, ps_suppkey) pair, describing the quantity
+          available and supply cost for a part from a particular supplier.
+          This is a source snapshot, not inventory transaction history.
+        columns:
+          - name: ps_partkey
+            description: Part identifier referencing part.p_partkey; part of the composite key.
+          - name: ps_suppkey
+            description: Supplier identifier referencing supplier.s_suppkey; part of the composite key.
+          - name: ps_availqty
+            description: Quantity available for this part from this supplier according to the source.
+          - name: ps_supplycost
+            description: Supply cost per part in source monetary units, without currency conversion.
+          - name: ps_comment
+            description: Free-text source comment about the part and supplier pairing.
+      - name: tbl_test
+        description: >-
+          Utility table containing only an id column. No business meaning or
+          relationship to the TPCH entities has been established.
+        columns:
+          - name: id
+            description: Identifier supplied by the utility table; business semantics are unspecified.

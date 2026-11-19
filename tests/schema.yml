@@ -1,0 +1,21 @@
+version: 2
+
+data_tests:
+  - name: assert_stg_line_items_unique_grain
+    description: >-
+      Ensures each (order_key, line_number) pair occurs only once. On failure,
+      inspect the returned keys in tpch.lineitem for duplicate source records.
+      Separate not_null tests enforce that both key components are populated.
+  - name: assert_fct_orders_revenue_balances
+    description: >-
+      Ensures order net sales equal gross sales plus negative discounts plus tax,
+      with a tolerance of 0.0001 in source monetary units. Null revenue values are
+      checked separately by column tests. On failure, inspect the returned order
+      keys in stg_line_items and check discount signs and decimal rounding.
+  - name: assert_fct_orders_nonnegative_net_sales
+    description: >-
+      Preserves the existing check that summed net_item_sales_amount is
+      nonnegative for every order in fct_orders. On failure, inspect the returned
+      order keys and their line-item discounts and taxes. Null revenue values
+      are checked separately by column tests.
+

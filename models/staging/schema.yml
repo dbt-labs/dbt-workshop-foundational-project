@@ -1,0 +1,142 @@
+version: 2
+
+models:
+  - name: stg_customers
+    description: >-
+      Customer records from tpch.customer with renamed columns. One row per
+      customer_key. Provides customer attributes used to enrich orders.
+    columns:
+      - name: customer_key
+        description: Unique identifier for a customer.
+        data_tests:
+          - unique
+          - not_null
+      - name: name
+        description: Customer name as supplied by the source.
+      - name: address
+        description: Customer street address as supplied by the source.
+      - name: nation_key
+        description: Customer nation, referencing stg_nations.nation_key.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_nations')
+                field: nation_key
+      - name: phone_number
+        description: Customer telephone number as supplied by the source.
+      - name: account_balance
+        description: Customer account balance from the source; may differ from order revenue.
+      - name: market_segment
+        description: Source market segment used to group customers and order revenue.
+      - name: comment
+        description: Free-text source comment about the customer.
+
+  - name: stg_orders
+    description: >-
+      Order headers from tpch.orders with renamed columns. One row per order_key.
+      Contains the source header total; item-level revenue is calculated separately
+      in stg_line_items and aggregated in fct_orders.
+    columns:
+      - name: order_key
+        description: Unique identifier for an order.
+        data_tests:
+          - unique
+          - not_null
+      - name: customer_key
+        description: Identifier of the customer who placed the order.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_customers')
+                field: customer_key
+      - name: status_code
+        description: Order status code passed through unchanged from the source.
+      - name: total_price
+        description: Order total recorded on the source order header, without recalculation.
+      - name: order_date
+        description: Date the order was placed according to the source.
+        data_tests:
+          - not_null
+      - name: clerk_name
+        description: Source identifier or name of the clerk assigned to the order.
+      - name: priority_code
+        description: Order priority code passed through unchanged from the source.
+      - name: ship_priority
+        description: Shipping priority recorded on the order header.
+      - name: comment
+        description: Free-text source comment about the order.
+
+  - name: stg_line_items
+    description: >-
+      Order lines from tpch.lineitem with renamed columns and derived prices,
+      discounts, taxes, and net sales. One row per (order_key, line_number).
+      Source amounts are used without currency conversion. Calculated prices and
+      amounts are cast to decimal(16,4); discounts are represented as negative amounts.
+    columns:
+      - name: order_key
+        description: Identifier of the order containing this line item; part of the composite key.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_orders')
+                field: order_key
+      - name: part_key
+        description: Part sold, referencing stg_parts.part_key.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_parts')
+                field: part_key
+      - name: supplier_key
+        description: Supplier of the part, referencing stg_suppliers.supplier_key.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_suppliers')
+                field: supplier_key
+
+      - name: line_number
+        description: Line number within an order; unique only together with order_key.
+        data_tests:
+          - not_null
+      - name: quantity
+        description: Quantity ordered on the line; used to derive per-unit prices.
+      - name: gross_item_sales_amount
+        description: Extended line amount before discount and tax, not a per-unit price.
+      - name: discount_percentage
+        description: Source discount rate applied as a fraction in the amount calculations.
+      - name: tax_rate
+        description: Source tax rate applied as a fraction to the amount after discount.
+      - name: return_flag
+        description: Return flag passed through unchanged from the source.
+      - name: status_code
+        description: Line-item status code passed through unchanged from the source.
+      - name: ship_date
+        description: Shipment date recorded for the line item.
+      - name: commit_date
+        description: Committed date recorded for the line item.
+      - name: receipt_date
+        description: Receipt date recorded for the line item.
+      - name: ship_instructions
+        description: Shipping instructions recorded for the line item.
+      - name: ship_mode
+        description: Shipping mode recorded for the line item.
+      - name: comment
+        description: Free-text source comment about the line item.
+      - name: base_price
+        description: Gross line amount divided by quantity; null when quantity is zero or null.
+      - name: discounted_price
+        description: Per-unit base_price multiplied by (1 - discount_percentage).
+      - name: discounted_item_sales_amount
+        description: Gross line amount multiplied by (1 - discount_percentage), before tax.
+      - name: item_discount_amount
+        description: Negative gross line amount multiplied by discount_percentage.
+      - name: item_tax_amount
+        description: Tax on the discounted line amount, calculated as (gross + discount) * tax_rate.
+      - name: net_item_sales_amount
+        description: Gross line amount plus the negative discount amount plus tax.

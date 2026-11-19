@@ -1,0 +1,147 @@
+version: 2
+
+models:
+  - name: stg_regions
+    description: >-
+      TPCH geographic regions with renamed columns. One row per region_key.
+      Preserves every source row and column without filtering or aggregation.
+    columns:
+      - name: region_key
+        description: Unique region identifier; zero is a valid key.
+        data_tests:
+          - unique
+          - not_null
+      - name: name
+        description: Region name as supplied by TPCH.
+      - name: comment
+        description: Free-text source comment about the region.
+
+  - name: stg_nations
+    description: >-
+      TPCH nations with renamed columns. One row per nation_key, associated
+      with one region. Preserves all source rows without filtering or aggregation.
+    columns:
+      - name: nation_key
+        description: Unique nation identifier; zero is a valid key.
+        data_tests:
+          - unique
+          - not_null
+      - name: name
+        description: Nation name as supplied by TPCH.
+      - name: region_key
+        description: Region containing the nation, referencing stg_regions.region_key.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_regions')
+                field: region_key
+      - name: comment
+        description: Free-text source comment about the nation.
+
+  - name: stg_parts
+    description: >-
+      TPCH parts with renamed columns. One row per part_key. Retains all product
+      attributes and retail prices in source monetary units without conversion.
+      No source rows are filtered and no aggregation is applied.
+    columns:
+      - name: part_key
+        description: Unique identifier for a part.
+        data_tests:
+          - unique
+          - not_null
+      - name: name
+        description: Part name as supplied by TPCH.
+      - name: manufacturer
+        description: Manufacturer label assigned to the part.
+      - name: brand
+        description: Brand label assigned to the part.
+      - name: part_type
+        description: Source classification describing the part type.
+      - name: size
+        description: Numeric source size designation; no physical unit is specified.
+      - name: container
+        description: Source packaging or container designation.
+      - name: retail_price
+        description: Retail price in source monetary units; distinct from supplier-specific supply_cost.
+      - name: comment
+        description: Free-text source comment about the part.
+
+  - name: stg_suppliers
+    description: >-
+      TPCH supplier records with renamed columns. One row per supplier_key,
+      preserving all source rows and attributes without filtering or aggregation.
+    columns:
+      - name: supplier_key
+        description: Unique identifier for a supplier.
+        data_tests:
+          - unique
+          - not_null
+      - name: name
+        description: Supplier name as supplied by TPCH.
+      - name: address
+        description: Supplier street address as supplied by the source.
+      - name: nation_key
+        description: Supplier nation, referencing stg_nations.nation_key.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_nations')
+                field: nation_key
+      - name: phone_number
+        description: Supplier telephone number as supplied by the source.
+      - name: account_balance
+        description: Supplier account balance in source monetary units; negative balances are permitted.
+      - name: comment
+        description: Free-text source comment about the supplier.
+
+  - name: stg_part_suppliers
+    description: >-
+      TPCH part-to-supplier availability and cost snapshot. One row per
+      (part_key, supplier_key) pair. Both keys are required to join at this grain.
+      Source rows are preserved without filtering or aggregation, and supply cost
+      retains source monetary units. This is not inventory transaction history.
+    columns:
+      - name: part_key
+        description: Part supplied, referencing stg_parts.part_key; part of the composite key.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_parts')
+                field: part_key
+      - name: supplier_key
+        description: Supplier of the part, referencing stg_suppliers.supplier_key; part of the composite key.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_suppliers')
+                field: supplier_key
+      - name: available_quantity
+        description: Quantity available for this part from this supplier according to the source.
+      - name: supply_cost
+        description: Supply cost per part in source monetary units, without currency conversion.
+      - name: comment
+        description: Free-text source comment about the part and supplier pairing.
+
+  - name: stg_tbl_test
+    description: >-
+      Pass-through staging view of tpch.tbl_test, retaining its id column and
+      every source row. No business meaning or TPCH relationships have been
+      established. Identifier uniqueness and completeness are tested as an
+      explicit expectation based on the observed source, not a business contract.
+    columns:
+      - name: id
+        description: Source utility-table identifier with unspecified business semantics.
+        data_tests:
+          - unique
+          - not_null
+
+data_tests:
+  - name: assert_stg_part_suppliers_unique_grain
+    description: >-
+      Ensures each (part_key, supplier_key) pair occurs at most once. On failure,
+      inspect duplicate ps_partkey and ps_suppkey pairs in tpch.partsupp. Separate
+      not_null tests ensure both components are populated.
