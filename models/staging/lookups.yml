@@ -1,0 +1,128 @@
+version: 2
+
+models:
+  - name: stg_nations
+    description: >-
+      TPC-H nation lookup, one row per nation_key. Preserves every source
+      nation and its region assignment without filtering.
+    columns:
+      - name: nation_key
+        description: Nation identifier from n_nationkey; zero is valid.
+        data_tests: [unique, not_null]
+      - name: name
+        description: Nation name as supplied by the source.
+        data_tests: [not_null]
+      - name: region_key
+        description: Parent geographic region; joins to stg_regions.region_key.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_regions')
+                field: region_key
+      - name: comment
+        description: Free-text nation comment, preserved without modification.
+
+  - name: stg_regions
+    description: TPC-H geographic regions, one row per region_key; all source rows retained.
+    columns:
+      - name: region_key
+        description: Region identifier from r_regionkey; zero is valid.
+        data_tests: [unique, not_null]
+      - name: name
+        description: Region name as supplied by the source.
+        data_tests: [not_null]
+      - name: comment
+        description: Free-text region comment, preserved without modification.
+
+  - name: stg_parts
+    description: >-
+      TPC-H product catalog, one row per part_key. Retains source catalog
+      attributes and retail prices without joins, filtering, or currency conversion.
+    columns:
+      - name: part_key
+        description: Part identifier from p_partkey; used by line items and part-supplier records.
+        data_tests: [unique, not_null]
+      - name: name
+        description: Part name as supplied by the source.
+        data_tests: [not_null]
+      - name: manufacturer
+        description: Manufacturer label from p_mfgr.
+      - name: brand
+        description: Source brand label; no brand normalization is applied.
+      - name: part_type
+        description: Source part classification from p_type.
+      - name: size
+        description: Numeric size classification from p_size; no physical unit is inferred.
+      - name: container
+        description: Source packaging or container classification.
+      - name: retail_price
+        description: Catalog retail price; distinct from actual order-line unit prices.
+      - name: comment
+        description: Free-text part comment, preserved without modification.
+
+  - name: stg_suppliers
+    description: >-
+      TPC-H supplier directory, one row per supplier_key. Preserves source
+      contact details, nation assignment, and account balances without filtering.
+    columns:
+      - name: supplier_key
+        description: Supplier identifier from s_suppkey.
+        data_tests: [unique, not_null]
+      - name: name
+        description: Supplier name as supplied by the source.
+        data_tests: [not_null]
+      - name: address
+        description: Supplier street address, preserved in source format.
+      - name: nation_key
+        description: Supplier nation; joins to stg_nations.nation_key.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_nations')
+                field: nation_key
+      - name: phone_number
+        description: Supplier telephone number, preserved in source format.
+      - name: account_balance
+        description: Supplier account balance; distinct from revenue and supply cost.
+      - name: comment
+        description: Free-text supplier comment, preserved without modification.
+
+  - name: stg_part_suppliers
+    description: >-
+      TPC-H supply catalog at one row per part_key and supplier_key pair.
+      Describes available inventory and per-unit supply cost for each pair;
+      neither key alone is unique. No aggregation or filtering is applied.
+    columns:
+      - name: part_key
+        description: Supplied part; forms the composite key with supplier_key.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_parts')
+                field: part_key
+      - name: supplier_key
+        description: Supplier of the part; forms the composite key with part_key.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_suppliers')
+                field: supplier_key
+      - name: available_quantity
+        description: Available units of the part from this supplier, from ps_availqty.
+      - name: supply_cost
+        description: Source per-unit supply cost; no currency conversion is applied.
+      - name: comment
+        description: Free-text part-supplier comment, preserved without modification.
+
+  - name: stg_tbl_test
+    description: >-
+      Pass-through staging view of the local tbl_test source, one row per id.
+      Business purpose is unspecified; kept separate from TPC-H business models.
+    columns:
+      - name: id
+        description: Source identifier, preserved unchanged and tested for uniqueness and completeness.
+        data_tests: [unique, not_null]

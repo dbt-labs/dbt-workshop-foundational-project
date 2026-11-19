@@ -1,0 +1,143 @@
+version: 2
+
+models:
+  - name: stg_customers
+    description: >-
+      TPC-H customers with standardized column names, one row per customer_key.
+      Includes customers regardless of whether they have placed an order.
+      Used to enrich orders with customer name and market segment.
+    columns:
+      - name: customer_key
+        description: Customer identifier from c_custkey; primary key for customer joins.
+        data_tests:
+          - unique
+          - not_null
+      - name: name
+        description: Customer name as supplied by the TPC-H customer source.
+      - name: address
+        description: Customer street address from the source, without additional standardization.
+      - name: nation_key
+        description: Customer nation; joins to stg_nations.nation_key.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_nations')
+                field: nation_key
+      - name: phone_number
+        description: Customer telephone number preserved in its source format.
+      - name: account_balance
+        description: Customer account balance from c_acctbal; distinct from sales revenue.
+      - name: market_segment
+        description: Source customer market segment used to group monthly gross sales.
+      - name: comment
+        description: Free-text customer comment from the source.
+
+  - name: stg_orders
+    description: >-
+      TPC-H order headers with standardized column names, one row per order_key.
+      Retains source order status and total price without filtering by status.
+      Line-item amounts are modeled separately in stg_line_items.
+    columns:
+      - name: order_key
+        description: Order identifier from o_orderkey; primary key for order and line-item joins.
+        data_tests:
+          - unique
+          - not_null
+      - name: customer_key
+        description: Customer who placed the order; joins to stg_customers.customer_key.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_customers')
+                field: customer_key
+      - name: status_code
+        description: Order status code preserved from o_orderstatus; no status filtering is applied.
+      - name: total_price
+        description: Source order-header total from o_totalprice; fct_orders calculates its amounts from line items instead.
+      - name: order_date
+        description: Date the order was placed; determines the reporting month in monthly_sales.
+        data_tests:
+          - not_null
+      - name: clerk_name
+        description: Source identifier of the clerk assigned to the order.
+      - name: priority_code
+        description: Source order-priority label preserved from o_orderpriority.
+      - name: ship_priority
+        description: Source shipping-priority code, distinct from order priority.
+      - name: comment
+        description: Free-text order comment from the source.
+
+  - name: stg_line_items
+    description: >-
+      TPC-H order lines, one row per combination of order_key and line_number.
+      Renames source fields and calculates unit prices, negative discount amounts,
+      tax on discounted sales, and net sales including tax. Calculated monetary
+      fields are cast to decimal(16,4); no currency conversion is applied.
+    columns:
+      - name: order_key
+        description: Parent order identifier; forms the line-item key together with line_number.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_orders')
+                field: order_key
+      - name: part_key
+        description: Ordered part; joins to stg_parts.part_key and pairs with supplier_key in stg_part_suppliers.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_parts')
+                field: part_key
+      - name: supplier_key
+        description: Fulfilling supplier; joins to stg_suppliers.supplier_key and pairs with part_key in stg_part_suppliers.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_suppliers')
+                field: supplier_key
+
+      - name: line_number
+        description: Line sequence within an order; unique only in combination with order_key.
+        data_tests:
+          - not_null
+      - name: quantity
+        description: Number of units on the order line, used to derive base_price.
+      - name: gross_item_sales_amount
+        description: Source extended price for the entire line before discounts and tax, not a unit price.
+      - name: discount_percentage
+        description: Source fractional discount rate applied to gross line sales; 0.05 represents 5 percent.
+      - name: tax_rate
+        description: Source fractional tax rate applied to sales after the discount.
+      - name: return_flag
+        description: Source return-status flag from l_returnflag; returned lines are retained.
+      - name: status_code
+        description: Source line status from l_linestatus, distinct from the order-header status.
+      - name: ship_date
+        description: Source date on which the line item shipped.
+      - name: commit_date
+        description: Source committed date for the line item.
+      - name: receipt_date
+        description: Source date on which the line item was received.
+      - name: ship_instructions
+        description: Source shipping instructions for the line item.
+      - name: ship_mode
+        description: Source shipping mode for the line item.
+      - name: comment
+        description: Free-text line-item comment from the source.
+      - name: base_price
+        description: Gross line sales divided by quantity, rounded to four decimal places; null when quantity is zero.
+      - name: discounted_price
+        description: Rounded base_price multiplied by one minus discount_percentage; unit price before tax, rounded to four decimal places.
+      - name: discounted_item_sales_amount
+        description: Gross line sales multiplied by one minus discount_percentage, rounded to four decimal places; excludes tax.
+      - name: item_discount_amount
+        description: Negative gross line sales multiplied by discount_percentage, rounded to four decimal places; added to gross sales to apply the discount.
+      - name: item_tax_amount
+        description: Gross line sales plus the rounded negative discount amount, multiplied by tax_rate and rounded to four decimal places.
+      - name: net_item_sales_amount
+        description: Gross line sales plus the negative discount amount plus tax, rounded to four decimal places; total for the entire line.
