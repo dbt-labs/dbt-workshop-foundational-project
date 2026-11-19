@@ -1,0 +1,25 @@
+version: 2
+
+data_tests:
+  - name: stg_line_items_unique_grain
+    description: >-
+      Fails when an order_key and line_number pair occurs more than once.
+      Check the matching source lineitem records for duplicates before changing
+      downstream joins or aggregations. Null key components are tested separately.
+  - name: monthly_sales_unique_grain
+    description: >-
+      Fails when a calendar month and market segment pair occurs more than once,
+      including duplicate null-segment groups. Inspect the monthly aggregation
+      grain and any newly added joins when this fails.
+  - name: fct_orders_sales_reconcile
+    description: >-
+      Fails on missing sales components or when net sales differ from gross
+      sales plus negative discounts plus tax by more than 0.0001. Inspect the
+      affected order's staged line-item calculations and rounding conventions.
+  - name: stg_part_suppliers_unique_grain
+    description: >-
+      Fails when a part_key and supplier_key pair occurs more than once.
+      Inspect duplicate PARTSUPP source associations before joining to line
+      items; duplicate pairs can multiply sales rows. Null key components are
+      tested separately on stg_part_suppliers.
+

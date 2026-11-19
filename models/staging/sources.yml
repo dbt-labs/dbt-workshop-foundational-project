@@ -1,6 +1,9 @@
 sources:
   - name: tpch
-    database: raw
+    description: >-
+      TPC-H source tables in TPCH_NOW.TPCH, plus the auxiliary TBL_TEST table.
+      Staging views retain source grain without filtering or deduplication.
+    database: tpch_now
     schema: tpch
     tables:
       - name: orders
@@ -9,3 +12,17 @@ sources:
         description: "One record per customer"
       - name: lineitem
         description: "One record per line item within a single order (1 -> n)"
+      - name: nation
+        description: One row per nation, linked to a geographic region by n_regionkey.
+      - name: region
+        description: One row per TPC-H geographic region.
+      - name: part
+        description: One row per part, including manufacturer, brand, and source retail price.
+      - name: supplier
+        description: One row per supplier, including its nation and source account balance.
+      - name: partsupp
+        description: One row per part and supplier pair, recording available quantity and supply cost.
+      - name: tbl_test
+        description: >-
+          Auxiliary table containing an ID column. Its business purpose and
+          relationship to TPC-H entities have not been established.
