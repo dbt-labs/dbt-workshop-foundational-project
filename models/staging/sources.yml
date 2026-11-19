@@ -1,11 +1,174 @@
+version: 2
+
 sources:
   - name: tpch
-    database: raw
+    description: >-
+      TPC-H order, customer, product, supplier, and geography data in TPCH_NOW.TPCH,
+      plus an auxiliary ID-only table. Source values and grains are preserved in
+      staging. Key integrity is tested in staging to avoid duplicate scans.
+      Freshness thresholds are intentionally unset because an ingestion SLA has
+      not been established and observed LOADED_AT values include nulls.
+    database: tpch_now
     schema: tpch
     tables:
       - name: orders
-        description: "One record per order"
+        description: One row per order, identified by O_ORDERKEY; references CUSTOMER.
+        columns:
+          - name: o_orderkey
+            description: Unique order identifier.
+          - name: o_custkey
+            description: Customer placing the order; references CUSTOMER.C_CUSTKEY.
+          - name: o_orderstatus
+            description: TPC-H order status code; observed values are F, O, and P.
+          - name: o_totalprice
+            description: Order total recorded by the source; currency is not specified.
+          - name: o_orderdate
+            description: Date the order was placed.
+          - name: o_orderpriority
+            description: Source priority label for processing the order.
+          - name: o_clerk
+            description: Identifier of the clerk assigned to the order.
+          - name: o_shippriority
+            description: Numeric shipping priority supplied by the source.
+          - name: o_comment
+            description: Free-text order comment.
+          - name: loaded_at
+            description: Nullable ingestion timestamp; not currently exposed by stg_orders.
       - name: customer
-        description: "One record per customer"
+        description: One row per customer, identified by C_CUSTKEY; references NATION.
+        columns:
+          - name: c_custkey
+            description: Unique customer identifier.
+          - name: c_name
+            description: Customer name as recorded by the source.
+          - name: c_address
+            description: Customer mailing address.
+          - name: c_nationkey
+            description: Customer nation; references NATION.N_NATIONKEY.
+          - name: c_phone
+            description: Customer phone number retained as text.
+          - name: c_acctbal
+            description: Customer account balance; negative balances occur in the source.
+          - name: c_mktsegment
+            description: Market segment assigned to the customer.
+          - name: c_comment
+            description: Free-text customer comment.
       - name: lineitem
-        description: "One record per line item within a single order (1 -> n)"
+        description: >-
+          One row per order line, uniquely identified by L_ORDERKEY and L_LINENUMBER.
+          The L_PARTKEY and L_SUPPKEY pair references PARTSUPP.
+        columns:
+          - name: l_orderkey
+            description: Parent order; references ORDERS.O_ORDERKEY.
+          - name: l_partkey
+            description: Ordered part; part of the reference to PARTSUPP.
+          - name: l_suppkey
+            description: Supplying vendor; part of the reference to PARTSUPP.
+          - name: l_linenumber
+            description: Line number within the order, not globally unique.
+          - name: l_quantity
+            description: Number of units on the order line.
+          - name: l_extendedprice
+            description: Gross amount for the entire line before discount and tax, not a unit price.
+          - name: l_discount
+            description: Fractional discount rate; 0.10 represents ten percent.
+          - name: l_tax
+            description: Fractional tax rate applied to the discounted line amount.
+          - name: l_returnflag
+            description: Source return classification code; observed values are A, N, and R.
+          - name: l_linestatus
+            description: Source line status code; observed values are F and O.
+          - name: l_shipdate
+            description: Date the line was shipped.
+          - name: l_commitdate
+            description: Committed date recorded for the line.
+          - name: l_receiptdate
+            description: Date the line was received.
+          - name: l_shipinstruct
+            description: Shipping instructions recorded on the line.
+          - name: l_shipmode
+            description: Shipping mode used for the line.
+          - name: l_comment
+            description: Free-text line comment.
+          - name: loaded_at
+            description: Nullable ingestion timestamp; not currently exposed by stg_line_items.
+      - name: nation
+        description: One row per nation, identified by N_NATIONKEY; references REGION.
+        columns:
+          - name: n_nationkey
+            description: Unique nation identifier; zero is a valid key.
+          - name: n_name
+            description: Nation name supplied by the source.
+          - name: n_regionkey
+            description: Geographic region; references REGION.R_REGIONKEY.
+          - name: n_comment
+            description: Free-text nation comment.
+      - name: region
+        description: One row per geographic region, identified by R_REGIONKEY.
+        columns:
+          - name: r_regionkey
+            description: Unique region identifier; zero is a valid key.
+          - name: r_name
+            description: Geographic region name.
+          - name: r_comment
+            description: Free-text region comment.
+      - name: part
+        description: One row per catalog part, identified by P_PARTKEY.
+        columns:
+          - name: p_partkey
+            description: Unique part identifier.
+          - name: p_name
+            description: Part name as recorded by the source.
+          - name: p_mfgr
+            description: Manufacturer label assigned to the part.
+          - name: p_brand
+            description: Brand label assigned to the part.
+          - name: p_type
+            description: Source classification describing the part type.
+          - name: p_size
+            description: Numeric part size; physical units are not specified by the source.
+          - name: p_container
+            description: Packaging or container classification for the part.
+          - name: p_retailprice
+            description: Catalog retail price; currency is not specified by the source.
+          - name: p_comment
+            description: Free-text part comment.
+      - name: supplier
+        description: One row per supplier, identified by S_SUPPKEY; references NATION.
+        columns:
+          - name: s_suppkey
+            description: Unique supplier identifier.
+          - name: s_name
+            description: Supplier name as recorded by the source.
+          - name: s_address
+            description: Supplier mailing address.
+          - name: s_nationkey
+            description: Supplier nation; references NATION.N_NATIONKEY.
+          - name: s_phone
+            description: Supplier phone number retained as text.
+          - name: s_acctbal
+            description: Supplier account balance; negative balances occur in the source.
+          - name: s_comment
+            description: Free-text supplier comment.
+      - name: partsupp
+        description: >-
+          One row per part and supplier combination, uniquely identified by
+          PS_PARTKEY and PS_SUPPKEY; records availability and supply cost.
+        columns:
+          - name: ps_partkey
+            description: Part offered; references PART.P_PARTKEY.
+          - name: ps_suppkey
+            description: Supplier offering the part; references SUPPLIER.S_SUPPKEY.
+          - name: ps_availqty
+            description: Units available from this supplier for this part.
+          - name: ps_supplycost
+            description: Source supply cost for this part and supplier; currency is unspecified.
+          - name: ps_comment
+            description: Free-text part-supplier comment.
+      - name: tbl_test
+        description: >-
+          Auxiliary ID-only table outside the standard TPC-H entities. Its business
+          purpose is unconfirmed. Staging preserves it without enrichment or filtering.
+        columns:
+          - name: id
+            description: Identifier supplied by the auxiliary table; observed to be unique and non-null.

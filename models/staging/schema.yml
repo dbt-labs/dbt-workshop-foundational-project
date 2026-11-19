@@ -1,0 +1,255 @@
+version: 2
+
+models:
+  - name: stg_customers
+    description: >-
+      One row per customer from tpch.customer. Renames source columns without
+      filtering, joining, or changing the source grain.
+    columns:
+      - name: customer_key
+        description: Unique customer identifier.
+        data_tests: [unique, not_null]
+      - name: name
+        description: Customer name as recorded by the source.
+      - name: address
+        description: Customer mailing address.
+      - name: nation_key
+        description: Customer nation; joins to stg_nations.nation_key.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_nations')
+                field: nation_key
+      - name: phone_number
+        description: Customer phone number retained as text.
+      - name: account_balance
+        description: Source customer account balance; negative balances are retained.
+      - name: market_segment
+        description: Source customer segmentation used to group monthly sales.
+      - name: comment
+        description: Free-text customer comment.
+
+  - name: stg_orders
+    description: >-
+      One row per order from tpch.orders, with source columns renamed for reuse.
+      The existing output excludes the nullable source LOADED_AT ingestion field.
+    columns:
+      - name: order_key
+        description: Unique order identifier.
+        data_tests: [unique, not_null]
+      - name: customer_key
+        description: Customer placing the order; joins to stg_customers.customer_key.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_customers')
+                field: customer_key
+      - name: status_code
+        description: TPC-H order status code retained from O_ORDERSTATUS.
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ['F', 'O', 'P']
+      - name: total_price
+        description: Order total recorded by the source; currency is unspecified.
+      - name: order_date
+        description: Date the order was placed; used for monthly sales reporting.
+        data_tests: [not_null]
+      - name: clerk_name
+        description: Identifier of the clerk assigned to the order.
+      - name: priority_code
+        description: Source priority label for processing the order.
+      - name: ship_priority
+        description: Numeric shipping priority supplied by the source.
+      - name: comment
+        description: Free-text order comment.
+
+  - name: stg_line_items
+    description: >-
+      One row per order_key and line_number from tpch.lineitem. Preserves source
+      line details and calculates unit prices, discounts, tax, and net line sales.
+      Discount rates are fractions and discount amounts are negative. Calculated
+      monetary fields are rounded to four decimal places. Currency is unspecified.
+      The existing output excludes the nullable source LOADED_AT field. Composite
+      grain and part-supplier integrity are covered by singular data tests.
+    columns:
+      - name: order_key
+        description: Parent order and first component of the order-line key.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_orders')
+                field: order_key
+      - name: part_key
+        description: Ordered part; with supplier_key identifies a valid stg_part_suppliers row.
+        data_tests: [not_null]
+      - name: supplier_key
+        description: Supplying vendor; with part_key identifies a valid stg_part_suppliers row.
+        data_tests: [not_null]
+      - name: line_number
+        description: Line number within an order and second component of the order-line key.
+        data_tests: [not_null]
+      - name: quantity
+        description: Number of units ordered on the line.
+      - name: gross_item_sales_amount
+        description: Gross amount for the entire line before discount and tax, from L_EXTENDEDPRICE.
+      - name: discount_percentage
+        description: Fractional line discount rate; 0.10 represents ten percent.
+      - name: tax_rate
+        description: Fractional tax rate applied to the discounted line amount.
+      - name: return_flag
+        description: Source return classification code from L_RETURNFLAG.
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ['A', 'N', 'R']
+      - name: status_code
+        description: Source line status code from L_LINESTATUS.
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ['F', 'O']
+      - name: ship_date
+        description: Date the line was shipped.
+      - name: commit_date
+        description: Committed date recorded for the line.
+      - name: receipt_date
+        description: Date the line was received.
+      - name: ship_instructions
+        description: Shipping instructions recorded on the line.
+      - name: ship_mode
+        description: Shipping mode used for the line.
+      - name: comment
+        description: Free-text order-line comment.
+      - name: base_price
+        description: Gross line amount divided by quantity; null for zero quantity and rounded to four decimals.
+      - name: discounted_price
+        description: Rounded base unit price multiplied by one minus the fractional discount rate, rounded to four decimals.
+      - name: discounted_item_sales_amount
+        description: Gross line amount multiplied by one minus the discount rate, rounded to four decimals.
+      - name: item_discount_amount
+        description: Negative gross line amount multiplied by the discount rate, rounded to four decimals.
+      - name: item_tax_amount
+        description: Gross line amount plus the rounded discount amount, multiplied by tax rate and rounded to four decimals.
+      - name: net_item_sales_amount
+        description: Gross line amount plus rounded discount and tax amounts, rounded to four decimals.
+
+  - name: stg_nations
+    description: One row per nation from tpch.nation; all source columns and rows are preserved with descriptive names.
+    columns:
+      - name: nation_key
+        description: Unique nation identifier; zero is a valid key.
+        data_tests: [unique, not_null]
+      - name: name
+        description: Nation name as recorded by the source.
+      - name: region_key
+        description: Parent geographic region; joins to stg_regions.region_key.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_regions')
+                field: region_key
+      - name: comment
+        description: Free-text nation comment.
+
+  - name: stg_regions
+    description: One row per geographic region from tpch.region; all source columns and rows are preserved with descriptive names.
+    columns:
+      - name: region_key
+        description: Unique geographic region identifier; zero is a valid key.
+        data_tests: [unique, not_null]
+      - name: name
+        description: Geographic region name.
+      - name: comment
+        description: Free-text region comment.
+
+  - name: stg_parts
+    description: One row per catalog part from tpch.part; all source columns and rows are preserved with descriptive names.
+    columns:
+      - name: part_key
+        description: Unique catalog part identifier.
+        data_tests: [unique, not_null]
+      - name: name
+        description: Part name as recorded by the source.
+      - name: manufacturer
+        description: Manufacturer label assigned to the part.
+      - name: brand
+        description: Brand label assigned to the part.
+      - name: part_type
+        description: Source classification describing the part type.
+      - name: size
+        description: Numeric size recorded by the source; physical units are unspecified.
+      - name: container
+        description: Packaging or container classification for the part.
+      - name: retail_price
+        description: Source catalog retail price; currency is unspecified.
+      - name: comment
+        description: Free-text part comment.
+
+  - name: stg_suppliers
+    description: One row per supplier from tpch.supplier; all source columns and rows are preserved with descriptive names.
+    columns:
+      - name: supplier_key
+        description: Unique supplier identifier.
+        data_tests: [unique, not_null]
+      - name: name
+        description: Supplier name as recorded by the source.
+      - name: address
+        description: Supplier mailing address.
+      - name: nation_key
+        description: Supplier nation; joins to stg_nations.nation_key.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_nations')
+                field: nation_key
+      - name: phone_number
+        description: Supplier phone number retained as text.
+      - name: account_balance
+        description: Source supplier account balance; negative balances are retained.
+      - name: comment
+        description: Free-text supplier comment.
+
+  - name: stg_part_suppliers
+    description: >-
+      One row per part_key and supplier_key from tpch.partsupp. Preserves every
+      source row and column and records part availability and supply cost by
+      supplier. Composite uniqueness is checked by a singular data test.
+    columns:
+      - name: part_key
+        description: Part offered and first component of the part-supplier key.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_parts')
+                field: part_key
+      - name: supplier_key
+        description: Supplier offering the part and second component of the part-supplier key.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_suppliers')
+                field: supplier_key
+      - name: available_quantity
+        description: Units of the part available from the supplier.
+      - name: supply_cost
+        description: Source supply cost for this part-supplier combination; currency is unspecified.
+      - name: comment
+        description: Free-text part-supplier comment.
+
+  - name: stg_tbl_test
+    description: >-
+      Pass-through of the auxiliary tpch.tbl_test table, with one row per observed
+      ID. Its business purpose is unconfirmed; no business enrichment or filtering
+      is applied. Key tests protect the currently observed unique, non-null grain.
+    columns:
+      - name: id
+        description: Identifier supplied by the auxiliary source table.
+        data_tests: [unique, not_null]
