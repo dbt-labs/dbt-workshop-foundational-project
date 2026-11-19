@@ -1,0 +1,137 @@
+version: 2
+
+models:
+  - name: stg_regions
+    description: >-
+      One row per TPCH geographic region. Retains all source rows and attributes
+      without filtering or changing source data types.
+    columns:
+      - name: region_key
+        description: Unique region identifier used to group nations.
+        data_tests:
+          - unique
+          - not_null
+      - name: name
+        description: Region name in its source format.
+      - name: comment
+        description: Free-text region comment from the source.
+
+  - name: stg_nations
+    description: >-
+      One row per TPCH nation, linked to a region. Retains all source rows
+      and attributes without filtering or changing source data types.
+    columns:
+      - name: nation_key
+        description: Unique nation identifier referenced by customers and suppliers.
+        data_tests:
+          - unique
+          - not_null
+      - name: name
+        description: Nation name in its source format.
+      - name: region_key
+        description: Geographic region containing the nation.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_regions')
+                field: region_key
+      - name: comment
+        description: Free-text nation comment from the source.
+
+  - name: stg_parts
+    description: >-
+      One row per TPCH part. Retains every catalog attribute and source row;
+      retail price is a source attribute, not a calculated sales price.
+    columns:
+      - name: part_key
+        description: Unique part identifier referenced by line items and supplier offerings.
+        data_tests:
+          - unique
+          - not_null
+      - name: name
+        description: Part name in its source format; not a unique identifier.
+      - name: manufacturer
+        description: Manufacturer label supplied by TPCH.
+      - name: brand
+        description: Brand label supplied by TPCH.
+      - name: type
+        description: Source part-type classification retained without translating values.
+      - name: size
+        description: Source part size; measurement units are unspecified.
+      - name: container
+        description: Source packaging classification retained without translating values.
+      - name: retail_price
+        description: Source retail price, distinct from line-item sales prices; currency is unspecified.
+      - name: comment
+        description: Free-text part comment from the source.
+
+  - name: stg_suppliers
+    description: >-
+      One row per TPCH supplier, linked to a nation. Retains all source rows
+      and attributes; account balance is not calculated from orders.
+    columns:
+      - name: supplier_key
+        description: Unique supplier identifier referenced by line items and part offerings.
+        data_tests:
+          - unique
+          - not_null
+      - name: name
+        description: Supplier name in its source format.
+      - name: address
+        description: Supplier mailing address from the source record.
+      - name: nation_key
+        description: Nation associated with the supplier.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_nations')
+                field: nation_key
+      - name: phone_number
+        description: Supplier phone number retained in its source format.
+      - name: account_balance
+        description: Source supplier account balance; currency is unspecified.
+      - name: comment
+        description: Free-text supplier comment from the source.
+
+  - name: stg_part_suppliers
+    description: >-
+      One row per part and supplier. Describes source availability and supply
+      cost for each offering; this is not a historical inventory movement table.
+      The composite grain is checked by assert_stg_part_suppliers_grain.
+    columns:
+      - name: part_key
+        description: Part offered by the supplier; combine with supplier_key to identify an offering.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_parts')
+                field: part_key
+      - name: supplier_key
+        description: Supplier offering the part; combine with part_key to identify an offering.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_suppliers')
+                field: supplier_key
+      - name: available_quantity
+        description: Source available quantity for the part-supplier pair; retained without aggregation.
+      - name: supply_cost
+        description: Source supply cost for the part-supplier pair; currency is unspecified.
+      - name: comment
+        description: Free-text part-supplier comment from the source.
+
+  - name: stg_tbl_test
+    description: >-
+      Pass-through staging of the auxiliary tbl_test source, with one row per ID
+      in the observed data. Business purpose is unspecified; no business relationships
+      or transformations are assumed.
+    columns:
+      - name: id
+        description: Source identifier, expected to remain unique and non-null.
+        data_tests:
+          - unique
+          - not_null

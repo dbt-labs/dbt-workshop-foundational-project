@@ -1,0 +1,141 @@
+version: 2
+
+models:
+  - name: stg_customers
+    description: >-
+      One row per TPCH customer, with source fields renamed for joins and
+      customer segmentation. Includes customers regardless of order activity.
+    columns:
+      - name: customer_key
+        description: Customer identifier used to join orders to the customer record.
+        data_tests:
+          - unique
+          - not_null
+      - name: name
+        description: Customer name as supplied by TPCH; not a unique identifier.
+      - name: address
+        description: Customer mailing address from the source record.
+      - name: nation_key
+        description: Nation associated with the customer; joins to stg_nations.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_nations')
+                field: nation_key
+
+      - name: phone_number
+        description: Customer phone number retained in its source format.
+      - name: account_balance
+        description: Source customer account balance; not calculated from this project's orders.
+      - name: market_segment
+        description: Customer market segment used to group monthly gross sales.
+      - name: comment
+        description: Free-text customer comment from the source.
+
+  - name: stg_orders
+    description: >-
+      One row per TPCH order. Renames order attributes without filtering rows
+      or recalculating the source total price.
+    columns:
+      - name: order_key
+        description: Order identifier and join key to individual line items.
+        data_tests:
+          - unique
+          - not_null
+      - name: customer_key
+        description: Customer who placed the order.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_customers')
+                field: customer_key
+      - name: status_code
+        description: Order status code retained without translating source values.
+      - name: total_price
+        description: Source order total price; distinct from the gross line-item sales used by month_sales.
+      - name: order_date
+        description: Date the order was placed; determines the reporting month.
+        data_tests:
+          - not_null
+      - name: clerk_name
+        description: Source identifier of the clerk assigned to the order.
+      - name: priority_code
+        description: Source order-priority classification retained without transformation.
+      - name: ship_priority
+        description: Source shipping-priority value retained without transformation.
+      - name: comment
+        description: Free-text order comment from the source.
+
+  - name: stg_line_items
+    description: >-
+      One row per order and line number. Renames TPCH line-item attributes and
+      calculates unit prices, discounts, tax, and net sales. Monetary calculations
+      are cast to decimal(16,4); discounts are represented as negative amounts.
+    columns:
+      - name: order_key
+        description: Parent order identifier; combine with line_number to identify a line item.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_orders')
+                field: order_key
+      - name: part_key
+        description: Part on the line item; joins to stg_parts.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_parts')
+                field: part_key
+      - name: supplier_key
+        description: Supplier fulfilling the line item; joins to stg_suppliers.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_suppliers')
+                field: supplier_key
+
+      - name: line_number
+        description: Line number within the order; unique only together with order_key.
+        data_tests:
+          - not_null
+      - name: quantity
+        description: Number of units on the line; zero quantity yields a null calculated unit price.
+      - name: gross_item_sales_amount
+        description: Source extended price for the entire line, before discounts and tax.
+      - name: discount_percentage
+        description: Source discount fraction used as a multiplier in gross sales times (1 - discount_percentage).
+      - name: tax_rate
+        description: Source tax fraction applied to the discounted line amount.
+      - name: return_flag
+        description: Source return classification retained without translating codes.
+      - name: status_code
+        description: Source line-item status code; distinct from the order-level status.
+      - name: ship_date
+        description: Source shipment date for the line item.
+      - name: commit_date
+        description: Source committed date for the line item.
+      - name: receipt_date
+        description: Source receipt date for the line item.
+      - name: ship_instructions
+        description: Shipping instructions provided on the source line item.
+      - name: ship_mode
+        description: Source shipping mode for the line item.
+      - name: comment
+        description: Free-text line-item comment from the source.
+      - name: base_price
+        description: Gross line sales divided by quantity, rounded to four decimal places; null for zero quantity.
+      - name: discounted_price
+        description: Base unit price times (1 - discount_percentage), rounded to four decimal places; excludes tax.
+      - name: discounted_item_sales_amount
+        description: Gross line sales times (1 - discount_percentage), rounded to four decimal places; excludes tax.
+      - name: item_discount_amount
+        description: Negative gross line sales times the discount fraction, rounded to four decimal places.
+      - name: item_tax_amount
+        description: Tax on gross line sales plus the negative discount amount, rounded to four decimal places.
+      - name: net_item_sales_amount
+        description: Gross line sales plus the negative discount amount plus tax, rounded to four decimal places.
