@@ -1,0 +1,179 @@
+version: 2
+
+models:
+  - name: stg_customers
+    description: "One row per TPC-H customer. Renames source columns without filtering or changing grain."
+    columns:
+      - name: customer_key
+        description: "Unique customer identifier."
+        data_tests: [unique, not_null]
+      - {name: name, description: "Customer name."}
+      - {name: address, description: "Customer mailing address."}
+      - name: nation_key
+        description: "Nation where the customer is located."
+        data_tests:
+          - not_null
+          - relationships:
+              arguments: {to: "ref('stg_nations')", field: nation_key}
+      - {name: phone_number, description: "Customer phone number, retained as text."}
+      - {name: account_balance, description: "Source account balance; may be negative."}
+      - {name: market_segment, description: "Source customer market segment label."}
+      - {name: comment, description: "Free-text customer comment."}
+
+  - name: stg_orders
+    description: "One row per order. Preserves all source orders and the nullable ingestion timestamp."
+    columns:
+      - name: order_key
+        description: "Unique order identifier."
+        data_tests: [unique, not_null]
+      - name: customer_key
+        description: "Customer who placed the order."
+        data_tests:
+          - not_null
+          - relationships:
+              arguments: {to: "ref('stg_customers')", field: customer_key}
+      - {name: status_code, description: "Source order status code."}
+      - {name: total_price, description: "Total order price supplied by the source."}
+      - {name: order_date, description: "Date the order was placed."}
+      - {name: clerk_name, description: "Clerk assigned to the order."}
+      - {name: priority_code, description: "Source order priority label."}
+      - {name: ship_priority, description: "Shipping priority code."}
+      - {name: comment, description: "Free-text order comment."}
+      - {name: loaded_at, description: "Nullable source ingestion timestamp; retained without filling missing values."}
+
+  - name: stg_line_items
+    description: "One row per order and line number. Preserves source lines and existing per-unit and line-level price calculations. Discounts are negative amounts; net sales include tax."
+    data_tests:
+      - unique:
+          name: unique_stg_line_items_order_line
+          arguments:
+            column_name: "cast(order_key as varchar) || '-' || cast(line_number as varchar)"
+    columns:
+      - name: order_key
+        description: "Parent order identifier; part of the composite primary key."
+        data_tests:
+          - not_null
+          - relationships:
+              arguments: {to: "ref('stg_orders')", field: order_key}
+      - name: line_number
+        description: "Line number within an order; part of the composite primary key."
+        data_tests: [not_null]
+      - name: part_key
+        description: "Part sold on the line. Together with supplier_key references stg_part_suppliers."
+        data_tests:
+          - not_null
+          - relationships:
+              arguments: {to: "ref('stg_parts')", field: part_key}
+      - name: supplier_key
+        description: "Supplier fulfilling the line. Together with part_key references stg_part_suppliers."
+        data_tests:
+          - not_null
+          - relationships:
+              arguments: {to: "ref('stg_suppliers')", field: supplier_key}
+      - {name: quantity, description: "Number of units on the line."}
+      - {name: gross_item_sales_amount, description: "Gross price for the entire line before discount and tax."}
+      - {name: discount_percentage, description: "Source discount expressed as a fraction, not a whole-number percentage."}
+      - {name: tax_rate, description: "Source tax expressed as a fractional rate."}
+      - {name: return_flag, description: "Source return flag."}
+      - {name: status_code, description: "Source line status code."}
+      - {name: ship_date, description: "Date the line was shipped."}
+      - {name: commit_date, description: "Committed date for the line."}
+      - {name: receipt_date, description: "Date the line was received."}
+      - {name: ship_instructions, description: "Source shipping instructions."}
+      - {name: ship_mode, description: "Source shipping mode label."}
+      - {name: comment, description: "Free-text line comment."}
+      - {name: loaded_at, description: "Nullable source ingestion timestamp; retained without filling missing values."}
+      - {name: base_price, description: "Gross line amount divided by quantity, rounded to four decimal places; null when quantity is zero."}
+      - {name: discounted_price, description: "Base unit price multiplied by one minus the discount rate, rounded to four decimal places."}
+      - {name: discounted_item_sales_amount, description: "Gross line amount after discount and before tax, rounded to four decimal places."}
+      - {name: item_discount_amount, description: "Negative gross line amount multiplied by the discount rate, rounded to four decimal places."}
+      - {name: item_tax_amount, description: "Gross line amount plus the negative discount amount, multiplied by the tax rate and rounded to four decimal places."}
+      - {name: net_item_sales_amount, description: "Gross line amount plus discount amount and tax amount, rounded to four decimal places."}
+
+  - name: stg_nations
+    description: "One row per nation. Renames source columns without filtering; each nation belongs to a region."
+    columns:
+      - name: nation_key
+        description: "Unique nation identifier; zero is valid."
+        data_tests: [unique, not_null]
+      - {name: name, description: "Nation name."}
+      - name: region_key
+        description: "Region containing the nation."
+        data_tests:
+          - not_null
+          - relationships:
+              arguments: {to: "ref('stg_regions')", field: region_key}
+      - {name: comment, description: "Free-text nation comment."}
+
+  - name: stg_regions
+    description: "One row per geographic region. Renames source columns without filtering or changing grain."
+    columns:
+      - name: region_key
+        description: "Unique region identifier; zero is valid."
+        data_tests: [unique, not_null]
+      - {name: name, description: "Region name."}
+      - {name: comment, description: "Free-text region comment."}
+
+  - name: stg_parts
+    description: "One row per catalog part. Preserves all source product attributes without filtering or changing grain."
+    columns:
+      - name: part_key
+        description: "Unique part identifier."
+        data_tests: [unique, not_null]
+      - {name: name, description: "Part name."}
+      - {name: manufacturer, description: "Source manufacturer label."}
+      - {name: brand, description: "Source brand label."}
+      - {name: part_type, description: "Part type classification."}
+      - {name: size, description: "Source part size value; no unit conversion applied."}
+      - {name: container, description: "Source packaging container label."}
+      - {name: retail_price, description: "Catalog retail price per part."}
+      - {name: comment, description: "Free-text part comment."}
+
+  - name: stg_suppliers
+    description: "One row per supplier. Renames source columns without filtering or changing grain."
+    columns:
+      - name: supplier_key
+        description: "Unique supplier identifier."
+        data_tests: [unique, not_null]
+      - {name: name, description: "Supplier name."}
+      - {name: address, description: "Supplier mailing address."}
+      - name: nation_key
+        description: "Nation where the supplier is located."
+        data_tests:
+          - not_null
+          - relationships:
+              arguments: {to: "ref('stg_nations')", field: nation_key}
+      - {name: phone_number, description: "Supplier phone number, retained as text."}
+      - {name: account_balance, description: "Source supplier account balance; may be negative."}
+      - {name: comment, description: "Free-text supplier comment."}
+
+  - name: stg_part_suppliers
+    description: "One row per part and supplier pair. Describes the available quantity and unit supply cost for that pairing."
+    data_tests:
+      - unique:
+          name: unique_stg_part_suppliers_pair
+          arguments:
+            column_name: "cast(part_key as varchar) || '-' || cast(supplier_key as varchar)"
+    columns:
+      - name: part_key
+        description: "Part identifier; part of the composite primary key."
+        data_tests:
+          - not_null
+          - relationships:
+              arguments: {to: "ref('stg_parts')", field: part_key}
+      - name: supplier_key
+        description: "Supplier identifier; part of the composite primary key."
+        data_tests:
+          - not_null
+          - relationships:
+              arguments: {to: "ref('stg_suppliers')", field: supplier_key}
+      - {name: available_quantity, description: "Quantity of this part available from this supplier."}
+      - {name: supply_cost, description: "Source supply cost per unit for the part-supplier pair."}
+      - {name: comment, description: "Free-text part-supplier comment."}
+
+  - name: stg_tbl_test
+    description: "Pass-through of the auxiliary source tbl_test table, one row per observed identifier. Business purpose is unconfirmed; kept separate from the TPC-H entities."
+    columns:
+      - name: id
+        description: "Source identifier, required to remain unique and non-null."
+        data_tests: [unique, not_null]

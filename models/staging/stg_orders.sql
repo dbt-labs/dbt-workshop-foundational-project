@@ -16,7 +16,9 @@ renamed as (
         o_clerk as clerk_name,
         o_orderpriority as priority_code,
         o_shippriority as ship_priority,
-        o_comment as comment
+        o_comment as comment,
+        loaded_at
+
 
     from source
 

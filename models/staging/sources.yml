@@ -1,11 +1,99 @@
+version: 2
+
 sources:
   - name: tpch
-    database: raw
+    description: "TPC-H order, customer, product, supplier, and geography data in tpch_now.tpch, plus the auxiliary tbl_test table."
+    database: tpch_now
     schema: tpch
     tables:
       - name: orders
-        description: "One record per order"
+        description: "One record per order, identified by o_orderkey."
+        columns:
+          - {name: o_orderkey, description: "Unique order identifier."}
+          - {name: o_custkey, description: "Customer placing the order; references customer.c_custkey."}
+          - {name: o_orderstatus, description: "Source order status code."}
+          - {name: o_totalprice, description: "Total order price supplied by the source."}
+          - {name: o_orderdate, description: "Date the order was placed."}
+          - {name: o_orderpriority, description: "Source order priority label."}
+          - {name: o_clerk, description: "Clerk assigned to the order."}
+          - {name: o_shippriority, description: "Shipping priority code."}
+          - {name: o_comment, description: "Free-text order comment."}
+          - {name: loaded_at, description: "Ingestion timestamp when populated; nullable in the source."}
       - name: customer
-        description: "One record per customer"
+        description: "One record per customer, identified by c_custkey."
+        columns:
+          - {name: c_custkey, description: "Unique customer identifier."}
+          - {name: c_name, description: "Customer name."}
+          - {name: c_address, description: "Customer mailing address."}
+          - {name: c_nationkey, description: "Customer nation; references nation.n_nationkey."}
+          - {name: c_phone, description: "Customer phone number, retained as text."}
+          - {name: c_acctbal, description: "Customer account balance; negative balances are allowed."}
+          - {name: c_mktsegment, description: "Customer market segment label."}
+          - {name: c_comment, description: "Free-text customer comment."}
       - name: lineitem
-        description: "One record per line item within a single order (1 -> n)"
+        description: "One record per order and line number, jointly identified by l_orderkey and l_linenumber."
+        columns:
+          - {name: l_orderkey, description: "Parent order identifier; references orders.o_orderkey."}
+          - {name: l_partkey, description: "Part identifier; references part.p_partkey."}
+          - {name: l_suppkey, description: "Supplier identifier; references supplier.s_suppkey. Together with l_partkey references partsupp."}
+          - {name: l_linenumber, description: "Line number within an order; part of the composite primary key."}
+          - {name: l_quantity, description: "Number of units on the line."}
+          - {name: l_extendedprice, description: "Gross price for the entire line before discount and tax, not a unit price."}
+          - {name: l_discount, description: "Discount expressed as a fractional rate."}
+          - {name: l_tax, description: "Tax expressed as a fractional rate."}
+          - {name: l_returnflag, description: "Source return flag."}
+          - {name: l_linestatus, description: "Source line status code."}
+          - {name: l_shipdate, description: "Date the line was shipped."}
+          - {name: l_commitdate, description: "Committed date for the line."}
+          - {name: l_receiptdate, description: "Date the line was received."}
+          - {name: l_shipinstruct, description: "Shipping instructions."}
+          - {name: l_shipmode, description: "Shipping mode label."}
+          - {name: l_comment, description: "Free-text line comment."}
+          - {name: loaded_at, description: "Ingestion timestamp when populated; nullable in the source."}
+      - name: nation
+        description: "One record per nation, identified by n_nationkey."
+        columns:
+          - {name: n_nationkey, description: "Unique nation identifier; zero is a valid key."}
+          - {name: n_name, description: "Nation name."}
+          - {name: n_regionkey, description: "Parent region; references region.r_regionkey."}
+          - {name: n_comment, description: "Free-text nation comment."}
+      - name: region
+        description: "One record per geographic region, identified by r_regionkey."
+        columns:
+          - {name: r_regionkey, description: "Unique region identifier; zero is a valid key."}
+          - {name: r_name, description: "Region name."}
+          - {name: r_comment, description: "Free-text region comment."}
+      - name: part
+        description: "One record per part in the product catalog, identified by p_partkey."
+        columns:
+          - {name: p_partkey, description: "Unique part identifier."}
+          - {name: p_name, description: "Part name."}
+          - {name: p_mfgr, description: "Part manufacturer label."}
+          - {name: p_brand, description: "Part brand label."}
+          - {name: p_type, description: "Part type classification."}
+          - {name: p_size, description: "Source part size value; no unit conversion applied."}
+          - {name: p_container, description: "Packaging container label."}
+          - {name: p_retailprice, description: "Catalog retail price for the part."}
+          - {name: p_comment, description: "Free-text part comment."}
+      - name: supplier
+        description: "One record per supplier, identified by s_suppkey."
+        columns:
+          - {name: s_suppkey, description: "Unique supplier identifier."}
+          - {name: s_name, description: "Supplier name."}
+          - {name: s_address, description: "Supplier mailing address."}
+          - {name: s_nationkey, description: "Supplier nation; references nation.n_nationkey."}
+          - {name: s_phone, description: "Supplier phone number, retained as text."}
+          - {name: s_acctbal, description: "Supplier account balance; negative balances are allowed."}
+          - {name: s_comment, description: "Free-text supplier comment."}
+      - name: partsupp
+        description: "One record per part and supplier pair, jointly identified by ps_partkey and ps_suppkey."
+        columns:
+          - {name: ps_partkey, description: "Part identifier; references part.p_partkey and forms part of the composite key."}
+          - {name: ps_suppkey, description: "Supplier identifier; references supplier.s_suppkey and forms part of the composite key."}
+          - {name: ps_availqty, description: "Quantity of the part available from this supplier."}
+          - {name: ps_supplycost, description: "Supply cost per unit for this part-supplier pair."}
+          - {name: ps_comment, description: "Free-text part-supplier comment."}
+      - name: tbl_test
+        description: "Auxiliary single-column table present in the source schema. Business purpose is unconfirmed; no relationship to TPC-H entities is assumed."
+        columns:
+          - {name: id, description: "Source identifier; observed to be unique and non-null during onboarding."}

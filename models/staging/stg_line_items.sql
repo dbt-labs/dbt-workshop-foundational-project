@@ -24,6 +24,8 @@ renamed as (
         l_shipinstruct as ship_instructions,
         l_shipmode as ship_mode,
         l_comment as comment,
+        loaded_at,
+
 
         -- extended_price is actually the line item total,
         -- so we back out the extended price per item
