@@ -9,3 +9,13 @@ sources:
         description: "One record per customer"
       - name: lineitem
         description: "One record per line item within a single order (1 -> n)"
+      - name: part
+        description: "One record per part (product)"
+      - name: supplier
+        description: "One record per supplier"
+      - name: partsupp
+        description: "One record per part and supplier combination"
+      - name: nation
+        description: "One record per nation"
+      - name: region
+        description: "One record per region"
