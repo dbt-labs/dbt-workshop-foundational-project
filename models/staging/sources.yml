@@ -1,11 +1,20 @@
+version: 2
+
 sources:
   - name: tpch
-    database: raw
+    description: >-
+      TPC-H customer, order, and line-item data in TPCH_NOW.TPCH. Staging models
+      rename source fields and derive financial amounts without currency conversion.
+      No ingestion timestamp or freshness SLA is configured.
+    database: tpch_now
     schema: tpch
     tables:
       - name: orders
-        description: "One record per order"
+        description: One record per source order, identified by o_orderkey and linked to customer by o_custkey.
       - name: customer
-        description: "One record per customer"
+        description: One record per source customer, identified by c_custkey; supplies market segmentation.
       - name: lineitem
-        description: "One record per line item within a single order (1 -> n)"
+        description: >-
+          One record per order and line number (l_orderkey, l_linenumber).
+          l_extendedprice is the full line amount before discounts and tax,
+          not a per-unit price; l_discount and l_tax are fractional rates.

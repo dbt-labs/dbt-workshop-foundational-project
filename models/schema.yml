@@ -1,0 +1,178 @@
+version: 2
+
+models:
+  - name: stg_customers
+    description: >-
+      One row per TPC-H customer, with source fields renamed for downstream joins
+      and segmentation. Includes customers whether or not they have orders.
+    columns:
+      - name: customer_key
+        description: Customer identifier used to join orders to customer attributes; primary key.
+        data_tests: [unique, not_null]
+      - name: name
+        description: Customer name as supplied by the source.
+      - name: address
+        description: Customer mailing address as supplied by the source.
+      - name: nation_key
+        description: Source nation identifier; no nation lookup is modeled in this project.
+      - name: phone_number
+        description: Source phone number, retained as text including formatting.
+      - name: account_balance
+        description: Customer account balance from the source; negative balances are retained.
+      - name: market_segment
+        description: Source customer segment used to group monthly gross sales.
+      - name: comment
+        description: Free-text source comment about the customer.
+
+  - name: stg_orders
+    description: >-
+      One row per source order. Retains all order statuses and source total_price;
+      downstream financial measures are calculated separately from line items.
+    columns:
+      - name: order_key
+        description: Source order identifier; primary key and parent key for line items.
+        data_tests: [unique, not_null]
+      - name: customer_key
+        description: Identifier of the customer who placed the order.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_customers')
+                field: customer_key
+      - name: status_code
+        description: Source TPC-H order status code; F, O, or P. No status filtering is applied.
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ['F', 'O', 'P']
+      - name: total_price
+        description: Source order total; not the gross revenue measure used by monthly_sales.
+      - name: order_date
+        description: Date the order was placed; used to assign sales to calendar months.
+        data_tests: [not_null]
+      - name: clerk_name
+        description: Source identifier of the clerk assigned to the order.
+      - name: priority_code
+        description: Source order-priority label, retained without remapping.
+      - name: ship_priority
+        description: Source shipping-priority code, retained without remapping.
+      - name: comment
+        description: Free-text source comment about the order.
+
+  - name: stg_line_items
+    description: >-
+      One row per order_key and line_number. Renames source line-item fields and
+      calculates per-unit prices and line-level amounts. Discount amounts are
+      negative; net sales include discounts and tax. Calculated amounts are
+      cast to decimal(16,4). Monetary values retain source units without conversion.
+    columns:
+      - name: order_key
+        description: Parent order identifier; forms the composite primary key with line_number.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_orders')
+                field: order_key
+      - name: part_key
+        description: Source part identifier; no part lookup is modeled in this project.
+      - name: supplier_key
+        description: Source supplier identifier; no supplier lookup is modeled in this project.
+      - name: line_number
+        description: Line position within an order; unique only when paired with order_key.
+        data_tests: [not_null]
+      - name: quantity
+        description: Number of units on the line; zero produces a null base_price through NULLIF.
+        data_tests: [not_null]
+      - name: gross_item_sales_amount
+        description: Extended line price before discounts and tax; already includes quantity.
+        data_tests: [not_null]
+      - name: discount_percentage
+        description: Fractional discount rate applied to gross sales; 0.10 represents 10 percent.
+      - name: tax_rate
+        description: Fractional tax rate applied after discount; 0.05 represents 5 percent.
+      - name: return_flag
+        description: Source return flag, retained without filtering returned items.
+      - name: status_code
+        description: Source line-item status code, distinct from the order-level status.
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ['O', 'F']
+      - name: ship_date
+        description: Source shipment date for the line item.
+      - name: commit_date
+        description: Source committed date for the line item.
+      - name: receipt_date
+        description: Source receipt date for the line item.
+      - name: ship_instructions
+        description: Source instructions for shipping the line item.
+      - name: ship_mode
+        description: Source transport mode used for the line item.
+      - name: comment
+        description: Free-text source comment about the line item.
+      - name: base_price
+        description: Gross line sales divided by quantity, rounded to four decimal places; null for zero quantity.
+      - name: discounted_price
+        description: Rounded base_price multiplied by one minus the discount rate; per-unit price before tax.
+      - name: discounted_item_sales_amount
+        description: Gross line sales multiplied by one minus the discount rate; line total before tax.
+      - name: item_discount_amount
+        description: Negative gross line sales multiplied by the discount rate; added to gross sales to apply the discount.
+      - name: item_tax_amount
+        description: Tax rate multiplied by gross line sales plus the negative discount amount.
+      - name: net_item_sales_amount
+        description: Gross line sales plus the negative discount amount plus tax; includes all units on the line.
+
+  - name: fct_orders
+    description: >-
+      One row per order with customer attributes and summed line-item amounts.
+      Inner joins retain only orders with both a matching customer and at least
+      one line item. Includes all statuses and return flags. Materialized as a
+      table; financial amounts retain the source monetary units.
+    columns:
+      - name: order_key
+        description: Order identifier; primary key after aggregation and customer joins.
+        data_tests: [unique, not_null]
+      - name: order_date
+        description: Order placement date inherited from stg_orders.
+      - name: customer_key
+        description: Customer identifier inherited from the order and matched to stg_customers.
+      - name: status_code
+        description: Source order status inherited from stg_orders; no status filtering is applied.
+      - name: priority_code
+        description: Source order-priority label inherited from stg_orders.
+      - name: ship_priority
+        description: Source shipping-priority code inherited from stg_orders.
+      - name: clerk_name
+        description: Source clerk identifier inherited from stg_orders.
+      - name: name
+        description: Customer name from the matched stg_customers record.
+      - name: market_segment
+        description: Customer market segment from stg_customers, used in monthly sales reporting.
+      - name: gross_item_sales_amount
+        description: Sum of extended line prices before discounts and tax for the order.
+      - name: item_discount_amount
+        description: Sum of negative line-item discount amounts for the order.
+      - name: item_tax_amount
+        description: Sum of line-item tax amounts calculated after discount.
+      - name: net_item_sales_amount
+        description: Sum of line-item sales after discounts and including tax.
+
+  - name: monthly_sales
+    description: >-
+      One row per calendar order month and customer market segment present in
+      fct_orders. Reports gross sales before discounts and tax across all order
+      statuses and return flags. Missing month-segment combinations are omitted,
+      not filled with zero. The current month may be partial.
+    columns:
+      - name: order_month
+        description: First day of the order's calendar month, calculated with DATE_TRUNC on order_date.
+        data_tests: [not_null]
+      - name: market_segment
+        description: Customer segment used with order_month to define the reporting grain; null segments form their own group.
+      - name: total_revenue
+        description: Sum of fct_orders.gross_item_sales_amount; gross sales before discounts and tax in source monetary units.
+        data_tests: [not_null]
