@@ -1,0 +1,141 @@
+version: 2
+
+models:
+  - name: stg_regions
+    description: >
+      One row per TPC-H geographic region. Renames all source columns without
+      filtering rows or changing source types. Region keys can be zero.
+    columns:
+      - name: region_key
+        description: Unique region identifier; joins to stg_nations.region_key. Zero is valid.
+        data_tests:
+          - unique
+          - not_null
+      - name: name
+        description: Region name as recorded in the source, without case normalization.
+      - name: comment
+        description: Free-text source comment about the region.
+
+  - name: stg_nations
+    description: >
+      One row per TPC-H nation, linked to stg_regions by region_key.
+      Preserves every source row and source type; nation and region keys can be zero.
+    columns:
+      - name: nation_key
+        description: Unique nation identifier; joins to customer and supplier nation keys. Zero is valid.
+        data_tests:
+          - unique
+          - not_null
+      - name: name
+        description: Nation name as recorded in the source, without case normalization.
+      - name: region_key
+        description: Parent region identifier; joins to stg_regions.region_key.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_regions')
+                field: region_key
+      - name: comment
+        description: Free-text source comment about the nation.
+
+  - name: stg_parts
+    description: >
+      One row per TPC-H catalog part. Renames all source columns without filtering
+      rows or changing source types. Price currency and size units are not specified
+      by the source and are not inferred here.
+    columns:
+      - name: part_key
+        description: Unique catalog part identifier; joins to stg_part_suppliers and stg_line_items.
+        data_tests:
+          - unique
+          - not_null
+      - name: name
+        description: Part name as recorded in the source.
+      - name: manufacturer
+        description: Source manufacturer label, retained without parsing.
+      - name: brand
+        description: Source brand label, retained without parsing.
+      - name: type
+        description: Source part classification label, retained without parsing.
+      - name: size
+        description: Source numeric size attribute; measurement units are unspecified.
+      - name: container
+        description: Source packaging or container label.
+      - name: retail_price
+        description: Source retail price; distinct from line-item transaction prices and supplier supply_cost.
+      - name: comment
+        description: Free-text source comment about the part.
+
+  - name: stg_suppliers
+    description: >
+      One row per TPC-H supplier, linked to stg_nations by nation_key.
+      Renames all source columns without filtering rows or changing types.
+      Negative account balances and original phone formatting are retained.
+    columns:
+      - name: supplier_key
+        description: Unique supplier identifier; joins to stg_part_suppliers and stg_line_items.
+        data_tests:
+          - unique
+          - not_null
+      - name: name
+        description: Supplier name as recorded in the source.
+      - name: address
+        description: Supplier address as recorded in the source; whitespace is retained.
+      - name: nation_key
+        description: Supplier nation identifier; joins to stg_nations.nation_key.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_nations')
+                field: nation_key
+      - name: phone_number
+        description: Supplier phone number in its original source format.
+      - name: account_balance
+        description: Source supplier account balance; negative balances are retained and currency is unspecified.
+      - name: comment
+        description: Free-text source comment about the supplier.
+
+  - name: stg_part_suppliers
+    description: >
+      One row per part_key and supplier_key pair in the source snapshot, with
+      available quantity and supply cost. Neither key is unique on its own.
+      Preserves all source rows, columns, and types without aggregation.
+      Composite uniqueness is checked by assert_stg_part_suppliers_grain.
+    columns:
+      - name: part_key
+        description: Part identifier; joins to stg_parts and forms the composite key with supplier_key.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_parts')
+                field: part_key
+      - name: supplier_key
+        description: Supplier identifier; joins to stg_suppliers and forms the composite key with part_key.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_suppliers')
+                field: supplier_key
+      - name: available_quantity
+        description: Quantity of this part available from this supplier in the source snapshot; not a sales quantity.
+      - name: supply_cost
+        description: Source supply cost for this part and supplier; distinct from retail_price and transaction prices.
+      - name: comment
+        description: Free-text source comment about this part and supplier pairing.
+
+  - name: stg_tbl_test
+    description: >
+      Pass-through staging view of the source utility table tbl_test, preserving
+      its id column and every row. Business meaning is unconfirmed and this model
+      is not joined to the TPC-H entities. Tests protect the non-null, unique id
+      observed during initial profiling.
+    columns:
+      - name: id
+        description: Source utility-table identifier; no business-entity meaning has been assigned.
+        data_tests:
+          - unique
+          - not_null

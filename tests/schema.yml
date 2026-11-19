@@ -1,0 +1,26 @@
+version: 2
+
+data_tests:
+  - name: assert_stg_line_items_grain
+    description: >
+      Ensures each order_key and line_number pair appears at most once.
+      On failure, inspect duplicate pairs in stg_line_items and the source lineitem
+      table before trusting order sales totals. Separate not_null tests protect
+      both components of the key.
+  - name: assert_monthly_sales_grain
+    description: >
+      Ensures each calendar month and market segment pair appears at most once,
+      treating a null market segment as a group. On failure, inspect the grouping
+      in monthly_sales before using it in reports or downstream joins.
+  - name: assert_stg_part_suppliers_grain
+    description: >
+      Ensures each part_key and supplier_key pair appears at most once in
+      stg_part_suppliers. On failure, inspect duplicate pairs in the source
+      partsupp table before joining costs or availability to line items.
+      Separate not_null tests protect both key components.
+  - name: assert_stg_line_items_part_supplier
+    description: >
+      Ensures every line item has non-null part and supplier keys and that their
+      combination exists in stg_part_suppliers. On failure, inspect missing keys
+      or missing source partsupp pairs before joining supplier costs to sales.
+

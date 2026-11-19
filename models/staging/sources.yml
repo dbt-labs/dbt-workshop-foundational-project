@@ -1,11 +1,96 @@
+version: 2
+
 sources:
   - name: tpch
-    database: raw
+    description: >
+      TPC-H order, customer, product, supplier, and geography data in tpch_now.tpch.
+      The schema also contains tbl_test, a utility table with no confirmed business meaning.
+    database: tpch_now
     schema: tpch
     tables:
       - name: orders
-        description: "One record per order"
+        description: One record per order, across all source order statuses.
       - name: customer
-        description: "One record per customer"
+        description: One record per customer, including customers without orders.
       - name: lineitem
-        description: "One record per line item within a single order (1 -> n)"
+        description: One record per order and line number, including all return flags and statuses.
+      - name: nation
+        description: One record per nation, linked to a region by n_regionkey.
+        columns:
+          - name: n_nationkey
+            description: Nation identifier; zero is a valid key.
+          - name: n_name
+            description: Nation name as recorded in the source.
+          - name: n_regionkey
+            description: Parent region identifier referencing region.r_regionkey.
+          - name: n_comment
+            description: Free-text source comment about the nation.
+      - name: region
+        description: One record per geographic region used to group nations.
+        columns:
+          - name: r_regionkey
+            description: Region identifier; zero is a valid key.
+          - name: r_name
+            description: Region name as recorded in the source.
+          - name: r_comment
+            description: Free-text source comment about the region.
+      - name: part
+        description: One record per part in the TPC-H product catalog.
+        columns:
+          - name: p_partkey
+            description: Unique part identifier.
+          - name: p_name
+            description: Part name as recorded in the source.
+          - name: p_mfgr
+            description: Source manufacturer label.
+          - name: p_brand
+            description: Source brand label.
+          - name: p_type
+            description: Source part classification label.
+          - name: p_size
+            description: Source numeric size attribute; units are not specified.
+          - name: p_container
+            description: Source packaging or container label.
+          - name: p_retailprice
+            description: Source retail price; currency is not specified.
+          - name: p_comment
+            description: Free-text source comment about the part.
+      - name: supplier
+        description: One record per supplier, linked to a nation by s_nationkey.
+        columns:
+          - name: s_suppkey
+            description: Unique supplier identifier.
+          - name: s_name
+            description: Supplier name as recorded in the source.
+          - name: s_address
+            description: Supplier address as recorded in the source.
+          - name: s_nationkey
+            description: Nation identifier referencing nation.n_nationkey.
+          - name: s_phone
+            description: Supplier phone number in its original source format.
+          - name: s_acctbal
+            description: Source supplier account balance; negative balances are retained.
+          - name: s_comment
+            description: Free-text source comment about the supplier.
+      - name: partsupp
+        description: >
+          One record per part and supplier pair, with available quantity and supply cost.
+          Neither identifier is unique on its own.
+        columns:
+          - name: ps_partkey
+            description: Part identifier referencing part.p_partkey; first component of the composite key.
+          - name: ps_suppkey
+            description: Supplier identifier referencing supplier.s_suppkey; second component of the composite key.
+          - name: ps_availqty
+            description: Quantity of this part available from this supplier in the source snapshot.
+          - name: ps_supplycost
+            description: Source supply cost for this part and supplier; currency is not specified.
+          - name: ps_comment
+            description: Free-text source comment about the part and supplier pairing.
+      - name: tbl_test
+        description: >
+          Utility table containing an id column. Business meaning is unconfirmed;
+          staged without assigning it a business entity or joining it to TPC-H data.
+        columns:
+          - name: id
+            description: Source identifier, observed to be non-null and unique during initial profiling.
