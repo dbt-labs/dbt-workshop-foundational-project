@@ -1,6 +1,6 @@
 sources:
   - name: tpch
-    database: raw
+    database: tpch_now
     schema: tpch
     tables:
       - name: orders
@@ -9,3 +9,14 @@ sources:
         description: "One record per customer"
       - name: lineitem
         description: "One record per line item within a single order (1 -> n)"
+      - name: part
+        description: "TPCH part catalog; one row per p_partkey, including product attributes and source retail price."
+      - name: supplier
+        description: "TPCH supplier directory; one row per s_suppkey, including contact details, nation, and account balance."
+      - name: partsupp
+        description: "TPCH supply inventory; one row per ps_partkey/ps_suppkey pair with available quantity and supply cost."
+      - name: nation
+        description: "TPCH nation lookup; one row per n_nationkey, with its parent region."
+      - name: region
+        description: "TPCH region lookup; one row per r_regionkey."
+

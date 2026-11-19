@@ -1,0 +1,64 @@
+version: 2
+
+models:
+  - name: fct_orders
+    description: >
+      One row per order with matching staged line items and a matching customer.
+      Inner joins exclude orders missing either match. Line-level monetary
+      amounts are summed to order grain and enriched with customer name and
+      market segment. Includes all staged order statuses and return flags.
+    columns:
+      - name: order_key
+        description: "Primary key of the order after line-item aggregation and customer enrichment."
+        data_tests:
+          - unique
+          - not_null
+      - name: order_date
+        description: "Date the order was placed; determines the month in monthly_sales."
+        data_tests:
+          - not_null
+      - name: customer_key
+        description: "Ordering customer, joined to stg_customers.customer_key."
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('stg_customers')
+                field: customer_key
+      - name: status_code
+        description: "Source order status, passed through without filtering."
+      - name: priority_code
+        description: "Source order priority label."
+      - name: ship_priority
+        description: "Source shipping priority value for the order."
+      - name: clerk_name
+        description: "Source clerk identifier associated with the order."
+      - name: name
+        description: "Customer name from stg_customers; use customer_key for joins."
+      - name: market_segment
+        description: "Customer market segment from stg_customers, used for monthly sales grouping."
+      - name: gross_item_sales_amount
+        description: "Sum of gross line-item sales before discounts and tax; input to monthly_sales.total_revenue."
+      - name: item_discount_amount
+        description: "Sum of line-item discount amounts, modeled as negative monetary values."
+      - name: item_tax_amount
+        description: "Sum of line-item taxes calculated on discounted sales."
+      - name: net_item_sales_amount
+        description: "Sum of line-item net sales, including discounts and tax; not the source order total_price."
+
+  - name: monthly_sales
+    description: >
+      One row per calendar order month and customer market segment, aggregating
+      fct_orders. total_revenue represents gross line-item sales before discounts
+      and tax, with no order-status or return-flag filter. Months and segments
+      without qualifying orders are absent rather than zero-filled.
+    columns:
+      - name: order_month
+        description: "Order date truncated to the first day of the calendar month; part of the composite grain."
+        data_tests:
+          - not_null
+      - name: market_segment
+        description: "Customer market segment; combined with order_month uniquely identifies each row."
+        data_tests:
+          - not_null
+      - name: total_revenue
+        description: "Sum of fct_orders.gross_item_sales_amount for the month and segment, before discounts and tax."

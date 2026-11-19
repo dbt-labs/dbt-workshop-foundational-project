@@ -1,0 +1,130 @@
+version: 2
+
+models:
+  - name: stg_parts
+    description: >
+      One row per TPCH part, keyed by part_key. Renames every part source
+      column without filtering or joining. Retail prices retain source units;
+      they are not realized line-item sale prices.
+    columns:
+      - name: part_key
+        description: "Primary key from p_partkey; identifies a part across suppliers and order lines."
+        data_tests:
+          - unique
+          - not_null
+      - name: name
+        description: "Part name as supplied by TPCH; not a unique identifier."
+      - name: manufacturer
+        description: "Source manufacturer label from p_mfgr."
+      - name: brand
+        description: "Source brand label; retained without recoding."
+      - name: part_type
+        description: "Source part classification, including size class, finish, and material."
+      - name: size
+        description: "Source numeric part size; retained without unit conversion."
+      - name: container
+        description: "Source packaging/container classification."
+      - name: retail_price
+        description: "Source p_retailprice in source monetary units; not calculated from sales or supply cost."
+      - name: comment
+        description: "Free-text source comment about the part."
+
+  - name: stg_suppliers
+    description: >
+      One row per TPCH supplier, keyed by supplier_key. Renames every source
+      column without filtering or joining; includes suppliers regardless of
+      whether they appear on order lines.
+    columns:
+      - name: supplier_key
+        description: "Primary key from s_suppkey; identifies a supplier across parts and order lines."
+        data_tests:
+          - unique
+          - not_null
+      - name: name
+        description: "Supplier name as supplied by TPCH; not a unique identifier."
+      - name: address
+        description: "Supplier address retained without address parsing."
+      - name: nation_key
+        description: "Supplier's nation; references stg_nations.nation_key."
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_nations')
+                field: nation_key
+      - name: phone_number
+        description: "Supplier phone number retained in its source format."
+      - name: account_balance
+        description: "Source supplier account balance; not derived from supply costs or order sales."
+      - name: comment
+        description: "Free-text source comment about the supplier."
+
+  - name: stg_part_suppliers
+    description: >
+      One row per TPCH part/supplier pair, keyed by part_key and supplier_key
+      together. Renames every partsupp column without filtering or joining.
+      Available quantity is source inventory, not a dated inventory history;
+      supply_cost retains source monetary units.
+    columns:
+      - name: part_key
+        description: "Part supplied; references stg_parts.part_key and forms half of the composite row key."
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_parts')
+                field: part_key
+      - name: supplier_key
+        description: "Supplier of the part; references stg_suppliers.supplier_key and completes the composite row key."
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_suppliers')
+                field: supplier_key
+      - name: available_quantity
+        description: "Source ps_availqty: quantity of this part available from this supplier."
+      - name: supply_cost
+        description: "Source ps_supplycost for this part/supplier pair; not an order-line selling price or total inventory value."
+      - name: comment
+        description: "Free-text source comment about the part/supplier relationship."
+
+  - name: stg_nations
+    description: >
+      One row per TPCH nation, keyed by nation_key, with its parent region_key.
+      Renames every source column without filtering or joining; used to relate
+      customer and supplier geography to regions.
+    columns:
+      - name: nation_key
+        description: "Primary key from n_nationkey; referenced by customers and suppliers."
+        data_tests:
+          - unique
+          - not_null
+      - name: name
+        description: "Source nation name, retained without case normalization."
+      - name: region_key
+        description: "Parent region; references stg_regions.region_key."
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_regions')
+                field: region_key
+      - name: comment
+        description: "Free-text source comment about the nation."
+
+  - name: stg_regions
+    description: >
+      One row per TPCH region, keyed by region_key. Renames every source
+      column without filtering or joining; provides the parent geography
+      for stg_nations.
+    columns:
+      - name: region_key
+        description: "Primary key from r_regionkey; referenced by stg_nations.region_key."
+        data_tests:
+          - unique
+          - not_null
+      - name: name
+        description: "Source region name, retained without case normalization."
+      - name: comment
+        description: "Free-text source comment about the region."

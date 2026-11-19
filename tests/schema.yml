@@ -1,0 +1,19 @@
+version: 2
+
+data_tests:
+  - name: stg_line_items_unique_grain
+    description: >
+      Fails when an order has more than one row for the same line_number.
+      Inspect duplicate order_key/line_number pairs in stg_line_items and then
+      the TPCH lineitem source before investigating downstream order totals.
+  - name: monthly_sales_unique_grain
+    description: >
+      Fails when more than one row exists for an order_month/market_segment
+      pair. Inspect changes to the grouping grain in monthly_sales before
+      consuming or joining the monthly totals.
+  - name: stg_part_suppliers_unique_grain
+    description: >
+      Fails when a part/supplier pair occurs more than once. Inspect duplicate
+      part_key/supplier_key pairs in stg_part_suppliers and then the TPCH
+      partsupp source before joining inventory to order lines.
+

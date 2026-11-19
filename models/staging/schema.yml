@@ -1,0 +1,142 @@
+version: 2
+
+models:
+  - name: stg_customers
+    description: >
+      One row per TPCH customer, with source fields renamed for use in order
+      analytics. Includes customers regardless of whether they have orders.
+    columns:
+      - name: customer_key
+        description: "Primary key from c_custkey; joins customers to their orders."
+        data_tests:
+          - unique
+          - not_null
+      - name: name
+        description: "Customer name as supplied by TPCH; not a unique identifier."
+      - name: address
+        description: "Customer address as supplied by the source, without address parsing."
+      - name: nation_key
+        description: "Customer's nation; references stg_nations.nation_key."
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_nations')
+                field: nation_key
+
+      - name: phone_number
+        description: "Customer phone number retained in its source format."
+      - name: account_balance
+        description: "Customer account balance from the source; not calculated from order sales."
+      - name: market_segment
+        description: "Source customer market segment used to group monthly gross sales."
+      - name: comment
+        description: "Free-text source comment about the customer."
+
+  - name: stg_orders
+    description: >
+      One row per TPCH order. Renames source fields without filtering order
+      statuses; total_price is retained from the source rather than recomputed.
+    columns:
+      - name: order_key
+        description: "Primary key from o_orderkey; links an order to its line items."
+        data_tests:
+          - unique
+          - not_null
+      - name: customer_key
+        description: "Customer placing the order; references stg_customers.customer_key."
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_customers')
+                field: customer_key
+      - name: status_code
+        description: "Unmodified TPCH order status code; no status filter is applied."
+      - name: total_price
+        description: "Order total from o_totalprice; distinct from the line-item amounts calculated downstream."
+      - name: order_date
+        description: "Source order date used to assign sales to calendar months."
+        data_tests:
+          - not_null
+      - name: clerk_name
+        description: "Source identifier for the clerk associated with the order."
+      - name: priority_code
+        description: "Source order priority label, retained without recoding."
+      - name: ship_priority
+        description: "Source shipping priority value, retained without recoding."
+      - name: comment
+        description: "Free-text source comment about the order."
+
+  - name: stg_line_items
+    description: >
+      One row per TPCH order line, uniquely identified by order_key and
+      line_number. Calculates per-unit prices and line-level gross sales,
+      negative discounts, tax, and net sales. Monetary calculations are cast
+      to decimal(16,4); base_price is null when quantity is zero.
+    columns:
+      - name: order_key
+        description: "Order containing this line; combine with line_number to identify a row."
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_orders')
+                field: order_key
+      - name: part_key
+        description: "Part sold on this line; references stg_parts.part_key."
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_parts')
+                field: part_key
+      - name: supplier_key
+        description: "Supplier for this line; references stg_suppliers.supplier_key."
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_suppliers')
+                field: supplier_key
+
+      - name: line_number
+        description: "Line number within an order; unique only in combination with order_key."
+        data_tests:
+          - not_null
+      - name: quantity
+        description: "Quantity on the order line; used to derive per-unit base_price."
+      - name: gross_item_sales_amount
+        description: "Source l_extendedprice: total line value before discount and tax, not a per-unit price."
+      - name: discount_percentage
+        description: "Source discount fraction applied to gross line sales; 0.05 represents 5%."
+      - name: tax_rate
+        description: "Source tax fraction applied to sales after discount; 0.05 represents 5%."
+      - name: return_flag
+        description: "Unmodified source return flag; returned lines are not filtered out."
+      - name: status_code
+        description: "Unmodified line status code, distinct from the order-level status."
+      - name: ship_date
+        description: "Source shipment date for the line; not used to assign the sales month."
+      - name: commit_date
+        description: "Source committed date for the order line."
+      - name: receipt_date
+        description: "Source receipt date for the order line."
+      - name: ship_instructions
+        description: "Shipping instructions retained from the source."
+      - name: ship_mode
+        description: "Shipping mode retained from the source."
+      - name: comment
+        description: "Free-text source comment about the order line."
+      - name: base_price
+        description: "Gross line sales divided by quantity, cast to decimal(16,4); null for zero quantity."
+      - name: discounted_price
+        description: "Rounded base_price multiplied by (1 - discount_percentage), cast to decimal(16,4)."
+      - name: discounted_item_sales_amount
+        description: "Gross line sales multiplied by (1 - discount_percentage), before tax, cast to decimal(16,4)."
+      - name: item_discount_amount
+        description: "Negative gross line sales multiplied by discount_percentage, cast to decimal(16,4)."
+      - name: item_tax_amount
+        description: "Tax on gross sales plus the negative discount amount, cast to decimal(16,4)."
+      - name: net_item_sales_amount
+        description: "Gross line sales plus the negative discount amount and tax, cast to decimal(16,4)."
