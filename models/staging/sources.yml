@@ -1,11 +1,35 @@
+version: 2
+
 sources:
   - name: tpch
-    database: raw
+    description: >-
+      Customer, order, line-item, part, supplier, and geography source tables used
+      by the project, plus the auxiliary tbl_test table. Source monetary values
+      are preserved without currency conversion.
+    database: tpch_now
     schema: tpch
     tables:
       - name: orders
-        description: "One record per order"
+        description: >-
+          Order headers, one row per o_orderkey. Staging preserves the source
+          total price; downstream marts calculate sales from line items.
       - name: customer
-        description: "One record per customer"
+        description: >-
+          Customer records, one row per c_custkey, including customer attributes
+          and the market segment used for monthly sales reporting.
       - name: lineitem
-        description: "One record per line item within a single order (1 -> n)"
+        description: >-
+          Order lines, one row per l_orderkey and l_linenumber. Extended prices
+          are line totals; discount and tax values are fractional rates.
+      - name: nation
+        description: One row per n_nationkey, with the parent region identifier.
+      - name: region
+        description: One row per r_regionkey, providing region names for nation lookups.
+      - name: part
+        description: One row per p_partkey, with part attributes and source retail price.
+      - name: supplier
+        description: One row per s_suppkey, with supplier contact details, nation, and account balance.
+      - name: partsupp
+        description: One row per ps_partkey and ps_suppkey, with available quantity and supply cost.
+      - name: tbl_test
+        description: Auxiliary source table containing an ID column; business meaning and key guarantees are unspecified.
