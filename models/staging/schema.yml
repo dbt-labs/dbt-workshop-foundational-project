@@ -1,0 +1,122 @@
+version: 2
+
+models:
+  - name: stg_customers
+    description: >-
+      One row per TPC-H customer, with source fields renamed for downstream joins
+      and segmentation. Includes customers whether or not they have orders.
+    columns:
+      - name: customer_key
+        description: Customer identifier used to join orders to customer attributes.
+        data_tests:
+          - unique
+          - not_null
+      - name: name
+        description: Customer name from the source; not a unique customer identifier.
+      - name: address
+        description: Customer mailing address as provided by the source.
+      - name: nation_key
+        description: Nation identifier linking the customer to stg_nations.
+
+      - name: phone_number
+        description: Customer phone number retained in its source format.
+      - name: account_balance
+        description: Customer account balance from the source, separate from order sales amounts.
+      - name: market_segment
+        description: Customer market segment used to group sales in monthly_sales.
+      - name: comment
+        description: Free-text source comment about the customer.
+
+  - name: stg_orders
+    description: >-
+      One row per TPC-H order, preserving source order attributes and header total.
+      No order-status filtering is applied. Line-item sales are calculated separately
+      in stg_line_items and aggregated in fct_orders.
+    columns:
+      - name: order_key
+        description: Order identifier used to join the order header to its line items.
+        data_tests:
+          - unique
+          - not_null
+      - name: customer_key
+        description: Identifier of the customer who placed the order.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_customers')
+                field: customer_key
+      - name: status_code
+        description: Order status code retained without translation or filtering.
+      - name: total_price
+        description: Source order-header total; fct_orders instead derives amounts from line items.
+      - name: order_date
+        description: Date the order was placed; determines its sales reporting month.
+      - name: clerk_name
+        description: Source identifier or name of the clerk assigned to the order.
+      - name: priority_code
+        description: Source order-priority classification, retained as provided.
+      - name: ship_priority
+        description: Source shipping-priority value, separate from the order priority code.
+      - name: comment
+        description: Free-text source comment about the order.
+
+  - name: stg_line_items
+    description: >-
+      One row per order_key and line_number. Renames TPC-H line-item fields and
+      calculates per-unit prices, negative discount amounts, tax on discounted
+      sales, and net sales including tax. Calculated monetary fields are cast to
+      decimal(16,4). No return or line-status filtering is applied.
+    columns:
+      - name: order_key
+        description: Parent order identifier; together with line_number defines the line-item grain.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_orders')
+                field: order_key
+      - name: part_key
+        description: Source identifier of the part sold on this order line.
+      - name: supplier_key
+        description: Source identifier of the supplier for this order line.
+      - name: line_number
+        description: Line number within an order; only unique together with order_key.
+        data_tests:
+          - not_null
+      - name: quantity
+        description: Number of units on the line; zero quantity produces a null base_price.
+      - name: gross_item_sales_amount
+        description: Extended price for the entire line before discount and tax, not a per-unit price.
+      - name: discount_percentage
+        description: Fractional discount rate applied to gross sales; 0.05 represents five percent.
+      - name: tax_rate
+        description: Fractional tax rate applied after discount; 0.05 represents five percent.
+      - name: return_flag
+        description: Source return-status flag; returned lines remain in downstream sales totals.
+      - name: status_code
+        description: Source line-item status code, distinct from the order-header status.
+      - name: ship_date
+        description: Source shipping date for the order line.
+      - name: commit_date
+        description: Source committed delivery date for the order line.
+      - name: receipt_date
+        description: Source receipt date for the order line.
+      - name: ship_instructions
+        description: Source shipping instructions for the order line.
+      - name: ship_mode
+        description: Source transportation mode for the order line.
+      - name: comment
+        description: Free-text source comment about the order line.
+      - name: base_price
+        description: Gross line sales divided by quantity, rounded to four decimal places; null when quantity is zero.
+      - name: discounted_price
+        description: Rounded base_price multiplied by one minus discount_percentage; per-unit price before tax.
+      - name: discounted_item_sales_amount
+        description: Gross line sales multiplied by one minus discount_percentage; line total before tax.
+      - name: item_discount_amount
+        description: Negative gross line sales multiplied by discount_percentage; added to gross sales to apply the discount.
+      - name: item_tax_amount
+        description: Gross line sales plus the rounded negative discount amount, multiplied by tax_rate.
+      - name: net_item_sales_amount
+        description: Gross line sales plus the negative discount amount plus tax; includes tax.

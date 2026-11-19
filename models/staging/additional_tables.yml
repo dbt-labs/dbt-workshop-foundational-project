@@ -1,0 +1,136 @@
+version: 2
+
+models:
+  - name: stg_regions
+    description: >-
+      One row per TPC-H geographic region. Renames all source fields without
+      filtering or deduplication; use region_key to group nations geographically.
+    columns:
+      - name: region_key
+        description: Region identifier used by stg_nations; zero is a valid key.
+        data_tests:
+          - unique
+          - not_null
+      - name: name
+        description: Source geographic region name for reporting labels.
+      - name: comment
+        description: Free-text source comment about the region, retained unchanged.
+
+  - name: stg_nations
+    description: >-
+      One row per TPC-H nation. Renames all source fields without filtering or
+      deduplication; provides the nation-to-region lookup for customers and suppliers.
+    columns:
+      - name: nation_key
+        description: Nation identifier used by customers and suppliers; zero is a valid key.
+        data_tests:
+          - unique
+          - not_null
+      - name: name
+        description: Source nation name for geographic reporting labels.
+      - name: region_key
+        description: Geographic region containing the nation; joins to stg_regions.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_regions')
+                field: region_key
+      - name: comment
+        description: Free-text source comment about the nation, retained unchanged.
+
+  - name: stg_parts
+    description: >-
+      One row per TPC-H part. Preserves all source product attributes and retail
+      price without filtering, deduplication, or currency conversion. Retail price
+      is a product attribute and is not the realized order-line sales price.
+    columns:
+      - name: part_key
+        description: Part identifier shared with order lines and part-supplier availability records.
+        data_tests:
+          - unique
+          - not_null
+      - name: name
+        description: Source descriptive part name; use part_key for joins.
+      - name: manufacturer
+        description: Source manufacturer label for grouping parts by manufacturer.
+      - name: brand
+        description: Source brand label for grouping parts within the product catalog.
+      - name: part_type
+        description: Source part classification, retained without parsing its component labels.
+      - name: size
+        description: Source numeric part-size attribute; no physical unit conversion is applied.
+      - name: container
+        description: Source packaging or container classification for the part.
+      - name: retail_price
+        description: Source retail price for the part, distinct from order-line transaction prices.
+      - name: comment
+        description: Free-text source comment about the part, retained unchanged.
+
+  - name: stg_suppliers
+    description: >-
+      One row per TPC-H supplier. Preserves all source contact and account
+      attributes without filtering or deduplication. Supplier geography is
+      available through nation_key; account balance is separate from sales amounts.
+    columns:
+      - name: supplier_key
+        description: Supplier identifier shared with order lines and part-supplier availability records.
+        data_tests:
+          - unique
+          - not_null
+      - name: name
+        description: Source supplier name; use supplier_key for joins.
+      - name: address
+        description: Supplier mailing address as provided by the source.
+      - name: nation_key
+        description: Supplier nation identifier linking to stg_nations.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_nations')
+                field: nation_key
+      - name: phone_number
+        description: Supplier phone number retained in its source format.
+      - name: account_balance
+        description: Source supplier account balance; not a measure of order sales or supply cost.
+      - name: comment
+        description: Free-text source comment about the supplier, retained unchanged.
+
+  - name: stg_part_suppliers
+    description: >-
+      One row per part_key and supplier_key pair. Preserves source availability
+      and supply cost without aggregation, filtering, or deduplication. A part can
+      have multiple suppliers, so joining on part_key alone can multiply rows.
+    columns:
+      - name: part_key
+        description: Part supplied; together with supplier_key defines the model grain.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_parts')
+                field: part_key
+      - name: supplier_key
+        description: Supplier of the part; together with part_key defines the model grain.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_suppliers')
+                field: supplier_key
+      - name: available_quantity
+        description: Source quantity available for this part from this supplier; not order-line quantity.
+      - name: supply_cost
+        description: Source per-unit supply cost for this part and supplier; no currency conversion is applied.
+      - name: comment
+        description: Free-text source comment about the part-supplier record, retained unchanged.
+
+  - name: stg_tbl_test
+    description: >-
+      Pass-through view of every row in tpch.tbl_test with its ID field unchanged.
+      Business purpose and row grain are unconfirmed. No uniqueness, nullability,
+      deduplication, or filtering assumptions are imposed on this source.
+    columns:
+      - name: id
+        description: Source ID value retained unchanged; uniqueness and business meaning are unconfirmed.

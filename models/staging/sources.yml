@@ -1,6 +1,6 @@
 sources:
   - name: tpch
-    database: raw
+    database: tpch_now
     schema: tpch
     tables:
       - name: orders
@@ -9,3 +9,16 @@ sources:
         description: "One record per customer"
       - name: lineitem
         description: "One record per line item within a single order (1 -> n)"
+      - name: nation
+        description: One row per TPC-H nation, linking customers and suppliers to a region.
+      - name: region
+        description: One row per TPC-H geographic region used to group nations.
+      - name: part
+        description: One row per TPC-H part with product attributes and source retail price.
+      - name: supplier
+        description: One row per TPC-H supplier with contact details, nation, and account balance.
+      - name: partsupp
+        description: One row per part and supplier pair with available quantity and supply cost.
+      - name: tbl_test
+        description: Source table containing an ID field; business purpose and grain are unconfirmed.
+

@@ -1,0 +1,18 @@
+version: 2
+
+data_tests:
+  - name: assert_stg_line_items_grain
+    description: >-
+      Fails when an order_key and line_number pair appears more than once.
+      Inspect the returned key pairs in stg_line_items and the upstream lineitem
+      source for duplicate ingestion before using sales aggregates.
+  - name: assert_monthly_sales_grain
+    description: >-
+      Fails when an order_month and market_segment pair appears more than once.
+      Inspect the monthly_sales grouping and any joins added after aggregation.
+  - name: assert_stg_part_suppliers_grain
+    description: >-
+      Fails when a part_key and supplier_key pair appears more than once.
+      Inspect the returned pairs in stg_part_suppliers and the upstream partsupp
+      source for duplicate ingestion before joining availability or supply costs.
+
