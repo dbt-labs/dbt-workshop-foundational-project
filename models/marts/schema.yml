@@ -1,0 +1,107 @@
+version: 2
+
+models:
+  - name: fct_orders
+    description: >-
+      One row per order with matching line items and a matching customer.
+      Aggregates line-level gross sales, negative discounts, tax, and net sales
+      to the order grain, then joins customer attributes. Inner joins exclude
+      orders missing either match. Includes all order statuses and return flags.
+    columns:
+      - name: order_key
+        description: Order identifier; primary key after line items are aggregated to one row per order.
+        data_tests:
+          - unique
+          - not_null
+      - name: order_date
+        description: Date the order was placed, used for monthly sales reporting.
+      - name: customer_key
+        description: Customer identifier joined to stg_customers to attach customer attributes.
+      - name: status_code
+        description: Source order status code; all statuses remain included in sales amounts.
+      - name: priority_code
+        description: Order priority code carried through from stg_orders.
+      - name: ship_priority
+        description: Shipping priority value carried through from stg_orders.
+      - name: clerk_name
+        description: Clerk assigned to the order, carried through from stg_orders.
+      - name: name
+        description: Customer name joined from stg_customers; not the order or clerk name.
+      - name: market_segment
+        description: Customer market segment joined from stg_customers for segment-level sales reporting.
+      - name: gross_item_sales_amount
+        description: Sum of gross line-item extended prices for the order, before discounts and tax.
+      - name: item_discount_amount
+        description: Sum of negative line-item discount amounts for the order.
+      - name: item_tax_amount
+        description: Sum of line-item tax amounts calculated after discounts.
+      - name: net_item_sales_amount
+        description: Sum of line-item sales after discounts and including tax; calculated independently of source order total_price.
+
+  - name: monthly_sales
+    description: >-
+      One row per calendar order month and customer market segment present in
+      fct_orders. Reports gross sales before discounts and tax, including all
+      order statuses. Months or segments without orders are not filled with zeros.
+    columns:
+      - name: order_month
+        description: First day of the calendar month containing order_date; paired with market_segment to define the grain.
+        data_tests:
+          - not_null
+      - name: market_segment
+        description: Customer market segment used to split each month's gross sales.
+        data_tests:
+          - not_null
+      - name: total_revenue
+        description: Sum of fct_orders.gross_item_sales_amount for the month and segment; gross revenue before discounts and tax, not net sales.
+        data_tests:
+          - not_null
+
+unit_tests:
+  - name: monthly_sales_groups_orders_by_month_and_segment_using_gross_sales
+    description: >-
+      Protects month-and-segment grouping and the gross-revenue definition by
+      supplying orders whose gross and net sales differ, including a year boundary.
+    model: monthly_sales
+    given:
+      - input: ref('fct_orders')
+        rows:
+          - {order_date: '2024-12-01', market_segment: AUTOMOBILE, gross_item_sales_amount: 100, net_item_sales_amount: 95}
+          - {order_date: '2024-12-31', market_segment: AUTOMOBILE, gross_item_sales_amount: 50, net_item_sales_amount: 45}
+          - {order_date: '2024-12-15', market_segment: BUILDING, gross_item_sales_amount: 25, net_item_sales_amount: 20}
+          - {order_date: '2025-01-01', market_segment: AUTOMOBILE, gross_item_sales_amount: 75, net_item_sales_amount: 70}
+    expect:
+      rows:
+        - {order_month: '2024-12-01', market_segment: AUTOMOBILE, total_revenue: 150}
+        - {order_month: '2024-12-01', market_segment: BUILDING, total_revenue: 25}
+        - {order_month: '2025-01-01', market_segment: AUTOMOBILE, total_revenue: 75}
+
+  - name: fct_orders_aggregates_lines_and_requires_matching_order_and_customer
+    description: >-
+      Checks one output per matched order, all four summed sales amounts,
+      and the customer attributes attached by the customer key. Orders missing
+      customers or line items and line items without orders are excluded.
+    model: fct_orders
+    given:
+      - input: ref('stg_orders')
+        rows:
+          - {order_key: 1, customer_key: 10, order_date: '2024-06-01', status_code: O, priority_code: 1-URGENT, ship_priority: 0, clerk_name: Clerk-A}
+          - {order_key: 2, customer_key: 20, order_date: '2024-06-02', status_code: F, priority_code: 2-HIGH, ship_priority: 1, clerk_name: Clerk-B}
+          - {order_key: 3, customer_key: 99, order_date: '2024-06-03'}
+          - {order_key: 4, customer_key: 10, order_date: '2024-06-04'}
+      - input: ref('stg_line_items')
+        rows:
+          - {order_key: 1, gross_item_sales_amount: 100, item_discount_amount: -10, item_tax_amount: 4.5, net_item_sales_amount: 94.5}
+          - {order_key: 1, gross_item_sales_amount: 50, item_discount_amount: -5, item_tax_amount: 2.25, net_item_sales_amount: 47.25}
+          - {order_key: 2, gross_item_sales_amount: 80, item_discount_amount: 0, item_tax_amount: 4, net_item_sales_amount: 84}
+          - {order_key: 3, gross_item_sales_amount: 30, item_discount_amount: 0, item_tax_amount: 0, net_item_sales_amount: 30}
+          - {order_key: 5, gross_item_sales_amount: 60, item_discount_amount: 0, item_tax_amount: 0, net_item_sales_amount: 60}
+      - input: ref('stg_customers')
+        rows:
+          - {customer_key: 10, name: Customer-A, market_segment: AUTOMOBILE}
+          - {customer_key: 20, name: Customer-B, market_segment: BUILDING}
+    expect:
+      rows:
+        - {order_key: 1, order_date: '2024-06-01', customer_key: 10, status_code: O, priority_code: 1-URGENT, ship_priority: 0, clerk_name: Clerk-A, name: Customer-A, market_segment: AUTOMOBILE, gross_item_sales_amount: 150, item_discount_amount: -15, item_tax_amount: 6.75, net_item_sales_amount: 141.75}
+        - {order_key: 2, order_date: '2024-06-02', customer_key: 20, status_code: F, priority_code: 2-HIGH, ship_priority: 1, clerk_name: Clerk-B, name: Customer-B, market_segment: BUILDING, gross_item_sales_amount: 80, item_discount_amount: 0, item_tax_amount: 4, net_item_sales_amount: 84}
+

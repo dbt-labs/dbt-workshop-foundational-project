@@ -1,0 +1,27 @@
+version: 2
+
+analyses:
+  - name: urgent_order_analysis
+    description: >-
+      Ad hoc reporting query with one row per calendar order month and customer
+      market segment containing orders whose priority_code is 1-URGENT. Counts
+      orders from fct_orders, inheriting its matching-customer and matching-line-item
+      requirements. Missing month/segment combinations are not generated.
+      Compiled by dbt; not materialized or executed by dbt build.
+    columns:
+      - name: order_month
+        description: First day of the calendar month containing the urgent order's order_date.
+      - name: market_segment
+        description: Customer market segment inherited from fct_orders.
+      - name: urgent_order_count
+        description: Count of fct_orders rows with priority_code equal to 1-URGENT for the month and segment.
+
+  - name: usp_build_fct_orders
+    description: >-
+      Legacy SQL Server T-SQL procedure retained as a reference implementation
+      of the staging and order-mart flow. Contains destructive DROP/CREATE and
+      INSERT statements, transaction handling, indexes, and grants against dbo
+      objects. Not Snowflake-compatible, not a dbt model, and not executed by
+      dbt build. It uses hardcoded table names rather than ref/source calls, so
+      dbt cannot track its source lineage. Use the Snowflake dbt models for
+      supported builds; this artifact has not been runtime-validated here.

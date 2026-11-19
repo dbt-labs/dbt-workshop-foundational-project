@@ -1,0 +1,159 @@
+version: 2
+
+models:
+  - name: stg_customers
+    description: >-
+      One row per TPCH customer, with source fields renamed for joins and
+      customer segmentation. Includes customers whether or not they have orders.
+    columns:
+      - name: customer_key
+        description: Source customer identifier; primary key used to join orders to customers.
+        data_tests:
+          - unique
+          - not_null
+      - name: name
+        description: Customer name as supplied by the source.
+      - name: address
+        description: Customer mailing address as supplied by the source.
+      - name: nation_key
+        description: Customer nation identifier; references stg_nations.nation_key.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_nations')
+                field: nation_key
+      - name: phone_number
+        description: Customer phone number retained in its source format.
+      - name: account_balance
+        description: Customer account balance from the source, independent of calculated order sales.
+      - name: market_segment
+        description: Source-assigned customer market segment used to group monthly sales.
+      - name: comment
+        description: Free-text source comment about the customer.
+
+  - name: stg_orders
+    description: >-
+      One row per TPCH order. Renames source order fields without filtering
+      by status; customer_key links each order to stg_customers.
+    columns:
+      - name: order_key
+        description: Source order identifier; primary key used to join order line items.
+        data_tests:
+          - unique
+          - not_null
+      - name: customer_key
+        description: Identifier of the customer who placed the order.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_customers')
+                field: customer_key
+      - name: status_code
+        description: Order status code retained unchanged from the source; no status filtering is applied.
+      - name: total_price
+        description: Source-reported order total; downstream sales amounts are calculated separately from line items.
+      - name: order_date
+        description: Source order date used to assign sales to a calendar month.
+        data_tests:
+          - not_null
+      - name: clerk_name
+        description: Source identifier or name of the clerk assigned to the order.
+      - name: priority_code
+        description: Source order priority code retained without reclassification.
+      - name: ship_priority
+        description: Source shipping priority value retained without reclassification.
+      - name: comment
+        description: Free-text source comment about the order.
+
+  - name: stg_line_items
+    description: >-
+      One row per order_key and line_number from TPCH lineitem. Calculates
+      per-unit prices and line-level sales amounts. Discounts are negative
+      amounts; tax is applied after discount. Derived monetary amounts are
+      cast to decimal(16,4). A zero quantity produces null per-unit prices.
+    columns:
+      - name: order_key
+        description: Parent order identifier; forms the line-item key together with line_number.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_orders')
+                field: order_key
+      - name: part_key
+        description: Part identifier; references stg_parts.part_key.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_parts')
+                field: part_key
+      - name: supplier_key
+        description: Supplier identifier; references stg_suppliers.supplier_key.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_suppliers')
+                field: supplier_key
+      - name: line_number
+        description: Line sequence within an order; unique only in combination with order_key.
+        data_tests:
+          - not_null
+      - name: quantity
+        description: Source quantity for the line, used to calculate per-unit prices.
+      - name: gross_item_sales_amount
+        description: Source extended price for the entire line, before discounts and tax; not a per-unit price.
+      - name: discount_percentage
+        description: Source discount fraction used as a multiplier, so 0.10 represents a 10 percent discount.
+      - name: tax_rate
+        description: Source tax fraction applied to the line amount after discount.
+      - name: return_flag
+        description: Source return flag retained unchanged; returned lines are not excluded.
+      - name: status_code
+        description: Source line status code, distinct from the order-level status_code.
+      - name: ship_date
+        description: Source shipment date for the line.
+      - name: commit_date
+        description: Source committed date for the line.
+      - name: receipt_date
+        description: Source receipt date for the line.
+      - name: ship_instructions
+        description: Source shipping instructions for the line.
+      - name: ship_mode
+        description: Source shipping mode for the line.
+      - name: comment
+        description: Free-text source comment about the line.
+      - name: base_price
+        description: Gross line sales divided by quantity, cast to four decimal places; null when quantity is zero.
+      - name: discounted_price
+        description: Rounded base_price multiplied by one minus the discount fraction, cast to four decimal places.
+      - name: discounted_item_sales_amount
+        description: Gross line sales multiplied by one minus the discount fraction, before tax, cast to four decimal places.
+      - name: item_discount_amount
+        description: Negative gross line sales multiplied by the discount fraction, cast to four decimal places.
+      - name: item_tax_amount
+        description: Gross line sales plus the negative discount amount, multiplied by tax_rate and cast to four decimal places.
+      - name: net_item_sales_amount
+        description: Gross line sales plus the negative discount amount plus tax, cast to four decimal places.
+
+
+unit_tests:
+  - name: line_item_amounts_apply_discount_before_tax_and_handle_zero_quantity
+    description: >-
+      Protects the negative-discount convention, tax-on-discounted-sales calculation,
+      and null per-unit prices for zero quantities while preserving line totals.
+    model: stg_line_items
+    given:
+      - input: source('tpch', 'lineitem')
+        rows:
+          - {l_orderkey: 1, l_linenumber: 1, l_quantity: 2, l_extendedprice: 100, l_discount: 0.10, l_tax: 0.05}
+          - {l_orderkey: 1, l_linenumber: 2, l_quantity: 4, l_extendedprice: 80, l_discount: 0, l_tax: 0}
+          - {l_orderkey: 2, l_linenumber: 1, l_quantity: 0, l_extendedprice: 100, l_discount: 0.10, l_tax: 0.05}
+    expect:
+      rows:
+        - {order_key: 1, line_number: 1, base_price: 50, discounted_price: 45, discounted_item_sales_amount: 90, item_discount_amount: -10, item_tax_amount: 4.5, net_item_sales_amount: 94.5}
+        - {order_key: 1, line_number: 2, base_price: 20, discounted_price: 20, discounted_item_sales_amount: 80, item_discount_amount: 0, item_tax_amount: 0, net_item_sales_amount: 80}
+        - {order_key: 2, line_number: 1, base_price: null, discounted_price: null, discounted_item_sales_amount: 90, item_discount_amount: -10, item_tax_amount: 4.5, net_item_sales_amount: 94.5}

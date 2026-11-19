@@ -1,0 +1,19 @@
+version: 2
+
+data_tests:
+  - name: assert_stg_line_items_grain
+    description: >-
+      Returns duplicate (order_key, line_number) pairs, protecting the composite
+      line-item grain. Zero rows means pass. On failure, inspect duplicate
+      (l_orderkey, l_linenumber) pairs in the source before changing aggregation.
+  - name: assert_monthly_sales_grain
+    description: >-
+      Returns duplicate (order_month, market_segment) pairs, protecting the
+      reporting grain. Zero rows means pass. On failure, inspect model grouping
+      and any joins that could produce more than one row per pair.
+  - name: assert_stg_part_suppliers_grain
+    description: >-
+      Returns duplicate (part_key, supplier_key) pairs. Zero rows means pass.
+      Inspect duplicate (ps_partkey, ps_suppkey) pairs in TPCH partsupp on failure;
+      neither a part key nor a supplier key is expected to be unique alone.
+
