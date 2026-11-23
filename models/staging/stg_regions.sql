@@ -1,3 +1,9 @@
+{{
+    config(
+        materialized='table'
+    )
+}}
+
 with
 
 source as (
@@ -11,8 +17,7 @@ renamed as (
    select
        r_regionkey as region_key,
        r_name as region,
-       r_comment as region_comment, 
-       'a' as col_a
+       r_comment as region_comment
 
    from source
 
