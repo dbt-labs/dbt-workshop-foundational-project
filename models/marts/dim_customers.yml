@@ -1,0 +1,10 @@
+version: 2
+
+models:
+  - name: dim_customers
+    description: >-
+      Customer dimension, with one row per customer_key, enriched with nation
+      and region names. Combines staged customer contact details, account
+      balance, and market segment with staged geographic attributes. Inner
+      joins include only customers with a matching nation and a matching
+      region; customers are not filtered by whether they have placed orders.

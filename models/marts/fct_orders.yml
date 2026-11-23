@@ -1,0 +1,12 @@
+version: 2
+
+models:
+  - name: fct_orders
+    description: >-
+      Order fact table, with one row per order_key. Aggregates staged line
+      items to order-level gross sales, negative discounts, tax, and net sales
+      including tax, then joins these amounts to staged order headers and
+      customer name and market segment. Inner joins include only orders with
+      matching line items and a matching customer. Retains all order statuses
+      and supplies the order dates, segments, and gross sales used by
+      monthly_sales.
