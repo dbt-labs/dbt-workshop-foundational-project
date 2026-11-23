@@ -17,7 +17,8 @@ renamed as (
    select
        r_regionkey as region_key,
        r_name as region,
-       r_comment as region_comment
+       r_comment as region_comment, 
+       'a' as col
 
    from source
 
