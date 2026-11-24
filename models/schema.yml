@@ -1,0 +1,44 @@
+version: 2
+
+models:
+  - name: stg_customers
+    description: >-
+      Staged TPC-H customer records, with one row per customer. Renames source
+      columns for customer identity, contact details, nation, account balance,
+      and market segment without filtering source records.
+
+  - name: stg_line_items
+    description: >-
+      Staged TPC-H order line items, with one row per order key and line number.
+      Includes product, supplier, quantity, shipping, and return attributes,
+      plus calculated unit prices and gross, discount, tax, and net sales
+      amounts. Discount amounts are represented as negative values.
+
+  - name: stg_nations
+    description: >-
+      Staged TPC-H nations, with one row per nation. Includes the nation name,
+      its region key, and the source nation comment.
+
+  - name: stg_orders
+    description: >-
+      Staged TPC-H orders, with one row per order. Includes the customer key,
+      order date, status, total price, clerk, and priority attributes without
+      filtering source records.
+
+  - name: stg_regions
+    description: >-
+      Staged TPC-H regions, with one row per region. Includes the region name
+      and the source region comment.
+
+  - name: dim_customers
+    description: >-
+      Customer dimension, with one row per customer that has matching nation
+      and region records. Enriches staged customer identity, contact details,
+      account balance, and market segment with nation and region names.
+
+  - name: fct_orders
+    description: >-
+      Order fact table, with one row per order that has matching line items
+      and a matching customer. Combines order attributes and customer name
+      and market segment with gross sales, negative discount amounts, taxes,
+      and net sales aggregated from line items. Includes all order statuses.
