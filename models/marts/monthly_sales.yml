@@ -1,0 +1,99 @@
+version: 2
+
+models:
+  - name: fct_orders
+    description: >-
+      Order-level sales fact table with one row per order, enriched with the
+      customer's name and market segment. Line-item amounts are summed to the
+      order grain before joining. Inner joins retain only orders with at least
+      one line item and a matching customer in staging. Amounts use the source
+      currency; no currency conversion is applied.
+    columns:
+      - name: order_key
+        description: Primary key identifying an order in the TPC-H source.
+        data_tests:
+          - unique
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_orders')
+                field: order_key
+      - name: order_date
+        description: Date the order was placed; used to assign sales to a reporting month.
+        data_tests:
+          - not_null
+      - name: customer_key
+        description: Customer who placed the order; joins to stg_customers.customer_key.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_customers')
+                field: customer_key
+      - name: status_code
+        description: Order status code passed through from the source without translation.
+      - name: priority_code
+        description: Order priority classification passed through from the source.
+      - name: ship_priority
+        description: Shipping priority value passed through from the source.
+      - name: clerk_name
+        description: Source identifier for the clerk assigned to the order.
+      - name: name
+        description: Customer name from the matching staging customer record.
+      - name: market_segment
+        description: Customer market segment from staging, used to group monthly sales.
+        data_tests:
+          - not_null
+      - name: gross_item_sales_amount
+        description: Sum of line-item extended prices for the order, before discounts and tax.
+        data_tests:
+          - not_null
+      - name: item_discount_amount
+        description: >-
+          Sum of line-item discounts, stored as negative amounts. Each line's
+          discount is calculated as negative gross sales multiplied by its
+          discount percentage and rounded to four decimal places in staging.
+        data_tests:
+          - not_null
+      - name: item_tax_amount
+        description: >-
+          Sum of line-item tax amounts. Each line's tax is calculated on gross
+          sales plus its negative discount amount and rounded to four decimal
+          places in staging.
+        data_tests:
+          - not_null
+      - name: net_item_sales_amount
+        description: >-
+          Sum of line-item gross sales plus negative discounts plus tax.
+          Each line's net amount is rounded to four decimal places in staging
+          before aggregation to the order grain.
+        data_tests:
+          - not_null
+
+  - name: monthly_sales
+    description: >-
+      Monthly gross sales by customer market segment, with one row per
+      order month and market segment present in fct_orders. Revenue includes
+      all order statuses and is measured before discounts and tax. Months or
+      segments without orders are not filled with zero-value rows.
+    data_tests:
+      - unique:
+          name: monthly_sales_unique_month_segment
+          arguments:
+            column_name: "concat(cast(order_month as varchar), '|', market_segment)"
+    columns:
+      - name: order_month
+        description: First day of the order month, calculated by truncating order_date to month.
+        data_tests:
+          - not_null
+      - name: market_segment
+        description: Customer market segment associated with the orders included in the monthly total.
+        data_tests:
+          - not_null
+      - name: total_revenue
+        description: >-
+          Sum of fct_orders.gross_item_sales_amount for the month and market
+          segment. This is gross sales before discounts and tax, despite the
+          general revenue column name; no currency conversion is applied.
+        data_tests:
+          - not_null

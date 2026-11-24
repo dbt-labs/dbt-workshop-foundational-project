@@ -1,0 +1,11 @@
+version: 2
+
+models:
+  - name: dim_customers
+    description: >-
+      Customer dimension with one row per customer whose nation and region
+      match the staging geography lookups. Enriches staged customer identity,
+      address, phone number, account balance, and market segment with nation
+      and region names for geographic customer analysis. Inner joins exclude
+      customers without a matching nation or a matching region for that nation;
+      customers do not need to have placed an order to be included.

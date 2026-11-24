@@ -1,0 +1,40 @@
+version: 2
+
+models:
+  - name: stg_customers
+    description: >-
+      Customer staging model with one row per customer from the TPC-H customer
+      source. Renames source fields to expose customer identity, contact details,
+      nation key, account balance, and market segment for downstream sales
+      reporting and customer enrichment. No rows are filtered or aggregated.
+
+  - name: stg_orders
+    description: >-
+      Order staging model with one row per order from the TPC-H orders source.
+      Renames order and customer keys, order date, source total price, status,
+      clerk, and priority fields for downstream order-level sales reporting.
+      All source order statuses are retained without filtering or aggregation.
+
+  - name: stg_line_items
+    description: >-
+      Line-item staging model with one row per order key and line number from
+      the TPC-H lineitem source. Retains product, supplier, quantity, shipping,
+      and status details, and calculates unit prices and sales amounts for
+      downstream order aggregation. Gross sales are the source extended price;
+      discounts are negative amounts, tax is applied after discounts, and net
+      sales include tax. Calculated amounts are cast to four decimal places;
+      unit prices are null when quantity is zero. No source rows are filtered.
+
+  - name: stg_nations
+    description: >-
+      Nation lookup staging model with one row per nation from the TPC-H nation
+      source. Renames the nation key, nation name, parent region key, and source
+      comment to support geographic enrichment of customers. No rows are
+      filtered or aggregated.
+
+  - name: stg_regions
+    description: >-
+      Region lookup staging model with one row per region from the TPC-H region
+      source. Renames the region key, region name, and source comment to support
+      nation-to-region joins and geographic reporting. No rows are filtered
+      or aggregated.
