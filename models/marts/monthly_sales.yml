@@ -1,0 +1,33 @@
+version: 2
+
+models:
+  - name: monthly_sales
+    description: >-
+      Monthly gross item sales by customer market segment, with one row per
+      order month and market segment. Aggregates gross_item_sales_amount from
+      fct_orders across all order statuses; discounts and tax are not applied
+      to this revenue measure.
+    data_tests:
+      - unique:
+          arguments:
+            column_name: "concat(cast(order_month as varchar), '|', market_segment)"
+    columns:
+      - name: order_month
+        description: >-
+          First day of the calendar month containing the order date. Together
+          with market_segment, identifies a row in this model.
+        data_tests:
+          - not_null
+      - name: market_segment
+        description: >-
+          Customer market segment associated with the order, as provided by
+          fct_orders. Sales are grouped by this segment within each month.
+        data_tests:
+          - not_null
+      - name: total_revenue
+        description: >-
+          Sum of gross_item_sales_amount for orders in the month and market
+          segment, before discounts and tax. Includes all order statuses
+          present in fct_orders.
+        data_tests:
+          - not_null
