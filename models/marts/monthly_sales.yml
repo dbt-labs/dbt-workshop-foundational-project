@@ -1,0 +1,90 @@
+version: 2
+
+models:
+  - name: monthly_sales
+    description: >-
+      Monthly gross sales by customer market segment, with one row per
+      order_month and market_segment combination. Aggregates
+      gross_item_sales_amount from fct_orders using the order date's calendar
+      month. Includes all order statuses present in fct_orders. Months and
+      segments without orders are omitted rather than filled with zeroes.
+    data_tests:
+      - unique:
+          name: monthly_sales_unique_month_segment
+          description: >-
+            Ensures each calendar month and market segment has only one row.
+            If this fails, check for changes to the model's grouping grain.
+          arguments:
+            column_name: "to_char(order_month, 'YYYY-MM-DD') || '|' || market_segment"
+    columns:
+      - name: order_month
+        description: >-
+          Calendar month of the order date, truncated to the first day of the
+          month. Together with market_segment, defines the model's grain.
+        data_tests:
+          - not_null
+
+      - name: market_segment
+        description: >-
+          Customer market segment carried through fct_orders from
+          stg_customers. Together with order_month, defines the model's grain.
+        data_tests:
+          - not_null
+
+      - name: total_revenue
+        description: >-
+          Sum of gross_item_sales_amount for orders in the calendar month and
+          customer market segment. Represents gross line-item sales before
+          discounts and tax, not net revenue. Uses the source monetary units;
+          no currency conversion is applied.
+        data_tests:
+          - not_null
+
+
+  - name: stg_orders
+    description: >-
+      Staged TPCH orders, with one row per order_key. Renames source columns
+      for order dates, customers, statuses, priorities, clerks, and total prices.
+      Includes all source order statuses without filtering.
+
+  - name: stg_customers
+    description: >-
+      Staged TPCH customers, with one row per customer_key. Renames customer
+      identifiers, contact details, nation keys, account balances, and market
+      segments for use in downstream customer and sales models.
+
+  - name: stg_line_items
+    description: >-
+      Staged TPCH order line items, with one row per order_key and line_number.
+      Includes product and supplier keys, quantities, shipping details, and
+      calculated prices and sales amounts. Discounts are represented as
+      negative amounts; net sales include discounts and tax.
+
+  - name: fct_orders
+    description: >-
+      Order-level sales fact table, with one row per order_key. Aggregates
+      gross sales, discounts, tax, and net sales from stg_line_items, then
+      joins stg_orders and stg_customers to add order dates, statuses, and
+      customer market segments. Inner joins retain only orders with matching
+      line items and customer records. Supplies the monthly_sales aggregation.
+
+
+  - name: dim_customers
+    description: >-
+      Customer dimension with one row per customer_key, combining staged
+      customer details, account balances, and market segments with nation
+      and region names. Inner joins retain only customers with matching
+      nation and region records.
+
+
+  - name: stg_nations
+    description: >-
+      Staged TPCH nations, with one row per nation_key. Renames nation
+      identifiers, names, parent region keys, and comments for geographic
+      joins in downstream customer models.
+
+  - name: stg_regions
+    description: >-
+      Staged TPCH regions, with one row per region_key. Renames region
+      identifiers, names, and comments for geographic joins in downstream
+      customer models.
