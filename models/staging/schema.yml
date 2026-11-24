@@ -1,0 +1,34 @@
+version: 2
+
+models:
+  - name: stg_customers
+    description: >-
+      TPCH customer records with standardized column names, with one row per
+      customer_key. Includes contact details, nation_key, account balance,
+      market segment, and the source comment.
+
+  - name: stg_line_items
+    description: >-
+      TPCH order line items with standardized column names, with one row per
+      order_key and line_number. Includes product and supplier keys, quantity,
+      shipping details, and calculated unit prices and sales amounts. Discounts
+      are represented as negative amounts; net item sales include discounts
+      and tax.
+
+  - name: stg_nations
+    description: >-
+      TPCH nation reference data with standardized column names, with one row
+      per nation_key. Includes the nation name, region_key, and source comment
+      for linking customers to their geographic region.
+
+  - name: stg_orders
+    description: >-
+      TPCH order headers with standardized column names, with one row per
+      order_key. Includes customer_key, order date, status, total price, clerk,
+      order and shipping priorities, and the source comment.
+
+  - name: stg_regions
+    description: >-
+      TPCH region reference data with standardized column names, with one row
+      per region_key. Includes the region name and source comment for grouping
+      nations into geographic regions.
