@@ -1,0 +1,19 @@
+version: 2
+
+models:
+  - name: dim_customers
+    description: >-
+      Customer dimension with one row per customer_key, enriched with nation
+      and region names. Includes customer contact details, account balance,
+      and market segment. Inner joins to stg_nations and stg_regions exclude
+      customers without matching geography; customers do not need orders
+      to be included.
+
+  - name: fct_orders
+    description: >-
+      Order fact table with one row per order_key, combining order headers,
+      customer name and market segment, and aggregated line-item sales.
+      Provides gross sales before discounts and tax, negative discount
+      amounts, tax amounts, and net sales including tax. Inner joins retain
+      only orders with matching line items and customers. No order-status
+      or return-status filter is applied.
