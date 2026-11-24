@@ -1,0 +1,17 @@
+version: 2
+
+models:
+  - name: fct_orders
+    description: >-
+      Order-level sales fact table with one row per order_key. Aggregates
+      staged line-item gross sales, discounts, taxes, and net sales to each
+      order, then inner joins staged orders and customers to add order
+      attributes, customer name, and market segment. Includes only orders
+      with matching line items and customers; no order-status filter is applied.
+
+  - name: dim_customers
+    description: >-
+      Customer dimension with one row per customer_key, containing customer
+      name, address, phone number, account balance, market segment, nation,
+      and region. Inner joins staged customers, nations, and regions, so only
+      customers with matching nation and region records are included.

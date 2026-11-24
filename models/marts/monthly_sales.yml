@@ -1,0 +1,37 @@
+version: 2
+
+models:
+  - name: monthly_sales
+    description: >-
+      Monthly gross item sales by customer market segment, with one row per
+      order_month and market_segment combination. Aggregates fct_orders using
+      the order date, with no order-status filter. Only month and segment
+      combinations present in fct_orders are included; missing combinations
+      are not filled with zero sales.
+    data_tests:
+      - unique:
+          name: monthly_sales_unique_month_segment
+          arguments:
+            column_name: "to_char(order_month, 'YYYY-MM-DD') || '|' || market_segment"
+    columns:
+      - name: order_month
+        description: >-
+          Order date truncated to the first day of its calendar month. Together
+          with market_segment, defines the grain of the model.
+        data_tests:
+          - not_null
+
+      - name: market_segment
+        description: >-
+          Customer market segment carried through from fct_orders. Together
+          with order_month, defines the grain of the model.
+        data_tests:
+          - not_null
+
+      - name: total_revenue
+        description: >-
+          Sum of fct_orders.gross_item_sales_amount for the order month and
+          customer market segment. Represents gross item sales, rather than
+          the net_item_sales_amount measure available in fct_orders.
+        data_tests:
+          - not_null
