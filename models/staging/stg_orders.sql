@@ -17,6 +17,7 @@ renamed as (
         o_orderpriority as priority_code,
         o_shippriority as ship_priority,
         o_comment as comment
+        1 as a_col
 
     from source
 
