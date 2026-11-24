@@ -1,0 +1,48 @@
+version: 2
+
+models:
+  - name: stg_orders
+    description: >-
+      Order headers from the TPCH orders source, with columns renamed for
+      downstream joins and reporting. One row per source order, retaining its
+      customer key, order date, status, priorities, and source total price.
+
+  - name: stg_customers
+    description: >-
+      Customer records from the TPCH customer source, with columns renamed for
+      downstream joins. One row per source customer, including contact details,
+      nation key, account balance, and market segment.
+
+  - name: stg_line_items
+    description: >-
+      Order line items from the TPCH lineitem source, at the order_key and
+      line_number grain. Includes quantities, shipping dates, gross extended
+      sales, and calculated per-unit prices, discounts, taxes, and net sales.
+      Discounts are negative amounts; net sales include discounts and taxes.
+
+  - name: fct_orders
+    description: >-
+      Order-level sales fact combining order headers, customer attributes, and
+      line-item amounts aggregated by order_key. Includes gross sales, negative
+      discount amounts, taxes, and net sales. Inner joins retain only orders
+      with matching line items and customer records; no order-status filter is
+      applied.
+
+  - name: stg_nations
+    description: >-
+      Nation lookup records from the TPCH nation source, with renamed nation
+      key, nation name, region key, and comment columns. Provides the nation to
+      region mapping used to enrich customer records.
+
+  - name: stg_regions
+    description: >-
+      Region lookup records from the TPCH region source, with renamed region
+      key, region name, and comment columns. Provides region labels for nation
+      and customer reporting.
+
+  - name: dim_customers
+    description: >-
+      Customer dimension enriched with nation and region names for geographic
+      and market-segment reporting. Includes customer identity, address, phone,
+      account balance, and market segment. Inner joins retain only customers
+      with matching nation and region records.
