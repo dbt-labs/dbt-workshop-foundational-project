@@ -6,12 +6,50 @@ models:
       Customer records from the TPCH customer source, with one row per
       customer_key. Renames source fields for customer contact details,
       nation_key, account balance, and market segment without filtering rows.
+    columns:
+      - name: customer_key
+        description: "Customer identifier from c_custkey; identifies a customer in the TPCH source."
+      - name: name
+        description: "Customer name from c_name."
+      - name: address
+        description: "Customer address from c_address."
+      - name: nation_key
+        description: "Customer nation identifier from c_nationkey; joins to stg_nations.nation_key."
+      - name: phone_number
+        description: "Customer phone number from c_phone, retained in its source format."
+      - name: account_balance
+        description: "Customer account balance from c_acctbal, without currency conversion."
+      - name: market_segment
+        description: "Customer market segment from c_mktsegment."
+      - name: comment
+        description: "Free-text customer comment from c_comment."
 
   - name: stg_orders
     description: >-
       Order headers from the TPCH orders source, with one row per order_key.
       Renames source fields for the customer, order date, status, total price,
       clerk, and order and shipping priorities without filtering rows.
+    columns:
+      - name: order_key
+        description: "Order identifier from o_orderkey; identifies an order in the TPCH source."
+      - name: customer_key
+        description: "Ordering customer identifier from o_custkey; joins to stg_customers.customer_key."
+      - name: status_code
+        description: "Order status code from o_orderstatus, retained without recoding."
+      - name: total_price
+        description: "Order total price from o_totalprice; retained from the header rather than recalculated from line items."
+      - name: order_date
+        description: "Date the order was placed, from o_orderdate."
+      - name: clerk_name
+        description: "Clerk identifier or name from o_clerk."
+      - name: priority_code
+        description: "Order priority code from o_orderpriority."
+      - name: ship_priority
+        description: "Shipping priority value from o_shippriority."
+      - name: comment
+        description: "Free-text order comment from o_comment."
+      - name: a_col
+        description: "Constant integer 1 for every order row, added by this model."
 
   - name: stg_line_items
     description: >-
@@ -20,15 +58,76 @@ models:
       fulfillment dates, and shipping attributes. Calculates per-unit prices,
       negative discount amounts, tax on discounted sales, and net item sales
       including tax. A zero quantity produces a null per-unit base price.
+    columns:
+      - name: order_key
+        description: "Order identifier from l_orderkey; together with line_number, identifies a line item."
+      - name: part_key
+        description: "Part identifier from l_partkey for the item ordered."
+      - name: supplier_key
+        description: "Supplier identifier from l_suppkey for the line item."
+      - name: line_number
+        description: "Line number within the order from l_linenumber; together with order_key, identifies a line item."
+      - name: quantity
+        description: "Quantity ordered on the line from l_quantity."
+      - name: gross_item_sales_amount
+        description: "Extended price for the entire line from l_extendedprice, before discounts and tax; not a per-unit price."
+      - name: discount_percentage
+        description: "Discount rate from l_discount, used as a fractional multiplier in discount calculations."
+      - name: tax_rate
+        description: "Tax rate from l_tax, applied as a fractional multiplier to sales after discounts."
+      - name: return_flag
+        description: "Line-item return flag from l_returnflag, retained without recoding."
+      - name: status_code
+        description: "Line-item status code from l_linestatus, retained without recoding."
+      - name: ship_date
+        description: "Shipment date recorded in l_shipdate."
+      - name: commit_date
+        description: "Commitment date recorded in l_commitdate."
+      - name: receipt_date
+        description: "Receipt date recorded in l_receiptdate."
+      - name: ship_instructions
+        description: "Shipping instructions from l_shipinstruct."
+      - name: ship_mode
+        description: "Shipping mode from l_shipmode."
+      - name: comment
+        description: "Free-text line-item comment from l_comment."
+      - name: base_price
+        description: "Per-unit price before discounts and tax: gross_item_sales_amount divided by quantity, cast to decimal(16,4). Null when quantity is zero."
+      - name: discounted_price
+        description: "Per-unit price after discount and before tax: base_price multiplied by one minus discount_percentage, cast to decimal(16,4)."
+      - name: discounted_item_sales_amount
+        description: "Line sales after discount and before tax: gross_item_sales_amount multiplied by one minus discount_percentage, cast to decimal(16,4)."
+      - name: item_discount_amount
+        description: "Negative discount amount: minus gross_item_sales_amount multiplied by discount_percentage, cast to decimal(16,4)."
+      - name: item_tax_amount
+        description: "Tax on discounted line sales: gross_item_sales_amount plus item_discount_amount, multiplied by tax_rate and cast to decimal(16,4)."
+      - name: net_item_sales_amount
+        description: "Line sales including tax: gross_item_sales_amount plus negative item_discount_amount plus item_tax_amount, cast to decimal(16,4)."
 
   - name: stg_nations
     description: >-
       Nation reference records from the TPCH nation source, with one row per
       nation_key. Provides the nation name, associated region_key, and source
       comment for enriching customer geography without filtering rows.
+    columns:
+      - name: nation_key
+        description: "Nation identifier from n_nationkey; identifies a nation in the TPCH source."
+      - name: nation
+        description: "Nation name from n_name."
+      - name: region_key
+        description: "Region identifier from n_regionkey; joins to stg_regions.region_key."
+      - name: nation_comment
+        description: "Free-text nation comment from n_comment."
 
   - name: stg_regions
     description: >-
       Region reference records from the TPCH region source, with one row per
       region_key. Provides the region name and source comment for grouping
       nations into regions without filtering rows.
+    columns:
+      - name: region_key
+        description: "Region identifier from r_regionkey; identifies a region in the TPCH source."
+      - name: region
+        description: "Region name from r_name."
+      - name: region_comment
+        description: "Free-text region comment from r_comment."
