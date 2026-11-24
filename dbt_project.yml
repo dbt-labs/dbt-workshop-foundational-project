@@ -39,6 +39,8 @@ models:
     +static_analysis: strict
     +materialized: table
     +access: public
+    +state: 
+      lag_tolerance: 1s
 
 
 
