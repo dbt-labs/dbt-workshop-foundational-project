@@ -1,0 +1,33 @@
+models:
+  - name: stg_orders
+    description: >-
+      Order headers from the TPCH orders source, with source columns renamed
+      for downstream use. One row per source order, identified by order_key,
+      containing the customer key, order date, total price, status, and
+      fulfillment priorities. No order-status filtering is applied.
+
+  - name: stg_customers
+    description: >-
+      Customer records from the TPCH customer source, with source columns
+      renamed for downstream use. One row per source customer, identified by
+      customer_key, containing the customer name, contact details, nation key,
+      account balance, and market segment used to categorize order sales.
+
+  - name: stg_line_items
+    description: >-
+      Order line items from the TPCH lineitem source, at the grain of order_key
+      and line_number. Renames source fields and calculates unit pricing,
+      discounted sales, discount amounts, tax amounts, and net item sales.
+      Gross item sales are the extended line price; discounts are represented
+      as negative amounts, tax is applied after discounts, and net item sales
+      include both discounts and tax. Unit price is null when quantity is zero.
+
+  - name: fct_orders
+    description: >-
+      Order-level sales fact combining stg_orders with line-item amounts
+      aggregated by order_key and customer attributes from stg_customers.
+      Contains gross item sales, negative discount amounts, tax amounts, and
+      net item sales, together with the order date, customer name, and market
+      segment. Inner joins retain only orders with matching line-item and
+      customer records. No order-status filtering is applied. Supplies the
+      order-level gross sales used by monthly_sales.
