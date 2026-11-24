@@ -1,0 +1,31 @@
+version: 2
+
+models:
+  - name: stg_customers
+    description: >-
+      One row per TPC-H customer, with standardized column names for customer
+      identifiers, contact details, nation, account balance, and market segment.
+      Retains all records from the customer source.
+
+  - name: stg_line_items
+    description: >-
+      One row per TPC-H order line, identified by order_key and line_number.
+      Standardizes source columns and calculates unit prices, discounted sales,
+      negative discount amounts, tax amounts, and net sales including tax.
+      Retains all records from the lineitem source.
+
+  - name: stg_nations
+    description: >-
+      One row per TPC-H nation, with standardized nation identifiers, names,
+      region identifiers, and comments. Retains all records from the nation source.
+
+  - name: stg_orders
+    description: >-
+      One row per TPC-H order, with standardized column names for order and
+      customer identifiers, status, total price, order date, clerk, and priorities.
+      Retains all records from the orders source.
+
+  - name: stg_regions
+    description: >-
+      One row per TPC-H region, with standardized region identifiers, names,
+      and comments. Retains all records from the region source.
