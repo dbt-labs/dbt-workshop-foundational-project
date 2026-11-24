@@ -1,7 +1,7 @@
 sources:
   - name: tpch
-    database: raw
-    schema: tpch
+    database: snowflake_sample_data
+    schema: tpch_sf1
     tables:
       - name: orders
         description: "One record per order"
@@ -9,3 +9,28 @@ sources:
         description: "One record per customer"
       - name: lineitem
         description: "One record per line item within a single order (1 -> n)"
+      # New Source tables
+      - name: nation
+        description: >-
+          TPC-H nation reference data, with one row per N_NATIONKEY. Provides
+          nation names and the region key used to group customers and suppliers
+          geographically.
+      - name: part
+        description: >-
+          TPC-H product catalog, with one row per P_PARTKEY. Describes each
+          part's manufacturer, brand, type, size, container, and retail price.
+      - name: partsupp
+        description: >-
+          TPC-H part-to-supplier relationships, with one row per PS_PARTKEY
+          and PS_SUPPKEY combination. Records available quantity and supply
+          cost for each part offered by a supplier.
+      - name: region
+        description: >-
+          TPC-H geographic regions, with one row per R_REGIONKEY. Provides
+          region names referenced by nations for geographic reporting.
+      - name: supplier
+        description: >-
+          TPC-H supplier records, with one row per S_SUPPKEY. Provides supplier
+          names, contact details, nation keys, and account balances for
+          procurement and supplier analysis.
+

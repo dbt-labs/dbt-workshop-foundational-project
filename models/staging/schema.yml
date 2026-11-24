@@ -1,0 +1,33 @@
+version: 2
+
+models:
+  - name: stg_customers
+    description: >-
+      Customer records from the TPC-H sample data, with one row per customer_key.
+      Standardizes source column names for customer contact details, nation,
+      account balance, and market segment without filtering source records.
+
+  - name: stg_orders
+    description: >-
+      Order headers from the TPC-H sample data, with one row per order_key.
+      Standardizes source column names for customer, order date, status, total
+      price, clerk, and priorities. Includes all source order statuses.
+
+  - name: stg_line_items
+    description: >-
+      Order line items from the TPC-H sample data, with one row per order_key
+      and line_number. Standardizes product, supplier, quantity, and shipping
+      fields and calculates unit prices, discounts, tax, and net item sales.
+      Discounts are negative amounts; net item sales include discounts and tax.
+
+  - name: stg_nations
+    description: >-
+      Nation reference data from TPC-H, with one row per nation_key.
+      Standardizes nation names and region keys for joining customers and
+      suppliers to their geographic region without filtering source records.
+
+  - name: stg_regions
+    description: >-
+      Geographic region reference data from TPC-H, with one row per region_key.
+      Standardizes region names and comments for geographic reporting through
+      the nation-to-region relationship without filtering source records.
