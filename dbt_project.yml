@@ -37,7 +37,7 @@ info_schema:
 models:
   foundational_project:
     +static_analysis: strict
-    +materialized: view
+    +materialized: table
     +access: public
 
 
