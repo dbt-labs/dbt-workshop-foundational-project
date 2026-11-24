@@ -31,3 +31,22 @@ models:
       segment. Inner joins retain only orders with matching line-item and
       customer records. No order-status filtering is applied. Supplies the
       order-level gross sales used by monthly_sales.
+
+  - name: stg_regions
+    description: >-
+      Region records from the TPCH region source, with source columns renamed
+      for downstream use. One row per source region, identified by region_key,
+      containing the region name and source comment.
+
+  - name: stg_nations
+    description: >-
+      Nation records from the TPCH nation source, with source columns renamed
+      for downstream use. One row per source nation, identified by nation_key,
+      containing the nation name, parent region key, and source comment.
+
+  - name: dim_customers
+    description: >-
+      Customer dimension combining stg_customers with nation and region names
+      from stg_nations and stg_regions. One row per customer with contact
+      details, account balance, and market segment. Inner joins retain only
+      customers with matching nation and region records.
