@@ -1,0 +1,44 @@
+models:
+  - name: stg_orders
+    description: >-
+      TPC-H orders with standardized column names, one row per order.
+      Includes the customer key, order date, status, total price, and priorities.
+
+  - name: stg_line_items
+    description: >-
+      TPC-H order line items with standardized column names, one row per
+      order key and line number. Calculates unit prices, negative discount
+      amounts, tax amounts, and net sales including discounts and tax.
+
+  - name: stg_customers
+    description: >-
+      TPC-H customers with standardized column names, one row per customer.
+      Includes contact details, nation key, account balance, and market segment.
+
+  - name: stg_nations
+    description: >-
+      TPC-H nations with standardized column names, one row per nation.
+      Maps each nation to its region key.
+
+  - name: stg_regions
+    description: >-
+      TPC-H geographic regions with standardized column names, one row per
+      region, including the region name and source comment.
+
+  - name: fct_orders
+    description: >-
+      Order-level sales fact table combining orders, aggregated line-item
+      amounts, and customer details. Includes orders with matching line items
+      and customers, with gross sales, discounts, tax, and net sales per order.
+
+  - name: dim_customers
+    description: >-
+      Customer dimension enriched with nation and region names, one row per
+      customer with matching geographic records. Includes contact details,
+      account balance, and market segment.
+
+  - name: monthly_sales
+    description: >-
+      Monthly gross sales by customer market segment, one row per order month
+      and market segment. Sums gross item sales from fct_orders before discounts
+      and tax, with order_month set to the start of each month.
