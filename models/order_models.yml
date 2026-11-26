@@ -1,0 +1,25 @@
+version: 2
+
+models:
+  - name: stg_orders
+    description: >-
+      Order headers from the TPCH orders source with renamed order and customer
+      keys, order date, status, total price, clerk, priority, shipping priority,
+      and comment. No source rows are filtered.
+
+  - name: stg_line_items
+    description: >-
+      Order line items from the TPCH lineitem source, identified by order_key
+      and line_number, with product and supplier keys, quantities, shipping
+      details, and sales amounts. Gross sales use the source extended price;
+      discounts are modeled as negative amounts, taxes apply after discounts,
+      and net sales include discounts and taxes. Unit prices use NULLIF to
+      avoid division by zero. No source rows are filtered.
+
+  - name: fct_orders
+    description: >-
+      Order-level sales fact combining staged order headers, customer name and
+      market segment, and line-item amounts summed by order_key. Includes gross
+      item sales, negative discount amounts, tax amounts, and net item sales
+      including discounts and taxes. Inner joins retain only orders with
+      matching line items and customers; no order-status filter is applied.
