@@ -1,0 +1,36 @@
+version: 2
+
+models:
+  - name: stg_customers
+    description: >-
+      Staged TPC-H customer records from the tpch.customer source, with source
+      columns renamed for downstream use. One row per customer_key, including
+      customer contact details, nation_key, account balance, and market segment.
+      No source rows are filtered or aggregated.
+
+  - name: stg_line_items
+    description: >-
+      Staged TPC-H order line items from the tpch.lineitem source, at the grain
+      of order_key and line_number. Renames source columns and derives unit
+      prices and line-level sales amounts. Discounts are represented as negative
+      amounts, tax is calculated after discounts, and net item sales include
+      both discounts and tax. Unit prices are null when quantity is zero.
+
+  - name: stg_nations
+    description: >-
+      Staged TPC-H nations from the tpch.nation source, with one row per nation_key.
+      Provides the nation name, its parent region_key, and the source comment
+      for enriching customer geography. No source rows are filtered or aggregated.
+
+  - name: stg_orders
+    description: >-
+      Staged TPC-H orders from the tpch.orders source, with one row per order_key.
+      Renames source columns for customer linkage, order date, status, total
+      price, clerk, priorities, and comment. No source rows are filtered or
+      aggregated.
+
+  - name: stg_regions
+    description: >-
+      Staged TPC-H regions from the tpch.region source, with one row per region_key.
+      Provides the region name and source comment for geographic enrichment
+      through stg_nations. No source rows are filtered or aggregated.
