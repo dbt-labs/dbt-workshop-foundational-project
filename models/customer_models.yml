@@ -1,0 +1,25 @@
+version: 2
+
+models:
+  - name: stg_customers
+    description: >-
+      Customer records from the TPCH customer source with renamed columns for
+      customer identity, address, nation, phone number, account balance, market
+      segment, and comment. No source rows are filtered.
+
+  - name: stg_nations
+    description: >-
+      Nations from the TPCH nation source with renamed nation and region keys,
+      nation name, and comment. Provides the mapping from nations to regions.
+
+  - name: stg_regions
+    description: >-
+      Regions from the TPCH region source with renamed region key, region name,
+      and comment. No source rows are filtered.
+
+  - name: dim_customers
+    description: >-
+      Customer dimension combining staged customers with their nation and
+      region names. Includes customer identity, address, phone number, account
+      balance, and market segment. Inner joins retain only customers with
+      matching nation and region records.
