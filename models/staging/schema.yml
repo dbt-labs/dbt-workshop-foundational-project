@@ -1,0 +1,29 @@
+version: 2
+
+models:
+  - name: stg_customers
+    description: >-
+      Customer records from the TPCH customer source, with source columns renamed
+      for downstream use. Includes customer identifiers, contact details, nation,
+      account balance, and market segment; no rows are filtered.
+  - name: stg_line_items
+    description: >-
+      Order line items from the TPCH lineitem source, at the order_key and
+      line_number grain. Renames source fields and calculates unit prices,
+      discounted sales, negative discount amounts, tax on discounted sales,
+      and net sales including tax. Unit prices are null when quantity is zero.
+  - name: stg_orders
+    description: >-
+      Order headers from the TPCH orders source, with source columns renamed
+      for downstream use. Includes order and customer keys, status, total price,
+      order date, clerk, and priorities; no order-status filter is applied.
+  - name: stg_nations
+    description: >-
+      Nation reference records from the TPCH nation source, with one record
+      per nation_key containing the nation name, parent region_key, and source
+      comment. Source columns are renamed without filtering rows.
+  - name: stg_regions
+    description: >-
+      Region reference records from the TPCH region source, with one record
+      per region_key containing the region name and source comment. Source
+      columns are renamed without filtering rows.
