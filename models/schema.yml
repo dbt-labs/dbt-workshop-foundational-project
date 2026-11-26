@@ -1,0 +1,44 @@
+version: 2
+
+models:
+  - name: stg_customers
+    description: >-
+      Customer records from the TPCH customer source with standardized column
+      names. One row per customer, including contact details, nation key,
+      account balance, and market segment.
+
+  - name: stg_line_items
+    description: >-
+      Order line items from the TPCH lineitem source with standardized column
+      names. One row per order_key and line_number combination, including
+      quantities, shipping details, gross sales, and calculated discount, tax,
+      and net sales amounts. Discounts are represented as negative amounts.
+
+  - name: stg_orders
+    description: >-
+      Orders from the TPCH orders source with standardized column names.
+      One row per order, including its customer key, order date, status,
+      total price, clerk, and priority details.
+
+  - name: stg_nations
+    description: >-
+      Nations from the TPCH nation source with standardized column names.
+      One row per nation, including the nation name and its region key.
+
+  - name: stg_regions
+    description: >-
+      Regions from the TPCH region source with standardized column names.
+      One row per region, including the region name and source comment.
+
+  - name: dim_customers
+    description: >-
+      Customer dimension combining staged customer details with nation and
+      region names. One row per customer with matching nation and region
+      records; customers without matching geography are excluded by inner joins.
+
+  - name: fct_orders
+    description: >-
+      Order fact table combining staged orders with customer names and market
+      segments and line-item amounts aggregated to one row per order. Includes
+      gross sales, discounts, taxes, and net sales. Only orders with matching
+      line items and customer records are included.

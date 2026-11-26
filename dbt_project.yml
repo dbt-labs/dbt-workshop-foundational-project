@@ -37,3 +37,6 @@ models:
     +static_analysis: strict
     +materialized: view
     +access: public
+
+info_schema:
+ version: 1
