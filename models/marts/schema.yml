@@ -1,0 +1,16 @@
+version: 2
+
+models:
+  - name: dim_customers
+    description: >-
+      One row per customer with contact details, account balance, market
+      segment, nation, and region. Includes only customers with matching
+      nation and region records through inner joins to the staging models.
+
+  - name: fct_orders
+    description: >-
+      One row per order with customer name and market segment, order date,
+      status, priorities, and clerk. Aggregates line-item gross sales,
+      negative discounts, tax, and net sales including discounts and tax
+      to the order grain. Includes only orders with matching line items
+      and customer records; no order-status filter is applied.
