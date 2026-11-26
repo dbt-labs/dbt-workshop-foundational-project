@@ -1,0 +1,146 @@
+version: 2
+
+models:
+  - name: customer_tier
+    description: >-
+      One row per staged customer with at least one matching staged order.
+      Replaces stored_procs/customer_tier.sql (retail_datamart.build_customer_tier)
+      with a table rebuilt by dbt. Sums order total_price across all available
+      dates and statuses; customers without orders and orders without a matching
+      customer are excluded by the inner join. Uses the existing stg_customers
+      and stg_orders models in place of the procedure's stg_tpch_* relations.
+      Preserves the legacy CASE ordering and intentionally unclassified NULL
+      tiers. Thresholds are inherited from the procedure and still require
+      Finance review; this conversion does not revise the business rules.
+    columns:
+      - name: customer_key
+        description: >-
+          Customer identifier from stg_customers, stored as NUMBER(38,0).
+          Unique grain of this model; only customers with matching orders appear.
+        data_tests:
+          - unique
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_customers')
+                field: customer_key
+          - relationships:
+              arguments:
+                to: ref('stg_orders')
+                field: customer_key
+      - name: lifetime_value
+        description: >-
+          SUM of matching stg_orders.total_price for the customer, across all
+          dates and order statuses, stored as NUMBER(38,2). This is order value,
+          not net line-item sales or customer account balance. SUM ignores NULL
+          prices and remains NULL when every matching price is NULL. Tier
+          classification uses the sum before the output precision cast.
+      - name: tier_name
+        description: >-
+          Legacy tier evaluated in this exact order on the unrounded sum:
+          tier1 for values <= 200000 (including negative values); tier2 for
+          values > 2000000; tier3 for values from 1000000 through 1999999
+          inclusive; tier4 for values from 0 through 999999 inclusive that did
+          not match earlier arms (effectively > 200000 and <= 999999).
+          NULL is expected for values strictly between 999999 and 1000000,
+          values > 1999999 and <= 2000000, and NULL lifetime values.
+          There is deliberately no not_null test on this column.
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ['tier1', 'tier2', 'tier3', 'tier4']
+
+unit_tests:
+  - name: customer_tier_preserves_legacy_boundaries
+    description: >-
+      Protects CASE precedence, inclusive endpoints, decimal gaps, negative
+      values, and the strict tier2 cutoff. Any change requires an approved
+      business-rule change rather than a migration cleanup.
+    model: customer_tier
+    given:
+      - input: ref('stg_customers')
+        rows:
+          - {customer_key: 1}
+          - {customer_key: 2}
+          - {customer_key: 3}
+          - {customer_key: 4}
+          - {customer_key: 5}
+          - {customer_key: 6}
+          - {customer_key: 7}
+          - {customer_key: 8}
+          - {customer_key: 9}
+          - {customer_key: 10}
+          - {customer_key: 11}
+          - {customer_key: 12}
+          - {customer_key: 13}
+      - input: ref('stg_orders')
+        rows:
+          - {customer_key: 1, total_price: -0.01}
+          - {customer_key: 2, total_price: 0}
+          - {customer_key: 3, total_price: 199999.99}
+          - {customer_key: 4, total_price: 200000}
+          - {customer_key: 5, total_price: 200000.01}
+          - {customer_key: 6, total_price: 999999}
+          - {customer_key: 7, total_price: 999999.01}
+          - {customer_key: 8, total_price: 999999.99}
+          - {customer_key: 9, total_price: 1000000}
+          - {customer_key: 10, total_price: 1999999}
+          - {customer_key: 11, total_price: 1999999.01}
+          - {customer_key: 12, total_price: 2000000}
+          - {customer_key: 13, total_price: 2000000.01}
+    expect:
+      rows:
+        - {customer_key: 1, lifetime_value: -0.01, tier_name: tier1}
+        - {customer_key: 2, lifetime_value: 0, tier_name: tier1}
+        - {customer_key: 3, lifetime_value: 199999.99, tier_name: tier1}
+        - {customer_key: 4, lifetime_value: 200000, tier_name: tier1}
+        - {customer_key: 5, lifetime_value: 200000.01, tier_name: tier4}
+        - {customer_key: 6, lifetime_value: 999999, tier_name: tier4}
+        - {customer_key: 7, lifetime_value: 999999.01, tier_name: null}
+        - {customer_key: 8, lifetime_value: 999999.99, tier_name: null}
+        - {customer_key: 9, lifetime_value: 1000000, tier_name: tier3}
+        - {customer_key: 10, lifetime_value: 1999999, tier_name: tier3}
+        - {customer_key: 11, lifetime_value: 1999999.01, tier_name: null}
+        - {customer_key: 12, lifetime_value: 2000000, tier_name: null}
+        - {customer_key: 13, lifetime_value: 2000000.01, tier_name: tier2}
+
+  - name: customer_tier_aggregates_orders_and_preserves_inner_join
+    description: >-
+      Multiple orders are summed before tiering. Customers without orders and
+      orphan orders are excluded. NULL prices are ignored unless all prices
+      for a customer are NULL, in which case lifetime_value and tier_name are NULL.
+    model: customer_tier
+    given:
+      - input: ref('stg_customers')
+        rows:
+          - {customer_key: 1}
+          - {customer_key: 2}
+          - {customer_key: 3}
+          - {customer_key: 4}
+      - input: ref('stg_orders')
+        rows:
+          - {customer_key: 1, total_price: 150000}
+          - {customer_key: 1, total_price: 100000}
+          - {customer_key: 1, total_price: null}
+          - {customer_key: 3, total_price: null}
+          - {customer_key: 4, total_price: 600000}
+          - {customer_key: 4, total_price: 400000}
+          - {customer_key: 999, total_price: 3000000}
+          - {customer_key: null, total_price: 100}
+    expect:
+      rows:
+        - {customer_key: 1, lifetime_value: 250000, tier_name: tier4}
+        - {customer_key: 3, lifetime_value: null, tier_name: null}
+        - {customer_key: 4, lifetime_value: 1000000, tier_name: tier3}
+
+  - name: customer_tier_excludes_customers_when_no_orders_exist
+    description: Customers without any orders must not receive a zero-value tier.
+    model: customer_tier
+    given:
+      - input: ref('stg_customers')
+        rows:
+          - {customer_key: 1}
+      - input: ref('stg_orders')
+        rows: []
+    expect:
+      rows: []
