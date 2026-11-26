@@ -1,0 +1,46 @@
+version: 2
+
+models:
+  - name: stg_line_items
+    description: >-
+      One row per TPCH order line item, identified by order_key and line_number.
+      Renames source fields and calculates unit prices, discounted sales,
+      negative discount amounts, tax amounts, and net sales including tax.
+
+  - name: stg_customers
+    description: >-
+      One row per TPCH customer, identified by customer_key, with renamed
+      contact details, nation key, account balance, and market segment.
+
+  - name: stg_orders
+    description: >-
+      One row per TPCH order, identified by order_key, with renamed customer
+      key, order date, status, total price, clerk, and priority fields.
+
+  - name: fct_orders
+    description: >-
+      One row per order with matching line items and customer records. Joins
+      order details to customer name and market segment, and aggregates line
+      items into gross sales, negative discounts, tax, and net sales including
+      tax at the order grain. No additional order-status filter is applied.
+
+
+  - name: stg_nations
+    description: >-
+      One row per TPCH nation, identified by nation_key, with the nation name,
+      region key, and source comment. Renames fields from the nation source
+      without filtering records.
+
+  - name: stg_regions
+    description: >-
+      One row per TPCH region, identified by region_key, with the region name
+      and source comment. Renames fields from the region source without
+      filtering records.
+
+  - name: dim_customers
+    description: >-
+      One row per customer with matching nation and region records. Enriches
+      staged customer details with nation and region names, retaining the
+      customer key, name, address, phone number, account balance, and market
+      segment. Customers without a matching nation or region are excluded
+      by inner joins.
