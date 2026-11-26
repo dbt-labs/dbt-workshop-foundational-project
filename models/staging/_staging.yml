@@ -1,0 +1,38 @@
+version: 2
+
+models:
+  - name: stg_customers
+    description: >-
+      One row per customer from the Snowflake TPC-H sample data, with source
+      columns renamed for downstream customer and order reporting. Includes
+      contact details, nation key, account balance, and market segment;
+      no customer filtering is applied.
+
+  - name: stg_line_items
+    description: >-
+      One row per order line item from the Snowflake TPC-H sample data,
+      identified by order_key and line_number. Standardizes product, supplier,
+      shipping, and status fields and calculates unit prices, discounted line
+      sales, discount amounts, tax, and net line sales for order aggregation.
+      Discounts are represented as negative amounts; net sales include tax
+      after discounts. Unit price is null when quantity is zero.
+
+  - name: stg_nations
+    description: >-
+      One row per nation from the Snowflake TPC-H sample data, with renamed
+      nation key, name, region key, and comment fields. Provides the link
+      between customers and regions for geographic reporting; no filtering
+      is applied.
+
+  - name: stg_orders
+    description: >-
+      One row per order from the Snowflake TPC-H sample data, with source
+      columns renamed for downstream order reporting. Includes the customer
+      key, order date, source total price, status, clerk, and priority fields;
+      no order status or date filtering is applied.
+
+  - name: stg_regions
+    description: >-
+      One row per region from the Snowflake TPC-H sample data, with renamed
+      region key, name, and comment fields. Provides region names for
+      geographic enrichment through stg_nations; no filtering is applied.
