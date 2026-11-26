@@ -1,0 +1,40 @@
+version: 2
+
+models:
+  - name: stg_customers
+    description: >-
+      Customer records from the TPCH customer source, with one row per
+      customer_key. Renames source fields for consistent downstream use and
+      retains contact details, nation_key, account balance, and market segment
+      for enriching order and customer marts. No source rows are filtered.
+
+  - name: stg_line_items
+    description: >-
+      Order line items from the TPCH lineitem source, with one row per
+      order_key and line_number combination. Standardizes product, supplier,
+      shipping, and status fields and calculates unit prices and sales amounts
+      for aggregation into order-level metrics. Discounts are represented as
+      negative amounts, tax is calculated after discounts, and net sales
+      include both discounts and tax. Unit prices are null when quantity is
+      zero. No source rows are filtered.
+
+  - name: stg_nations
+    description: >-
+      Nation lookup from the TPCH nation source, with one row per nation_key.
+      Standardizes nation names, region keys, and source comments so customer
+      records can be enriched with nation and region attributes. No source
+      rows are filtered.
+
+  - name: stg_orders
+    description: >-
+      Order headers from the TPCH orders source, with one row per order_key.
+      Standardizes customer keys, order dates, source total prices, status,
+      priority, and clerk fields for downstream order reporting. Line-item
+      sales calculations are supplied separately by stg_line_items. No source
+      rows are filtered.
+
+  - name: stg_regions
+    description: >-
+      Region lookup from the TPCH region source, with one row per region_key.
+      Standardizes region names and source comments for enriching nations and
+      customer geography in downstream marts. No source rows are filtered.

@@ -1,0 +1,20 @@
+version: 2
+
+models:
+  - name: dim_customers
+    description: >-
+      Customer dimension for reporting by customer attributes and geography,
+      with one row per customer_key. Enriches stg_customers with nation and
+      region attributes while retaining contact details, account balance,
+      and market segment. Inner joins to stg_nations and stg_regions exclude
+      customers without matching nation or region records.
+
+  - name: fct_orders
+    description: >-
+      Order-level sales fact table, with one row per order_key. Aggregates
+      stg_line_items into gross sales, discount, tax, and net sales amounts
+      for each order, then joins those totals to stg_orders and stg_customers
+      to include order dates, status, priorities, clerk, customer name, and
+      market segment. Discounts are negative and net sales include discounts
+      and tax. Inner joins exclude orders without line items or a matching
+      customer. Supplies the order-level sales measures used by montly_sales.
