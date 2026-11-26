@@ -1,0 +1,131 @@
+version: 2
+
+models:
+  - name: customer_tier
+    description: >
+      One row per staged customer with at least one matching staged order.
+      Replaces retail_datamart.build_customer_tier with a table rebuilt by dbt.
+      Lifetime value sums all matching order total_price values, without date
+      or status filters. Customers without orders and orders without a matching
+      customer are excluded. Preserves the legacy first-match CASE order:
+      tier1 for values <= 200000 (including negative values), tier2 for values
+      > 2000000, tier3 for values from 1000000 through 1999999 inclusive,
+      and tier4 for the remaining values from 0 through 999999 inclusive
+      (effectively > 200000 through 999999). Values strictly between 999999
+      and 1000000, or > 1999999 and <= 2000000, produce NULL tiers, as do
+      NULL lifetime values. Thresholds remain provisional pending finance review;
+      this conversion intentionally does not revise them. Classification uses
+      the unrounded sum before casting the output to NUMBER(38,2).
+    columns:
+      - name: customer_key
+        description: >
+          Customer identifier from stg_customers, stored as NUMBER(38,0).
+          Unique at this model's customer grain; only customers with orders appear.
+        data_tests:
+          - unique
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_customers')
+                field: customer_key
+      - name: lifetime_value
+        description: >
+          Sum of total_price across all matching staged orders for the customer,
+          stored as NUMBER(38,2). This is order-total value, not line-item net
+          sales. SUM ignores individual NULL prices and returns NULL when all
+          matching prices are NULL, preserving the procedure's behavior.
+      - name: tier_name
+        description: >
+          Legacy lifetime-value tier (tier1, tier2, tier3, or tier4), evaluated
+          in that exact CASE order. NULL is allowed for documented threshold
+          gaps and NULL lifetime values. The warning-level not_null test replaces
+          the procedure's diagnostic notice without rejecting these rows.
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ['tier1', 'tier2', 'tier3', 'tier4']
+          - not_null:
+              config:
+                severity: warn
+
+unit_tests:
+  - name: customer_tier_preserves_legacy_boundaries
+    description: >
+      Locks in first-match precedence, negative and zero values, inclusive
+      endpoints, fractional gaps, and the NULL tier at exactly 2000000.
+    model: customer_tier
+    given:
+      - input: ref('stg_customers')
+        rows:
+          - {customer_key: 1}
+          - {customer_key: 2}
+          - {customer_key: 3}
+          - {customer_key: 4}
+          - {customer_key: 5}
+          - {customer_key: 6}
+          - {customer_key: 7}
+          - {customer_key: 8}
+          - {customer_key: 9}
+          - {customer_key: 10}
+          - {customer_key: 11}
+          - {customer_key: 12}
+          - {customer_key: 13}
+          - {customer_key: 14}
+      - input: ref('stg_orders')
+        rows:
+          - {customer_key: 1, total_price: -1}
+          - {customer_key: 2, total_price: 0}
+          - {customer_key: 3, total_price: 199999.99}
+          - {customer_key: 4, total_price: 200000}
+          - {customer_key: 5, total_price: 200000.01}
+          - {customer_key: 6, total_price: 999999}
+          - {customer_key: 7, total_price: 999999.01}
+          - {customer_key: 8, total_price: 999999.99}
+          - {customer_key: 9, total_price: 1000000}
+          - {customer_key: 10, total_price: 1999999}
+          - {customer_key: 11, total_price: 1999999.01}
+          - {customer_key: 12, total_price: 1999999.99}
+          - {customer_key: 13, total_price: 2000000}
+          - {customer_key: 14, total_price: 2000000.01}
+    expect:
+      rows:
+        - {customer_key: 1, lifetime_value: -1, tier_name: tier1}
+        - {customer_key: 2, lifetime_value: 0, tier_name: tier1}
+        - {customer_key: 3, lifetime_value: 199999.99, tier_name: tier1}
+        - {customer_key: 4, lifetime_value: 200000, tier_name: tier1}
+        - {customer_key: 5, lifetime_value: 200000.01, tier_name: tier4}
+        - {customer_key: 6, lifetime_value: 999999, tier_name: tier4}
+        - {customer_key: 7, lifetime_value: 999999.01, tier_name: null}
+        - {customer_key: 8, lifetime_value: 999999.99, tier_name: null}
+        - {customer_key: 9, lifetime_value: 1000000, tier_name: tier3}
+        - {customer_key: 10, lifetime_value: 1999999, tier_name: tier3}
+        - {customer_key: 11, lifetime_value: 1999999.01, tier_name: null}
+        - {customer_key: 12, lifetime_value: 1999999.99, tier_name: null}
+        - {customer_key: 13, lifetime_value: 2000000, tier_name: null}
+        - {customer_key: 14, lifetime_value: 2000000.01, tier_name: tier2}
+
+  - name: customer_tier_aggregates_orders_and_preserves_join_semantics
+    description: >
+      Verifies classification after aggregation, exclusion of customers without
+      orders and unmatched orders, and SQL SUM behavior with NULL prices.
+    model: customer_tier
+    given:
+      - input: ref('stg_customers')
+        rows:
+          - {customer_key: 1}
+          - {customer_key: 2}
+          - {customer_key: 3}
+          - {customer_key: 4}
+      - input: ref('stg_orders')
+        rows:
+          - {customer_key: 1, total_price: 100000}
+          - {customer_key: 1, total_price: 100000.01}
+          - {customer_key: 3, total_price: null}
+          - {customer_key: 4, total_price: null}
+          - {customer_key: 4, total_price: 1500000}
+          - {customer_key: 999, total_price: 3000000}
+    expect:
+      rows:
+        - {customer_key: 1, lifetime_value: 200000.01, tier_name: tier4}
+        - {customer_key: 3, lifetime_value: null, tier_name: null}
+        - {customer_key: 4, lifetime_value: 1500000, tier_name: tier3}
