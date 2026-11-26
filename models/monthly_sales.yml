@@ -1,0 +1,41 @@
+version: 2
+
+models:
+  - name: monthly_sales
+    description: >-
+      Monthly gross item sales by customer market segment, with one row per
+      order_month and market_segment combination. Aggregates gross_item_sales_amount
+      from fct_orders using the order date to assign the calendar month. Includes
+      all order statuses present in fct_orders; months and segments without orders
+      are not generated. Revenue represents gross item sales, not net item sales.
+    data_tests:
+      - unique:
+          arguments:
+            column_name: "(to_varchar(order_month, 'YYYY-MM-DD') || '|' || market_segment)"
+          description: >-
+            Ensures each calendar month and market segment combination appears
+            once. If this fails, inspect changes to the model's aggregation grain.
+    columns:
+      - name: order_month
+        description: >-
+          Calendar month of the order, truncated to the first day of the month
+          from fct_orders.order_date. Part of the model's composite key with
+          market_segment.
+        data_tests:
+          - not_null
+
+      - name: market_segment
+        description: >-
+          Customer market segment carried through fct_orders from stg_customers.
+          Part of the model's composite key with order_month.
+        data_tests:
+          - not_null
+
+      - name: total_revenue
+        description: >-
+          Sum of fct_orders.gross_item_sales_amount for the calendar month and
+          customer market segment. Uses the upstream gross item sales measure
+          rather than net_item_sales_amount, with no currency conversion applied
+          by this model.
+        data_tests:
+          - not_null

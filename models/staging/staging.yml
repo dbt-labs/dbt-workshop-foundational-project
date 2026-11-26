@@ -1,0 +1,34 @@
+version: 2
+
+models:
+  - name: stg_orders
+    description: >-
+      Staged TPCH orders at one row per order_key. Renames source fields for
+      customer, order status, total price, order date, clerk, and shipping priority
+      without filtering order statuses.
+
+  - name: stg_line_items
+    description: >-
+      Staged TPCH order line items at one row per order_key and line_number.
+      Includes product, supplier, quantity, shipment dates, and gross sales;
+      derives per-unit prices, negative discount amounts, tax on discounted
+      sales, and net sales including tax. Per-unit base price is null when
+      quantity is zero.
+
+  - name: stg_customers
+    description: >-
+      Staged TPCH customers at one row per customer_key. Renames source fields
+      for customer name, address, nation, phone number, account balance, market
+      segment, and comment without filtering customer records.
+
+  - name: stg_nations
+    description: >-
+      Staged TPCH nations at one row per nation_key, with nation name, the
+      associated region_key, and the source nation comment. Provides the nation
+      lookup used to enrich customer geography.
+
+  - name: stg_regions
+    description: >-
+      Staged TPCH regions at one row per region_key, with region name and the
+      source region comment. Provides the region lookup used with nations to
+      enrich customer geography.

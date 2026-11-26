@@ -1,0 +1,17 @@
+version: 2
+
+models:
+  - name: fct_orders
+    description: >-
+      Order-level sales fact at one row per order_key. Aggregates staged line
+      items into gross sales, negative discounts, tax, and net sales including
+      tax, then joins those totals to order attributes and the customer's name
+      and market segment. Inner joins retain only orders with matching line
+      items and customer records; no order-status filter is applied.
+
+  - name: dim_customers
+    description: >-
+      Customer dimension at one row per customer_key, combining staged customer
+      contact details, account balance, and market segment with nation and region
+      names. Inner joins retain only customers whose nation and region resolve
+      in the staged geography lookups.
