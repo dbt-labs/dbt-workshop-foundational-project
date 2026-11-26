@@ -1,0 +1,37 @@
+version: 2
+
+models:
+  - name: monthly_sales
+    description: >
+      Monthly gross item sales by customer market segment, with one row per
+      order_month and market_segment combination. Aggregates fct_orders using
+      the order date; includes only orders retained by that model's inner joins
+      to line item summaries and customers. Months and segments without orders
+      are not filled in with zero revenue.
+    data_tests:
+      - unique:
+          name: monthly_sales_unique_month_segment
+          arguments:
+            column_name: "concat(to_varchar(order_month, 'YYYY-MM-DD'), '|', market_segment)"
+    columns:
+      - name: order_month
+        description: >
+          Order date truncated to the first day of its calendar month. Together
+          with market_segment, identifies the monthly sales row.
+        data_tests:
+          - not_null
+
+      - name: market_segment
+        description: >
+          Customer market segment brought into fct_orders from the customer
+          record. Together with order_month, defines the aggregation grain.
+        data_tests:
+          - not_null
+
+      - name: total_revenue
+        description: >
+          Sum of fct_orders.gross_item_sales_amount for the month and market
+          segment. This is gross item sales before item discounts and taxes,
+          not net sales or collected payments. No currency conversion is applied.
+        data_tests:
+          - not_null

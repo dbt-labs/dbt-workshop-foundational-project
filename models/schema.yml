@@ -1,0 +1,50 @@
+version: 2
+
+models:
+  - name: stg_customers
+    description: >
+      Customer records from the TPCH customer source with standardized column
+      names. Includes the customer key, contact details, nation key, account
+      balance, market segment, and comment; no filtering or aggregation is applied.
+
+  - name: stg_nations
+    description: >
+      Nation records from the TPCH nation source with standardized column names.
+      Includes the nation key, nation name, region key, and nation comment;
+      no filtering or aggregation is applied.
+
+  - name: stg_region
+    description: >
+      Region records from the TPCH region source with standardized column names.
+      Includes the region key, region name, and region comment; no filtering
+      or aggregation is applied.
+
+  - name: dim_customers
+    description: >
+      Customer dimension containing customer contact details, account balance,
+      market segment, nation name, and region name. Enriches staged customer
+      records through inner joins to nations and regions, retaining only
+      customers with matching nation and region records.
+
+
+  - name: stg_orders
+    description: >
+      Order records from the TPCH orders source with standardized column names.
+      Includes order and customer keys, order date, status, total price,
+      priority codes, clerk, and comment; no filtering or aggregation is applied.
+
+  - name: stg_line_items
+    description: >
+      Order line records from the TPCH lineitem source with standardized column
+      names, identified by order key and line number. Includes quantities,
+      shipping details, and gross line sales, plus calculated unit prices,
+      discounted sales, negative discount amounts, tax amounts, and net line
+      sales including tax. No filtering or aggregation is applied.
+
+  - name: fct_orders
+    description: >
+      Order-grain fact containing order details, customer name and market
+      segment, and line item sales totals aggregated by order key. Includes
+      gross sales, negative discounts, tax, and net sales including tax.
+      Inner joins retain only orders with matching line item summaries and
+      customer records.
