@@ -1,0 +1,24 @@
+version: 2
+
+models:
+  - name: stg_customers
+    description: >-
+      Customer records from the TPCH customer source, with renamed identifiers,
+      contact details, nation, account balance, and market segment.
+  - name: stg_line_items
+    description: >-
+      Order line items from the TPCH lineitem source, identified by order key
+      and line number. Includes quantities, shipping details, gross sales,
+      per-unit prices, negative discount amounts, taxes, and net sales.
+  - name: stg_orders
+    description: >-
+      Order headers from the TPCH orders source, with renamed order and customer
+      keys, order date, status, total price, clerk, and priority fields.
+  - name: stg_nations
+    description: >-
+      Nations from the TPCH nation source, with renamed nation keys, nation
+      names, region keys, and comments for geographic joins.
+  - name: stg_regions
+    description: >-
+      Regions from the TPCH region source, with renamed region keys, region
+      names, and comments for geographic joins.
