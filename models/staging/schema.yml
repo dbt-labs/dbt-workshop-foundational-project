@@ -1,0 +1,34 @@
+version: 2
+
+models:
+  - name: stg_customers
+    description: >-
+      Customer records from the TPC-H sample data, with one row per customer.
+      Standardizes customer identifiers, contact details, nation, account balance,
+      and market segment for use in customer and order reporting.
+
+  - name: stg_line_items
+    description: >-
+      Order line items from the TPC-H sample data, with one row per order key
+      and line number. Standardizes product, supplier, shipping, and return
+      attributes and calculates unit prices and line-level sales amounts.
+      Discounts are represented as negative amounts; net item sales include
+      discounts and tax.
+
+  - name: stg_nations
+    description: >-
+      Nation lookup from the TPC-H sample data, with one row per nation.
+      Standardizes nation identifiers and names and retains the region key
+      used to enrich customers with geographic attributes.
+
+  - name: stg_orders
+    description: >-
+      Order headers from the TPC-H sample data, with one row per order.
+      Standardizes order and customer identifiers, order date, total price,
+      status, clerk, and priority attributes for downstream order reporting.
+
+  - name: stg_regions
+    description: >-
+      Region lookup from the TPC-H sample data, with one row per region.
+      Standardizes region identifiers and names for grouping nations and
+      customers into geographic regions.
